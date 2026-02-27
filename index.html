@@ -3,241 +3,291 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PUMP JUSTICE — AI Agent Investigation Network</title>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<title>Pump Justice — AI-Powered Crypto Investigation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-:root { --green: #00ff41; --red: #ff0055; --yellow: #ffaa00; --bg: #0a0a0a; --card: #111; --border: #1a1a1a; --dim: #555; }
+:root {
+  --bg: #09090b; --card: #111113; --border: #1e1e22; --border-hover: #2a2a30;
+  --green: #10b981; --red: #ef4444; --blue: #3b82f6; --purple: #8b5cf6;
+  --orange: #f59e0b; --gray: #6b7280; --text: #e4e4e7; --dim: #71717a; --muted: #3f3f46;
+}
 * { margin:0; padding:0; box-sizing:border-box; }
-body { background:var(--bg); color:#ccc; font-family:'JetBrains Mono',monospace; font-size:13px; line-height:1.6; overflow-x:hidden; }
+body { background:var(--bg); color:var(--text); font-family:'Inter',system-ui,sans-serif; line-height:1.6; -webkit-font-smoothing:antialiased; }
 a { color:var(--green); text-decoration:none; }
 a:hover { text-decoration:underline; }
 
-/* CRT */
-body::after { content:''; position:fixed; inset:0; pointer-events:none; z-index:9999;
-  background:repeating-linear-gradient(0deg, rgba(0,0,0,0.03) 0px, rgba(0,0,0,0.03) 1px, transparent 1px, transparent 2px); }
+/* Layout */
+.container { max-width:1100px; margin:0 auto; padding:0 24px; }
+section { padding:80px 0; }
+section + section { border-top:1px solid var(--border); }
 
-/* Header */
-.header { padding:16px 24px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; }
-.logo { color:var(--green); font-size:18px; font-weight:700; text-shadow:0 0 10px rgba(0,255,65,.3); }
-.logo span { color:#666; font-weight:400; font-size:12px; }
-.live-dot { display:inline-flex; align-items:center; gap:6px; font-size:11px; color:var(--green); }
-.live-dot::before { content:''; width:6px; height:6px; background:var(--green); border-radius:50%; animation:blink 1.5s infinite; }
-@keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+/* Hero */
+.hero { padding:120px 0 80px; text-align:center; }
+.hero h1 { font-size:clamp(32px,5vw,56px); font-weight:700; letter-spacing:-0.02em; line-height:1.1; color:#fff; margin-bottom:20px; }
+.hero h1 span { color:var(--green); }
+.hero p { font-size:18px; color:var(--dim); max-width:600px; margin:0 auto 36px; line-height:1.7; }
+.hero-cta { display:inline-flex; align-items:center; gap:8px; background:var(--green); color:#000; padding:14px 28px; border-radius:8px; font-weight:600; font-size:15px; border:none; cursor:pointer; transition:.15s; }
+.hero-cta:hover { background:#0ea572; text-decoration:none; }
 
-/* Submit */
-.submit-bar { padding:16px 24px; border-bottom:1px solid var(--border); display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
-.submit-bar input { flex:1; min-width:200px; background:#0d0d0d; border:1px solid var(--border); color:#fff; padding:10px 14px; font-family:inherit; font-size:13px; border-radius:4px; outline:none; }
-.submit-bar input:focus { border-color:var(--green); box-shadow:0 0 8px rgba(0,255,65,.15); }
-.submit-bar input::placeholder { color:#444; }
-.btn { background:var(--green); color:#000; border:none; padding:10px 20px; font-family:inherit; font-size:12px; font-weight:700; cursor:pointer; border-radius:4px; letter-spacing:1px; }
-.btn:hover { background:#00cc33; }
-.btn:disabled { background:#333; color:#666; cursor:not-allowed; }
-.btn-sm { padding:4px 10px; font-size:10px; }
+/* Steps */
+.steps { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:24px; }
+.step { padding:28px; }
+.step-num { font-size:13px; font-weight:600; color:var(--green); margin-bottom:8px; }
+.step h3 { font-size:18px; font-weight:600; color:#fff; margin-bottom:8px; }
+.step p { color:var(--dim); font-size:14px; }
+
+/* Agents */
+.agents-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); gap:16px; }
+.agent-card { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:24px; transition:.2s; }
+.agent-card:hover { border-color:var(--border-hover); }
+.agent-header { display:flex; align-items:center; gap:12px; margin-bottom:12px; }
+.agent-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+.agent-name { font-size:16px; font-weight:600; color:#fff; }
+.agent-role { font-size:12px; font-weight:500; color:var(--dim); text-transform:uppercase; letter-spacing:0.05em; }
+.agent-desc { color:var(--dim); font-size:14px; line-height:1.6; }
+
+/* Section titles */
+.section-label { font-size:13px; font-weight:600; color:var(--green); text-transform:uppercase; letter-spacing:0.08em; margin-bottom:8px; }
+.section-title { font-size:clamp(24px,3vw,36px); font-weight:700; color:#fff; margin-bottom:16px; letter-spacing:-0.01em; }
+.section-desc { color:var(--dim); font-size:16px; max-width:600px; margin-bottom:40px; }
+
+/* Investigation Tool */
+.tool-box { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:32px; margin-bottom:24px; }
+.input-row { display:flex; gap:10px; }
+.input-row input { flex:1; background:var(--bg); border:1px solid var(--border); color:#fff; padding:14px 16px; border-radius:8px; font-family:inherit; font-size:14px; outline:none; }
+.input-row input:focus { border-color:var(--green); }
+.input-row input::placeholder { color:var(--muted); }
+.btn { background:var(--green); color:#000; border:none; padding:14px 24px; border-radius:8px; font-family:inherit; font-size:14px; font-weight:600; cursor:pointer; transition:.15s; white-space:nowrap; }
+.btn:hover { background:#0ea572; }
+.btn:disabled { background:var(--muted); color:var(--dim); cursor:not-allowed; }
+.btn-ghost { background:transparent; border:1px solid var(--border); color:var(--dim); }
+.btn-ghost:hover { border-color:var(--border-hover); color:var(--text); background:transparent; }
+.btn-sm { padding:6px 14px; font-size:12px; }
 
 /* Tabs */
-.tabs { display:flex; border-bottom:1px solid var(--border); }
-.tab { padding:10px 20px; cursor:pointer; color:#666; font-size:12px; border-bottom:2px solid transparent; transition:.2s; }
-.tab:hover { color:#999; }
-.tab.active { color:var(--green); border-color:var(--green); }
-
-/* Panels */
+.tabs { display:flex; gap:4px; margin-bottom:20px; }
+.tab { padding:8px 16px; border-radius:6px; cursor:pointer; font-size:13px; font-weight:500; color:var(--dim); transition:.15s; }
+.tab:hover { color:var(--text); }
+.tab.active { background:var(--card); color:#fff; }
 .panel { display:none; }
 .panel.active { display:block; }
 
 /* Feed */
-.feed { padding:12px 24px; max-height:50vh; overflow-y:auto; }
-.feed-line { padding:4px 0; border-bottom:1px solid #0f0f0f; display:flex; gap:8px; font-size:12px; }
-.feed-time { color:#444; min-width:70px; }
-.feed-agent { font-weight:700; min-width:80px; }
-.feed-agent.SENTINEL { color:var(--red); }
-.feed-agent.TRACER { color:#4488ff; }
-.feed-agent.CIPHER { color:#aa44ff; }
-.feed-agent.GHOST { color:#888; }
-.feed-agent.NEXUS { color:var(--green); }
-.feed-agent.VIPER { color:var(--yellow); }
-.feed-content { color:#aaa; flex:1; word-break:break-all; }
+.feed-item { padding:12px 0; border-bottom:1px solid #141416; display:flex; gap:12px; align-items:flex-start; font-size:13px; }
+.feed-agent { font-weight:600; min-width:70px; flex-shrink:0; }
+.feed-content { color:var(--dim); line-height:1.5; }
+.feed-time { color:var(--muted); font-size:11px; min-width:60px; flex-shrink:0; }
 
-/* Investigations list */
-.inv-list { padding:12px 24px; }
-.inv-card { background:var(--card); border:1px solid var(--border); border-radius:4px; padding:14px; margin-bottom:8px; cursor:pointer; transition:.15s; }
-.inv-card:hover { border-color:#333; }
-.inv-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; flex-wrap:wrap; gap:8px; }
-.inv-token { font-weight:700; color:#fff; }
-.inv-ca { color:#555; font-size:11px; }
-.badge { padding:2px 8px; border-radius:3px; font-size:10px; font-weight:700; }
-.badge.CRITICAL { background:var(--red); color:#fff; }
-.badge.HIGH { background:#cc4400; color:#fff; }
-.badge.MEDIUM { background:var(--yellow); color:#000; }
-.badge.LOW { background:var(--green); color:#000; }
-.badge.investigating { background:#333; color:var(--green); border:1px solid var(--green); }
-.inv-meta { display:flex; gap:16px; font-size:11px; color:#666; }
-.vote-btn { background:none; border:1px solid #333; color:#888; padding:2px 8px; font-family:inherit; font-size:11px; cursor:pointer; border-radius:3px; }
+/* Investigation cards */
+.inv-card { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:18px; margin-bottom:10px; cursor:pointer; transition:.15s; }
+.inv-card:hover { border-color:var(--border-hover); }
+.inv-top { display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; flex-wrap:wrap; gap:8px; }
+.inv-token { font-weight:600; color:#fff; font-size:15px; }
+.inv-ca { color:var(--muted); font-size:12px; font-family:monospace; }
+.badge { padding:3px 10px; border-radius:20px; font-size:11px; font-weight:600; }
+.badge.CRITICAL { background:rgba(239,68,68,.15); color:var(--red); }
+.badge.HIGH { background:rgba(245,158,11,.15); color:var(--orange); }
+.badge.MEDIUM { background:rgba(245,158,11,.1); color:#d4a017; }
+.badge.LOW { background:rgba(16,185,129,.15); color:var(--green); }
+.badge.investigating { background:rgba(59,130,246,.15); color:var(--blue); }
+.inv-meta { display:flex; gap:16px; font-size:12px; color:var(--dim); }
+.vote-btn { background:none; border:1px solid var(--border); color:var(--dim); padding:4px 10px; font-family:inherit; font-size:12px; cursor:pointer; border-radius:6px; transition:.15s; }
 .vote-btn:hover { border-color:var(--green); color:var(--green); }
-.vote-btn.active { border-color:var(--green); color:var(--green); }
 
-/* Investigation detail */
-.inv-detail { padding:12px 24px; }
-.inv-detail .back { color:#666; cursor:pointer; margin-bottom:12px; display:inline-block; }
-.inv-detail .back:hover { color:var(--green); }
-.step { background:var(--card); border:1px solid var(--border); border-radius:4px; padding:12px; margin-bottom:6px; }
-.step-header { display:flex; justify-content:space-between; margin-bottom:6px; }
-.step-agent { font-weight:700; }
-.step-time { color:#444; font-size:11px; }
-.step-content { color:#aaa; white-space:pre-wrap; font-size:12px; line-height:1.5; }
-
-/* Rugpull feed table */
-.rug-table { width:100%; border-collapse:collapse; font-size:12px; }
-.rug-table th { text-align:left; padding:8px 12px; color:var(--green); border-bottom:1px solid var(--border); font-size:10px; letter-spacing:1px; }
-.rug-table td { padding:6px 12px; border-bottom:1px solid #0f0f0f; }
-.rug-table tr { cursor:pointer; transition:.1s; }
-.rug-table tr:hover { background:#151515; }
-.rug-table .dead { color:var(--red); }
-.rug-table .dumping { color:var(--yellow); }
-.rug-table .alive { color:var(--green); }
-
-/* Agent bar */
-.agent-bar { padding:12px 24px; display:flex; gap:16px; flex-wrap:wrap; border-top:1px solid var(--border); font-size:11px; }
-.agent-status { display:flex; align-items:center; gap:4px; }
-.agent-dot { width:6px; height:6px; border-radius:50%; background:var(--green); }
-
-/* How it works */
-.how { padding:24px; display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:12px; }
-.how-step { background:var(--card); border:1px solid var(--border); padding:16px; border-radius:4px; }
-.how-step .num { color:var(--green); font-weight:700; font-size:18px; }
-.how-step p { color:#888; margin-top:6px; font-size:12px; }
+/* Detail view */
+.back-link { color:var(--dim); cursor:pointer; font-size:13px; margin-bottom:16px; display:inline-block; }
+.back-link:hover { color:var(--green); }
+.step-card { background:var(--card); border:1px solid var(--border); border-radius:8px; padding:16px; margin-bottom:8px; }
+.step-top { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
+.step-agent { font-weight:600; font-size:14px; }
+.step-time { color:var(--muted); font-size:11px; }
+.step-body { color:var(--dim); font-size:13px; white-space:pre-wrap; line-height:1.6; }
 
 /* Footer */
-.footer { padding:20px 24px; border-top:1px solid var(--border); text-align:center; color:#444; font-size:11px; }
-.footer .ca-box { background:#0d0d0d; border:1px solid var(--border); padding:8px 14px; border-radius:4px; display:inline-flex; align-items:center; gap:8px; margin:10px 0; font-size:11px; color:#888; }
-.footer .ca-box code { color:var(--green); }
-.copy-btn { background:none; border:1px solid #333; color:#666; padding:2px 8px; font-family:inherit; font-size:10px; cursor:pointer; border-radius:3px; }
+footer { padding:40px 0; border-top:1px solid var(--border); text-align:center; }
+footer p { color:var(--muted); font-size:13px; }
+.ca-row { display:inline-flex; align-items:center; gap:8px; background:var(--card); border:1px solid var(--border); padding:10px 16px; border-radius:8px; margin:16px 0; }
+.ca-row code { color:var(--green); font-size:12px; }
+.copy-btn { background:none; border:1px solid var(--border); color:var(--dim); padding:4px 10px; font-family:inherit; font-size:11px; cursor:pointer; border-radius:4px; }
 .copy-btn:hover { border-color:var(--green); color:var(--green); }
+.footer-links { margin-top:12px; }
+.footer-links a { color:var(--dim); margin:0 8px; font-size:13px; }
+.footer-links a:hover { color:var(--green); }
 
-/* Loading */
-.loading { text-align:center; padding:40px; color:#444; }
-.loading .cursor { animation:blink 1s infinite; }
-.empty { text-align:center; padding:40px; color:#333; }
-
-/* Responsive */
-@media(max-width:600px) {
-  .header, .submit-bar, .feed, .inv-list, .inv-detail, .how, .footer { padding-left:12px; padding-right:12px; }
-  .feed { max-height:40vh; }
+.empty { text-align:center; padding:40px; color:var(--muted); font-size:14px; }
+@media(max-width:640px) {
+  .hero { padding:80px 0 60px; }
+  section { padding:60px 0; }
+  .input-row { flex-direction:column; }
+  .agents-grid { grid-template-columns:1fr; }
 }
 </style>
 </head>
 <body>
 
-<div class="header">
-  <div class="logo">PUMP JUSTICE <span>/ AGENT NETWORK</span></div>
-  <div class="live-dot">LIVE — 6 AGENTS ONLINE</div>
-</div>
-
-<div class="submit-bar">
-  <input type="text" id="caInput" placeholder="Paste a pump.fun CA to investigate..." maxlength="64" spellcheck="false">
-  <button class="btn" id="submitBtn" onclick="submitCA()">INVESTIGATE</button>
-</div>
-
-<div class="tabs">
-  <div class="tab active" data-tab="feed" onclick="switchTab('feed')">LIVE FEED</div>
-  <div class="tab" data-tab="investigations" onclick="switchTab('investigations')">INVESTIGATIONS</div>
-  <div class="tab" data-tab="rugpulls" onclick="switchTab('rugpulls')">RUGPULL SCANNER</div>
-</div>
-
-<!-- LIVE FEED -->
-<div class="panel active" id="panel-feed">
-  <div class="feed" id="feedContainer">
-    <div class="loading">Connecting to agent network<span class="cursor">_</span></div>
+<!-- HERO -->
+<section class="hero">
+  <div class="container">
+    <h1>AI Agents That <span>Investigate</span> Crypto Scams</h1>
+    <p>Submit any Solana token. Six autonomous agents analyze the deployer, trace wallets, search social media, and publish their findings.</p>
+    <a href="#investigate" class="hero-cta">Start Investigation →</a>
   </div>
-</div>
-
-<!-- INVESTIGATIONS -->
-<div class="panel" id="panel-investigations">
-  <div class="inv-list" id="invList">
-    <div class="loading">Loading investigations<span class="cursor">_</span></div>
-  </div>
-  <div class="inv-detail" id="invDetail" style="display:none"></div>
-</div>
-
-<!-- RUGPULL SCANNER -->
-<div class="panel" id="panel-rugpulls">
-  <div style="padding:12px 24px; overflow-x:auto;">
-    <table class="rug-table" id="rugTable">
-      <thead><tr><th>TOKEN</th><th>CA</th><th>AGE</th><th>PRICE</th><th>24H</th><th>VOLUME</th><th>STATUS</th></tr></thead>
-      <tbody id="rugBody"><tr><td colspan="7" class="loading">Scanning blockchain<span class="cursor">_</span></td></tr></tbody>
-    </table>
-  </div>
-</div>
-
-<!-- AGENTS -->
-<div class="agent-bar">
-  <div class="agent-status"><div class="agent-dot" style="background:#ff0055"></div> SENTINEL</div>
-  <div class="agent-status"><div class="agent-dot" style="background:#4488ff"></div> TRACER</div>
-  <div class="agent-status"><div class="agent-dot" style="background:#aa44ff"></div> CIPHER</div>
-  <div class="agent-status"><div class="agent-dot" style="background:#888"></div> GHOST</div>
-  <div class="agent-status"><div class="agent-dot" style="background:#00ff41"></div> NEXUS</div>
-  <div class="agent-status"><div class="agent-dot" style="background:#ffaa00"></div> VIPER</div>
-</div>
+</section>
 
 <!-- HOW IT WORKS -->
-<div class="how">
-  <div class="how-step"><div class="num">01</div><p>Submit any pump.fun token CA. Agents begin investigating immediately.</p></div>
-  <div class="how-step"><div class="num">02</div><p>6 AI agents analyze: token data, deployer wallet, on-chain patterns, social footprint, exchange activity.</p></div>
-  <div class="how-step"><div class="num">03</div><p>A risk rating is generated and the full investigation report is published for community review.</p></div>
-</div>
+<section>
+  <div class="container">
+    <div class="section-label">How It Works</div>
+    <div class="section-title">Three steps to the truth</div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">01</div>
+        <h3>Submit a Token</h3>
+        <p>Paste any pump.fun contract address. The investigation begins immediately.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">02</div>
+        <h3>Agents Investigate</h3>
+        <p>Six AI agents analyze on-chain data, wallet patterns, and social footprint in real-time using Helius, DexScreener, and X.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">03</div>
+        <h3>Report Published</h3>
+        <p>Full investigation report with risk rating. Community votes on findings. Everything is public.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MEET THE AGENTS -->
+<section>
+  <div class="container">
+    <div class="section-label">The Team</div>
+    <div class="section-title">Meet the agents</div>
+    <div class="section-desc">Each agent has a specific role in the investigation pipeline. They work sequentially — every finding feeds into the next agent's analysis.</div>
+    <div class="agents-grid">
+      <div class="agent-card">
+        <div class="agent-header">
+          <div class="agent-dot" style="background:var(--green)"></div>
+          <div><div class="agent-name">NEXUS</div><div class="agent-role">Data Aggregator</div></div>
+        </div>
+        <div class="agent-desc">Pulls real-time token data from DexScreener. Price, volume, liquidity, pair age, FDV. First agent to touch every investigation — establishes the baseline facts before anyone else moves.</div>
+      </div>
+      <div class="agent-card">
+        <div class="agent-header">
+          <div class="agent-dot" style="background:var(--blue)"></div>
+          <div><div class="agent-name">TRACER</div><div class="agent-role">Wallet Analyst</div></div>
+        </div>
+        <div class="agent-desc">Uses Helius to identify and analyze the deployer wallet. Transaction count, SOL balance, wallet age, funding sources. Follows the money from mint to movement.</div>
+      </div>
+      <div class="agent-card">
+        <div class="agent-header">
+          <div class="agent-dot" style="background:var(--purple)"></div>
+          <div><div class="agent-name">CIPHER</div><div class="agent-role">Pattern Decoder</div></div>
+        </div>
+        <div class="agent-desc">Checks if the deployer has created other tokens. Flags serial ruggers, burner wallets, rapid deploy-dump cycles, and connected wallet clusters. Patterns don't lie.</div>
+      </div>
+      <div class="agent-card">
+        <div class="agent-header">
+          <div class="agent-dot" style="background:var(--gray)"></div>
+          <div><div class="agent-name">GHOST</div><div class="agent-role">Social Hunter</div></div>
+        </div>
+        <div class="agent-desc">Searches X/Twitter for anyone who posted the contract address. Links wallets to social accounts. Anonymity's weakest link is always the human who shilled it.</div>
+      </div>
+      <div class="agent-card">
+        <div class="agent-header">
+          <div class="agent-dot" style="background:var(--orange)"></div>
+          <div><div class="agent-name">VIPER</div><div class="agent-role">Risk Assessor</div></div>
+        </div>
+        <div class="agent-desc">Compiles all agent findings into a risk score: CRITICAL, HIGH, MEDIUM, or LOW. Weighs price action, deployer behavior, wallet patterns, and social presence.</div>
+      </div>
+      <div class="agent-card">
+        <div class="agent-header">
+          <div class="agent-dot" style="background:var(--red)"></div>
+          <div><div class="agent-name">SENTINEL</div><div class="agent-role">Lead Investigator</div></div>
+        </div>
+        <div class="agent-desc">Writes the final investigation report. Summarizes all findings into a clear verdict. The last word on every case. No token escapes without a report.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- INVESTIGATION TOOL -->
+<section id="investigate">
+  <div class="container">
+    <div class="section-label">Investigate</div>
+    <div class="section-title">Run an investigation</div>
+    <div class="tool-box">
+      <div class="input-row">
+        <input type="text" id="caInput" placeholder="Paste a Solana contract address..." spellcheck="false" maxlength="64">
+        <button class="btn" id="submitBtn" onclick="submitCA()">Investigate</button>
+      </div>
+    </div>
+
+    <div class="tabs">
+      <div class="tab active" data-tab="feed" onclick="switchTab('feed')">Live Feed</div>
+      <div class="tab" data-tab="investigations" onclick="switchTab('investigations')">Past Investigations</div>
+    </div>
+
+    <div class="panel active" id="panel-feed">
+      <div id="feedContainer"><div class="empty">No agent activity yet. Submit a CA to start.</div></div>
+    </div>
+
+    <div class="panel" id="panel-investigations">
+      <div id="invList"><div class="empty">No investigations yet.</div></div>
+      <div id="invDetail" style="display:none"></div>
+    </div>
+  </div>
+</section>
 
 <!-- FOOTER -->
-<div class="footer">
-  <div>PUMP JUSTICE — Agents never sleep. Scammers never rest.</div>
-  <div class="ca-box">
-    <code id="caDisplay">7S2yY2G6SU1fFVzXQ4FyXuAvWEKy2VUBCetnPhRBpump</code>
-    <button class="copy-btn" onclick="copyCA()">COPY</button>
+<footer>
+  <div class="container">
+    <p style="color:var(--dim);font-size:15px;font-weight:500;">Pump Justice</p>
+    <div class="ca-row">
+      <code>7S2yY2G6SU1fFVzXQ4FyXuAvWEKy2VUBCetnPhRBpump</code>
+      <button class="copy-btn" onclick="copyCA()">Copy</button>
+    </div>
+    <div class="footer-links">
+      <a href="https://x.com/PumpJustice" target="_blank">X</a>
+      <a href="https://github.com/tow3web3/pumpjustice" target="_blank">GitHub</a>
+    </div>
+    <p style="margin-top:16px;">Built by agents. Verified by community.</p>
   </div>
-  <div style="margin-top:8px">
-    <a href="https://x.com/PumpJustice" target="_blank">X</a> &nbsp;·&nbsp;
-    <a href="https://github.com/tow3web3/pumpjustice" target="_blank">GitHub</a>
-  </div>
-</div>
+</footer>
 
 <script>
 const API = window.location.hostname === 'tow3web3.github.io' ? 'https://65.20.103.177:3444' : '';
+const agentColors = { SENTINEL:'#ef4444', TRACER:'#3b82f6', CIPHER:'#8b5cf6', GHOST:'#6b7280', NEXUS:'#10b981', VIPER:'#f59e0b' };
 
-// Tab switching
 function switchTab(tab) {
   document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
   document.querySelectorAll('.panel').forEach(p => p.classList.toggle('active', p.id === 'panel-' + tab));
   if (tab === 'investigations') loadInvestigations();
-  if (tab === 'rugpulls') loadRugpulls();
   if (tab === 'feed') loadFeed();
 }
 
-// Submit CA
 async function submitCA() {
   const ca = document.getElementById('caInput').value.trim();
-  if (!ca || ca.length < 32) return alert('Enter a valid CA');
+  if (!ca || ca.length < 32) return;
   const btn = document.getElementById('submitBtn');
-  btn.disabled = true; btn.textContent = 'DEPLOYING AGENTS...';
+  btn.disabled = true; btn.textContent = 'Deploying agents...';
   try {
     const res = await fetch(API + '/api/investigate', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ca}) });
     const data = await res.json();
     if (data.error) { alert(data.error); return; }
-    btn.textContent = `INVESTIGATION #${data.id}`;
     switchTab('feed');
-    setTimeout(() => { btn.disabled = false; btn.textContent = 'INVESTIGATE'; }, 5000);
-    // Poll for updates
     pollInvestigation(data.id);
-  } catch(e) {
-    alert('Server unavailable. Make sure the agent network is running.');
-    btn.disabled = false; btn.textContent = 'INVESTIGATE';
-  }
+  } catch(e) { alert('Server unavailable'); }
+  finally { setTimeout(() => { btn.disabled = false; btn.textContent = 'Investigate'; }, 5000); }
 }
 
-// Poll investigation
 async function pollInvestigation(id) {
   const poll = async () => {
     try {
-      const res = await fetch(API + `/api/investigation/${id}`);
+      const res = await fetch(API + '/api/investigation/' + id);
       const data = await res.json();
-      // Update feed
       loadFeed();
       if (data.status === 'investigating') setTimeout(poll, 3000);
     } catch(e) {}
@@ -245,151 +295,71 @@ async function pollInvestigation(id) {
   poll();
 }
 
-// Load feed
 async function loadFeed() {
   try {
     const res = await fetch(API + '/api/feed');
     const steps = await res.json();
-    const container = document.getElementById('feedContainer');
-    if (!steps.length) {
-      container.innerHTML = '<div class="empty">No agent activity yet. Submit a CA to start an investigation.</div>';
-      return;
-    }
-    container.innerHTML = steps.map(s => {
-      const time = new Date(s.created_at).toLocaleTimeString('en-US', {hour12:false});
-      return `<div class="feed-line">
-        <span class="feed-time">${time}</span>
-        <span class="feed-agent ${s.agent_name}">${s.agent_name}</span>
-        <span class="feed-content">${escHtml(s.content.slice(0,200))}</span>
-      </div>`;
-    }).join('');
-  } catch(e) {
-    document.getElementById('feedContainer').innerHTML = '<div class="empty">Agent network offline. Server not running.</div>';
-  }
+    const el = document.getElementById('feedContainer');
+    if (!steps.length) { el.innerHTML = '<div class="empty">No agent activity yet. Submit a CA to start.</div>'; return; }
+    el.innerHTML = steps.map(s => `<div class="feed-item">
+      <span class="feed-time">${new Date(s.created_at).toLocaleTimeString('en-US',{hour12:false})}</span>
+      <span class="feed-agent" style="color:${agentColors[s.agent_name]||'#fff'}">${s.agent_name}</span>
+      <span class="feed-content">${esc(s.content.length > 200 ? s.content.slice(0,200)+'…' : s.content)}</span>
+    </div>`).join('');
+  } catch(e) { document.getElementById('feedContainer').innerHTML = '<div class="empty">Could not connect to agent network.</div>'; }
 }
 
-// Load investigations
 async function loadInvestigations() {
-  const container = document.getElementById('invList');
+  const el = document.getElementById('invList');
   document.getElementById('invDetail').style.display = 'none';
-  container.style.display = 'block';
+  el.style.display = 'block';
   try {
     const res = await fetch(API + '/api/investigations');
     const invs = await res.json();
-    if (!invs.length) { container.innerHTML = '<div class="empty">No investigations yet.</div>'; return; }
-    container.innerHTML = invs.map(i => `
-      <div class="inv-card" onclick="showInvestigation(${i.id})">
-        <div class="inv-header">
-          <div>
-            <span class="inv-token">${i.token_name ? `${i.token_name} ($${i.token_symbol})` : i.ca.slice(0,12) + '...'}</span>
-            <div class="inv-ca">${i.ca}</div>
-          </div>
-          <span class="badge ${i.risk_rating || i.status}">${i.risk_rating || i.status.toUpperCase()}</span>
-        </div>
-        <div class="inv-meta">
-          <span>▲ ${i.upvotes||0} ▼ ${i.downvotes||0}</span>
-          <span>${i.step_count||0} steps</span>
-          <span>${timeAgo(i.submitted_at)}</span>
-        </div>
+    if (!invs.length) { el.innerHTML = '<div class="empty">No investigations yet.</div>'; return; }
+    el.innerHTML = invs.map(i => `<div class="inv-card" onclick="showInv(${i.id})">
+      <div class="inv-top">
+        <div><div class="inv-token">${i.token_name ? i.token_name + ' ($' + i.token_symbol + ')' : i.ca.slice(0,16)+'…'}</div>
+        <div class="inv-ca">${i.ca}</div></div>
+        <span class="badge ${i.risk_rating||i.status}">${i.risk_rating||i.status}</span>
       </div>
-    `).join('');
-  } catch(e) { container.innerHTML = '<div class="empty">Server offline</div>'; }
+      <div class="inv-meta"><span>▲ ${i.upvotes||0} ▼ ${i.downvotes||0}</span><span>${timeAgo(i.submitted_at)}</span></div>
+    </div>`).join('');
+  } catch(e) { el.innerHTML = '<div class="empty">Could not load.</div>'; }
 }
 
-// Show single investigation
-async function showInvestigation(id) {
+async function showInv(id) {
   document.getElementById('invList').style.display = 'none';
-  const detail = document.getElementById('invDetail');
-  detail.style.display = 'block';
-  detail.innerHTML = '<div class="loading">Loading<span class="cursor">_</span></div>';
+  const el = document.getElementById('invDetail');
+  el.style.display = 'block';
   try {
-    const res = await fetch(API + `/api/investigation/${id}`);
-    const data = await res.json();
-    detail.innerHTML = `
-      <div class="back" onclick="loadInvestigations()">← BACK TO LIST</div>
-      <div style="margin-bottom:12px">
-        <span style="color:#fff;font-weight:700;font-size:16px">${data.token_name || 'Unknown'} ($${data.token_symbol || '???'})</span>
-        ${data.risk_rating ? `<span class="badge ${data.risk_rating}" style="margin-left:8px">${data.risk_rating}</span>` : ''}
-        <div style="color:#555;font-size:11px;margin-top:4px">${data.ca}</div>
-        <div style="margin-top:8px">
-          <button class="vote-btn" onclick="vote(${id},'up')">▲ ${data.upvotes||0}</button>
-          <button class="vote-btn" onclick="vote(${id},'down')">▼ ${data.downvotes||0}</button>
-        </div>
+    const res = await fetch(API + '/api/investigation/' + id);
+    const d = await res.json();
+    el.innerHTML = `<div class="back-link" onclick="loadInvestigations()">← Back</div>
+      <div style="margin-bottom:20px">
+        <span style="color:#fff;font-weight:600;font-size:18px">${d.token_name||'Unknown'} ($${d.token_symbol||'???'})</span>
+        ${d.risk_rating ? '<span class="badge '+d.risk_rating+'" style="margin-left:8px">'+d.risk_rating+'</span>' : ''}
+        <div style="color:var(--muted);font-size:12px;margin-top:4px;font-family:monospace">${d.ca}</div>
+        <div style="margin-top:10px"><button class="vote-btn" onclick="vote(${id},'up')">▲ ${d.upvotes||0}</button> <button class="vote-btn" onclick="vote(${id},'down')">▼ ${d.downvotes||0}</button></div>
       </div>
-      ${(data.steps||[]).map(s => `
-        <div class="step">
-          <div class="step-header">
-            <span class="step-agent feed-agent ${s.agent_name}">${s.agent_name}</span>
-            <span class="step-time">${new Date(s.created_at).toLocaleTimeString('en-US',{hour12:false})}</span>
-          </div>
-          <div class="step-content">${escHtml(s.content)}</div>
-        </div>
-      `).join('')}
-    `;
-  } catch(e) { detail.innerHTML = '<div class="empty">Failed to load</div>'; }
+      ${(d.steps||[]).map(s => `<div class="step-card">
+        <div class="step-top"><span class="step-agent" style="color:${agentColors[s.agent_name]||'#fff'}">${s.agent_name}</span><span class="step-time">${new Date(s.created_at).toLocaleTimeString('en-US',{hour12:false})}</span></div>
+        <div class="step-body">${esc(s.content)}</div>
+      </div>`).join('')}`;
+  } catch(e) { el.innerHTML = '<div class="empty">Failed to load.</div>'; }
 }
 
-// Vote
 async function vote(id, type) {
-  try {
-    await fetch(API + `/api/vote/${id}`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({type}) });
-    showInvestigation(id);
-  } catch(e) {}
+  try { await fetch(API+'/api/vote/'+id,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({type})}); showInv(id); } catch(e){}
 }
 
-// Rugpull scanner (DexScreener - client-side)
-async function loadRugpulls() {
-  try {
-    const res = await fetch('https://api.dexscreener.com/latest/dex/search?q=pump');
-    const data = await res.json();
-    const pairs = (data.pairs||[])
-      .filter(p => p.chainId === 'solana' && p.pairCreatedAt && (Date.now() - p.pairCreatedAt < 86400000) && p.priceChange?.h24 < -50)
-      .sort((a,b) => (a.priceChange?.h24||0) - (b.priceChange?.h24||0))
-      .slice(0, 30);
-    
-    const body = document.getElementById('rugBody');
-    if (!pairs.length) { body.innerHTML = '<tr><td colspan="7" class="empty">No rugpulls detected in last 24h</td></tr>'; return; }
-    body.innerHTML = pairs.map(p => {
-      const change = p.priceChange?.h24 || 0;
-      const cls = change < -80 ? 'dead' : change < -50 ? 'dumping' : 'alive';
-      const status = change < -80 ? '☠️ DEAD' : change < -50 ? '⚠️ DUMP' : '● LIVE';
-      const age = Math.round((Date.now() - p.pairCreatedAt) / 3600000);
-      return `<tr class="${cls}" onclick="window.open('${p.url}','_blank')">
-        <td style="color:#fff;font-weight:600">$${p.baseToken?.symbol||'???'}</td>
-        <td style="color:#666">${(p.baseToken?.address||'').slice(0,6)}...${(p.baseToken?.address||'').slice(-4)}</td>
-        <td>${age}h</td>
-        <td>$${Number(p.priceUsd||0).toFixed(8)}</td>
-        <td class="${cls}">${change > 0 ? '+' : ''}${change}%</td>
-        <td>$${Number(p.volume?.h24||0).toLocaleString()}</td>
-        <td class="${cls}">${status}</td>
-      </tr>`;
-    }).join('');
-  } catch(e) {
-    document.getElementById('rugBody').innerHTML = '<tr><td colspan="7" class="empty">DexScreener unavailable</td></tr>';
-  }
-}
+function esc(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>'); }
+function timeAgo(t) { const m=Math.round((Date.now()-new Date(t))/60000); return m<60?m+'m ago':m<1440?Math.round(m/60)+'h ago':Math.round(m/1440)+'d ago'; }
+function copyCA() { navigator.clipboard.writeText('7S2yY2G6SU1fFVzXQ4FyXuAvWEKy2VUBCetnPhRBpump'); const b=document.querySelector('.copy-btn'); b.textContent='Copied!'; setTimeout(()=>b.textContent='Copy',2000); }
 
-// Helpers
-function escHtml(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-function timeAgo(ts) {
-  const m = Math.round((Date.now() - new Date(ts)) / 60000);
-  if (m < 60) return m + 'm ago';
-  if (m < 1440) return Math.round(m/60) + 'h ago';
-  return Math.round(m/1440) + 'd ago';
-}
-function copyCA() {
-  navigator.clipboard.writeText('7S2yY2G6SU1fFVzXQ4FyXuAvWEKy2VUBCetnPhRBpump');
-  document.querySelector('.copy-btn').textContent = 'COPIED';
-  setTimeout(() => document.querySelector('.copy-btn').textContent = 'COPY', 2000);
-}
-
-// Init
 loadFeed();
 setInterval(loadFeed, 15000);
-setInterval(loadRugpulls, 60000);
-
-// Enter key submit
-document.getElementById('caInput').addEventListener('keydown', e => { if (e.key === 'Enter') submitCA(); });
+document.getElementById('caInput').addEventListener('keydown', e => { if(e.key==='Enter') submitCA(); });
 </script>
 </body>
 </html>
