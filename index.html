@@ -3,312 +3,393 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PUMP JUSTICE — Agent Network</title>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
+<title>PUMP JUSTICE — AI Agent Investigation Network</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
-:root{--bg:#0a0a0a;--green:#00ff41;--red:#ff0055;--yellow:#ffaa00;--dim:#333;--text:#ccc;--mono:'JetBrains Mono',monospace}
-body{background:var(--bg);color:var(--text);font-family:var(--mono);font-size:13px;line-height:1.6;overflow-x:hidden}
-::selection{background:var(--green);color:#000}
-a{color:var(--green);text-decoration:none}
-a:hover{text-decoration:underline}
+:root { --green: #00ff41; --red: #ff0055; --yellow: #ffaa00; --bg: #0a0a0a; --card: #111; --border: #1a1a1a; --dim: #555; }
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:var(--bg); color:#ccc; font-family:'JetBrains Mono',monospace; font-size:13px; line-height:1.6; overflow-x:hidden; }
+a { color:var(--green); text-decoration:none; }
+a:hover { text-decoration:underline; }
 
-/* CRT overlay */
-body::after{content:'';position:fixed;top:0;left:0;width:100%;height:100%;
-background:repeating-linear-gradient(0deg,rgba(0,0,0,.03) 0px,rgba(0,0,0,.03) 1px,transparent 1px,transparent 2px);
-pointer-events:none;z-index:9999}
-
-.container{max-width:1200px;margin:0 auto;padding:20px 16px}
+/* CRT */
+body::after { content:''; position:fixed; inset:0; pointer-events:none; z-index:9999;
+  background:repeating-linear-gradient(0deg, rgba(0,0,0,0.03) 0px, rgba(0,0,0,0.03) 1px, transparent 1px, transparent 2px); }
 
 /* Header */
-.header{display:flex;justify-content:space-between;align-items:center;padding:16px 0;border-bottom:1px solid var(--dim);margin-bottom:24px}
-.header h1{font-size:24px;color:var(--green);font-weight:700;letter-spacing:4px}
-.header .sub{font-size:11px;color:#666;letter-spacing:2px;margin-top:2px}
-.live-dot{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--green)}
-.live-dot span{width:8px;height:8px;background:var(--green);border-radius:50%;display:inline-block;animation:blink 1.5s infinite}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+.header { padding:16px 24px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; }
+.logo { color:var(--green); font-size:18px; font-weight:700; text-shadow:0 0 10px rgba(0,255,65,.3); }
+.logo span { color:#666; font-weight:400; font-size:12px; }
+.live-dot { display:inline-flex; align-items:center; gap:6px; font-size:11px; color:var(--green); }
+.live-dot::before { content:''; width:6px; height:6px; background:var(--green); border-radius:50%; animation:blink 1.5s infinite; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+/* Submit */
+.submit-bar { padding:16px 24px; border-bottom:1px solid var(--border); display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+.submit-bar input { flex:1; min-width:200px; background:#0d0d0d; border:1px solid var(--border); color:#fff; padding:10px 14px; font-family:inherit; font-size:13px; border-radius:4px; outline:none; }
+.submit-bar input:focus { border-color:var(--green); box-shadow:0 0 8px rgba(0,255,65,.15); }
+.submit-bar input::placeholder { color:#444; }
+.btn { background:var(--green); color:#000; border:none; padding:10px 20px; font-family:inherit; font-size:12px; font-weight:700; cursor:pointer; border-radius:4px; letter-spacing:1px; }
+.btn:hover { background:#00cc33; }
+.btn:disabled { background:#333; color:#666; cursor:not-allowed; }
+.btn-sm { padding:4px 10px; font-size:10px; }
+
+/* Tabs */
+.tabs { display:flex; border-bottom:1px solid var(--border); }
+.tab { padding:10px 20px; cursor:pointer; color:#666; font-size:12px; border-bottom:2px solid transparent; transition:.2s; }
+.tab:hover { color:#999; }
+.tab.active { color:var(--green); border-color:var(--green); }
+
+/* Panels */
+.panel { display:none; }
+.panel.active { display:block; }
 
 /* Feed */
-.feed-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
-.feed-header h2{font-size:14px;color:var(--green);letter-spacing:2px}
-.refresh-info{font-size:11px;color:#555}
-#feed-status{font-size:12px;color:#555;margin-bottom:8px}
+.feed { padding:12px 24px; max-height:50vh; overflow-y:auto; }
+.feed-line { padding:4px 0; border-bottom:1px solid #0f0f0f; display:flex; gap:8px; font-size:12px; }
+.feed-time { color:#444; min-width:70px; }
+.feed-agent { font-weight:700; min-width:80px; }
+.feed-agent.SENTINEL { color:var(--red); }
+.feed-agent.TRACER { color:#4488ff; }
+.feed-agent.CIPHER { color:#aa44ff; }
+.feed-agent.GHOST { color:#888; }
+.feed-agent.NEXUS { color:var(--green); }
+.feed-agent.VIPER { color:var(--yellow); }
+.feed-content { color:#aaa; flex:1; word-break:break-all; }
 
-.feed-table{width:100%;border-collapse:collapse}
-.feed-table th{text-align:left;font-size:11px;color:#555;padding:8px 6px;border-bottom:1px solid #222;font-weight:400;letter-spacing:1px;white-space:nowrap}
-.feed-table td{padding:7px 6px;border-bottom:1px solid #111;font-size:12px;white-space:nowrap}
-.feed-table tr.row-link{cursor:pointer;transition:background .15s}
-.feed-table tr.row-link:hover{background:#111}
-.token-name{color:var(--green);font-weight:500}
-.ca-short{color:#666;font-size:11px}
-.status-dead{color:var(--red);font-weight:700}
-.status-dumping{color:var(--yellow);font-weight:700}
-.status-alive{color:var(--green)}
-.change-dead{color:var(--red)}
-.change-dumping{color:var(--yellow)}
-.change-alive{color:var(--green)}
+/* Investigations list */
+.inv-list { padding:12px 24px; }
+.inv-card { background:var(--card); border:1px solid var(--border); border-radius:4px; padding:14px; margin-bottom:8px; cursor:pointer; transition:.15s; }
+.inv-card:hover { border-color:#333; }
+.inv-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; flex-wrap:wrap; gap:8px; }
+.inv-token { font-weight:700; color:#fff; }
+.inv-ca { color:#555; font-size:11px; }
+.badge { padding:2px 8px; border-radius:3px; font-size:10px; font-weight:700; }
+.badge.CRITICAL { background:var(--red); color:#fff; }
+.badge.HIGH { background:#cc4400; color:#fff; }
+.badge.MEDIUM { background:var(--yellow); color:#000; }
+.badge.LOW { background:var(--green); color:#000; }
+.badge.investigating { background:#333; color:var(--green); border:1px solid var(--green); }
+.inv-meta { display:flex; gap:16px; font-size:11px; color:#666; }
+.vote-btn { background:none; border:1px solid #333; color:#888; padding:2px 8px; font-family:inherit; font-size:11px; cursor:pointer; border-radius:3px; }
+.vote-btn:hover { border-color:var(--green); color:var(--green); }
+.vote-btn.active { border-color:var(--green); color:var(--green); }
 
-.loading{text-align:center;padding:40px;color:#555}
-.loading .cursor{animation:blink .8s infinite}
+/* Investigation detail */
+.inv-detail { padding:12px 24px; }
+.inv-detail .back { color:#666; cursor:pointer; margin-bottom:12px; display:inline-block; }
+.inv-detail .back:hover { color:var(--green); }
+.step { background:var(--card); border:1px solid var(--border); border-radius:4px; padding:12px; margin-bottom:6px; }
+.step-header { display:flex; justify-content:space-between; margin-bottom:6px; }
+.step-agent { font-weight:700; }
+.step-time { color:#444; font-size:11px; }
+.step-content { color:#aaa; white-space:pre-wrap; font-size:12px; line-height:1.5; }
 
-/* Analysis */
-.analysis{margin-top:32px;padding:16px;border:1px solid #1a1a1a;background:#050505}
-.analysis h2{font-size:13px;color:var(--green);letter-spacing:2px;margin-bottom:12px}
-.analysis-line{margin:4px 0;font-size:12px;line-height:1.7}
-.agent-tag{font-weight:700}
-.agent-sentinel{color:#00ff41}.agent-tracer{color:#00bfff}.agent-cipher{color:#ff6600}.agent-viper{color:var(--red)}.agent-ghost{color:#888}.agent-nexus{color:#cc66ff}
+/* Rugpull feed table */
+.rug-table { width:100%; border-collapse:collapse; font-size:12px; }
+.rug-table th { text-align:left; padding:8px 12px; color:var(--green); border-bottom:1px solid var(--border); font-size:10px; letter-spacing:1px; }
+.rug-table td { padding:6px 12px; border-bottom:1px solid #0f0f0f; }
+.rug-table tr { cursor:pointer; transition:.1s; }
+.rug-table tr:hover { background:#151515; }
+.rug-table .dead { color:var(--red); }
+.rug-table .dumping { color:var(--yellow); }
+.rug-table .alive { color:var(--green); }
 
 /* Agent bar */
-.agent-bar{display:flex;flex-wrap:wrap;gap:16px;margin-top:24px;padding:12px 0;border-top:1px solid #1a1a1a;border-bottom:1px solid #1a1a1a;justify-content:center}
-.agent-item{font-size:11px;color:#666;display:flex;align-items:center;gap:6px}
-.agent-item .dot{width:6px;height:6px;background:var(--green);border-radius:50%;display:inline-block}
+.agent-bar { padding:12px 24px; display:flex; gap:16px; flex-wrap:wrap; border-top:1px solid var(--border); font-size:11px; }
+.agent-status { display:flex; align-items:center; gap:4px; }
+.agent-dot { width:6px; height:6px; border-radius:50%; background:var(--green); }
 
 /* How it works */
-.how{margin-top:32px}
-.how h2{font-size:13px;color:var(--green);letter-spacing:2px;margin-bottom:12px}
-.how ol{list-style:none;counter-reset:steps}
-.how li{counter-increment:steps;margin:8px 0;font-size:12px;color:#888}
-.how li::before{content:counter(steps) ".";color:var(--green);margin-right:8px;font-weight:700}
+.how { padding:24px; display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:12px; }
+.how-step { background:var(--card); border:1px solid var(--border); padding:16px; border-radius:4px; }
+.how-step .num { color:var(--green); font-weight:700; font-size:18px; }
+.how-step p { color:#888; margin-top:6px; font-size:12px; }
 
 /* Footer */
-.footer{margin-top:40px;padding:20px 0;border-top:1px solid #1a1a1a;text-align:center;font-size:11px;color:#444}
-.footer .motto{color:#666;margin-bottom:8px}
-.ca-line{display:flex;align-items:center;justify-content:center;gap:8px;margin:8px 0;flex-wrap:wrap}
-.ca-line code{color:var(--green);font-size:11px;word-break:break-all}
-.copy-btn{background:none;border:1px solid #333;color:#666;padding:2px 8px;font-family:var(--mono);font-size:10px;cursor:pointer;transition:all .2s}
-.copy-btn:hover{border-color:var(--green);color:var(--green)}
-.copy-btn.copied{border-color:var(--green);color:var(--green)}
-.footer-links{margin-top:8px}
-.footer-links a{color:#555;margin:0 8px;font-size:11px}
-.footer-links a:hover{color:var(--green)}
+.footer { padding:20px 24px; border-top:1px solid var(--border); text-align:center; color:#444; font-size:11px; }
+.footer .ca-box { background:#0d0d0d; border:1px solid var(--border); padding:8px 14px; border-radius:4px; display:inline-flex; align-items:center; gap:8px; margin:10px 0; font-size:11px; color:#888; }
+.footer .ca-box code { color:var(--green); }
+.copy-btn { background:none; border:1px solid #333; color:#666; padding:2px 8px; font-family:inherit; font-size:10px; cursor:pointer; border-radius:3px; }
+.copy-btn:hover { border-color:var(--green); color:var(--green); }
 
-@media(max-width:768px){
-  .feed-table th:nth-child(3),.feed-table td:nth-child(3),
-  .feed-table th:nth-child(6),.feed-table td:nth-child(6){display:none}
-  .header h1{font-size:18px}
-  .container{padding:12px 10px}
+/* Loading */
+.loading { text-align:center; padding:40px; color:#444; }
+.loading .cursor { animation:blink 1s infinite; }
+.empty { text-align:center; padding:40px; color:#333; }
+
+/* Responsive */
+@media(max-width:600px) {
+  .header, .submit-bar, .feed, .inv-list, .inv-detail, .how, .footer { padding-left:12px; padding-right:12px; }
+  .feed { max-height:40vh; }
 }
 </style>
 </head>
 <body>
-<div class="container">
-  <header class="header">
-    <div>
-      <h1>PUMP JUSTICE</h1>
-      <div class="sub">AGENT NETWORK</div>
-    </div>
-    <div class="live-dot"><span></span> LIVE</div>
-  </header>
 
-  <section>
-    <div class="feed-header">
-      <h2>▸ LIVE RUGPULL FEED</h2>
-      <div class="refresh-info">auto-refresh 30s</div>
-    </div>
-    <div id="feed-status"></div>
-    <div id="feed-container">
-      <div class="loading">CONNECTING TO BLOCKCHAIN<span class="cursor">_</span></div>
-    </div>
-  </section>
+<div class="header">
+  <div class="logo">PUMP JUSTICE <span>/ AGENT NETWORK</span></div>
+  <div class="live-dot">LIVE — 6 AGENTS ONLINE</div>
+</div>
 
-  <section class="analysis" id="analysis">
-    <h2>▸ AGENT ANALYSIS</h2>
-    <div id="analysis-content">
-      <div class="analysis-line"><span class="agent-tag agent-sentinel">[SENTINEL]</span> Waiting for data feed...</div>
-    </div>
-  </section>
+<div class="submit-bar">
+  <input type="text" id="caInput" placeholder="Paste a pump.fun CA to investigate..." maxlength="64" spellcheck="false">
+  <button class="btn" id="submitBtn" onclick="submitCA()">INVESTIGATE</button>
+</div>
 
-  <div class="agent-bar">
-    <div class="agent-item"><span class="dot"></span>SENTINEL</div>
-    <div class="agent-item"><span class="dot"></span>TRACER</div>
-    <div class="agent-item"><span class="dot"></span>CIPHER</div>
-    <div class="agent-item"><span class="dot"></span>GHOST</div>
-    <div class="agent-item"><span class="dot"></span>NEXUS</div>
-    <div class="agent-item"><span class="dot"></span>VIPER</div>
+<div class="tabs">
+  <div class="tab active" data-tab="feed" onclick="switchTab('feed')">LIVE FEED</div>
+  <div class="tab" data-tab="investigations" onclick="switchTab('investigations')">INVESTIGATIONS</div>
+  <div class="tab" data-tab="rugpulls" onclick="switchTab('rugpulls')">RUGPULL SCANNER</div>
+</div>
+
+<!-- LIVE FEED -->
+<div class="panel active" id="panel-feed">
+  <div class="feed" id="feedContainer">
+    <div class="loading">Connecting to agent network<span class="cursor">_</span></div>
   </div>
+</div>
 
-  <section class="how">
-    <h2>▸ HOW IT WORKS</h2>
-    <ol>
-      <li>Agents monitor every new token that bonds on pump.fun</li>
-      <li>Deployer wallets, LP behavior, and transaction patterns are analyzed in real-time</li>
-      <li>Scam patterns are flagged and evidence is compiled on-chain</li>
-    </ol>
-  </section>
+<!-- INVESTIGATIONS -->
+<div class="panel" id="panel-investigations">
+  <div class="inv-list" id="invList">
+    <div class="loading">Loading investigations<span class="cursor">_</span></div>
+  </div>
+  <div class="inv-detail" id="invDetail" style="display:none"></div>
+</div>
 
-  <footer class="footer">
-    <div class="motto">PUMP JUSTICE — Agents never sleep</div>
-    <div class="ca-line">
-      <span style="color:#555">CA:</span>
-      <code id="ca-text">7S2yY2G6SU1fFVzXQ4FyXuAvWEKy2VUBCetnPhRBpump</code>
-      <button class="copy-btn" onclick="copyCA()">COPY</button>
-    </div>
-    <div class="footer-links">
-      <a href="https://x.com/" target="_blank">X/TWITTER</a>
-      <a href="https://github.com/" target="_blank">GITHUB</a>
-      <a href="https://dexscreener.com/" target="_blank">DEXSCREENER</a>
-    </div>
-  </footer>
+<!-- RUGPULL SCANNER -->
+<div class="panel" id="panel-rugpulls">
+  <div style="padding:12px 24px; overflow-x:auto;">
+    <table class="rug-table" id="rugTable">
+      <thead><tr><th>TOKEN</th><th>CA</th><th>AGE</th><th>PRICE</th><th>24H</th><th>VOLUME</th><th>STATUS</th></tr></thead>
+      <tbody id="rugBody"><tr><td colspan="7" class="loading">Scanning blockchain<span class="cursor">_</span></td></tr></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- AGENTS -->
+<div class="agent-bar">
+  <div class="agent-status"><div class="agent-dot" style="background:#ff0055"></div> SENTINEL</div>
+  <div class="agent-status"><div class="agent-dot" style="background:#4488ff"></div> TRACER</div>
+  <div class="agent-status"><div class="agent-dot" style="background:#aa44ff"></div> CIPHER</div>
+  <div class="agent-status"><div class="agent-dot" style="background:#888"></div> GHOST</div>
+  <div class="agent-status"><div class="agent-dot" style="background:#00ff41"></div> NEXUS</div>
+  <div class="agent-status"><div class="agent-dot" style="background:#ffaa00"></div> VIPER</div>
+</div>
+
+<!-- HOW IT WORKS -->
+<div class="how">
+  <div class="how-step"><div class="num">01</div><p>Submit any pump.fun token CA. Agents begin investigating immediately.</p></div>
+  <div class="how-step"><div class="num">02</div><p>6 AI agents analyze: token data, deployer wallet, on-chain patterns, social footprint, exchange activity.</p></div>
+  <div class="how-step"><div class="num">03</div><p>A risk rating is generated and the full investigation report is published for community review.</p></div>
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+  <div>PUMP JUSTICE — Agents never sleep. Scammers never rest.</div>
+  <div class="ca-box">
+    <code id="caDisplay">7S2yY2G6SU1fFVzXQ4FyXuAvWEKy2VUBCetnPhRBpump</code>
+    <button class="copy-btn" onclick="copyCA()">COPY</button>
+  </div>
+  <div style="margin-top:8px">
+    <a href="https://x.com/PumpJustice" target="_blank">X</a> &nbsp;·&nbsp;
+    <a href="https://github.com/tow3web3/pumpjustice" target="_blank">GitHub</a>
+  </div>
 </div>
 
 <script>
-const CA = '7S2yY2G6SU1fFVzXQ4FyXuAvWEKy2VUBCetnPhRBpump';
-const REFRESH_MS = 30000;
-const API_URL = 'https://api.dexscreener.com/latest/dex/search?q=pump';
-let lastData = [];
+const API = window.location.hostname === 'tow3web3.github.io' ? 'https://65.20.103.177:3444' : '';
 
-function copyCA() {
-  navigator.clipboard.writeText(CA).then(() => {
-    const btn = document.querySelector('.copy-btn');
-    btn.textContent = 'COPIED';
-    btn.classList.add('copied');
-    setTimeout(() => { btn.textContent = 'COPY'; btn.classList.remove('copied'); }, 2000);
-  });
+// Tab switching
+function switchTab(tab) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
+  document.querySelectorAll('.panel').forEach(p => p.classList.toggle('active', p.id === 'panel-' + tab));
+  if (tab === 'investigations') loadInvestigations();
+  if (tab === 'rugpulls') loadRugpulls();
+  if (tab === 'feed') loadFeed();
 }
 
-function shortCA(addr) {
-  if (!addr) return '???';
-  return addr.slice(0, 4) + '...' + addr.slice(-4);
-}
-
-function timeAgo(ts) {
-  if (!ts) return '?';
-  const diff = Date.now() - ts;
-  const mins = Math.floor(diff / 60000);
-  if (mins < 1) return 'just now';
-  if (mins < 60) return mins + 'm ago';
-  const hrs = Math.floor(mins / 60);
-  if (hrs < 24) return hrs + 'h ago';
-  return Math.floor(hrs / 24) + 'd ago';
-}
-
-function fmtPrice(p) {
-  if (!p) return '$0';
-  const n = parseFloat(p);
-  if (n < 0.00001) return '$' + n.toExponential(1);
-  if (n < 0.01) return '$' + n.toFixed(6);
-  if (n < 1) return '$' + n.toFixed(4);
-  return '$' + n.toFixed(2);
-}
-
-function fmtVol(v) {
-  if (!v) return '$0';
-  if (v >= 1e6) return '$' + (v / 1e6).toFixed(1) + 'M';
-  if (v >= 1e3) return '$' + (v / 1e3).toFixed(0) + 'K';
-  return '$' + Math.floor(v);
-}
-
-function getStatus(change) {
-  if (change <= -80) return { label: '☠️ DEAD', cls: 'dead' };
-  if (change <= -50) return { label: '⚠️ DUMPING', cls: 'dumping' };
-  return { label: '● LIVE', cls: 'alive' };
-}
-
-function renderFeed(pairs) {
-  const container = document.getElementById('feed-container');
-  if (!pairs.length) {
-    container.innerHTML = '<div class="loading">NO RUGPULLS DETECTED... scanning<span class="cursor">_</span></div>';
-    return;
-  }
-
-  let html = '<table class="feed-table"><thead><tr>';
-  html += '<th>TOKEN</th><th>CA</th><th>AGE</th><th>PRICE</th><th>24H</th><th>VOLUME</th><th>STATUS</th>';
-  html += '</tr></thead><tbody>';
-
-  pairs.forEach(p => {
-    const change = p.priceChange?.h24 || 0;
-    const st = getStatus(change);
-    const name = p.baseToken?.symbol || '???';
-    const addr = p.baseToken?.address || '';
-    const url = p.url || ('https://dexscreener.com/solana/' + (p.pairAddress || ''));
-
-    html += `<tr class="row-link" onclick="window.open('${url}','_blank')">`;
-    html += `<td class="token-name">$${name}</td>`;
-    html += `<td class="ca-short">${shortCA(addr)}</td>`;
-    html += `<td>${timeAgo(p.pairCreatedAt)}</td>`;
-    html += `<td>${fmtPrice(p.priceUsd)}</td>`;
-    html += `<td class="change-${st.cls}">${change > 0 ? '+' : ''}${change.toFixed(0)}%</td>`;
-    html += `<td>${fmtVol(p.volume?.h24)}</td>`;
-    html += `<td class="status-${st.cls}">${st.label}</td>`;
-    html += '</tr>';
-  });
-
-  html += '</tbody></table>';
-  container.innerHTML = html;
-}
-
-function generateAnalysis(pairs) {
-  const worst = pairs.slice(0, 3);
-  const el = document.getElementById('analysis-content');
-  if (!worst.length) {
-    el.innerHTML = '<div class="analysis-line"><span class="agent-tag agent-sentinel">[SENTINEL]</span> Scanning latest bonded tokens...</div>';
-    return;
-  }
-
-  const agents = [
-    { tag: 'SENTINEL', cls: 'sentinel' },
-    { tag: 'TRACER', cls: 'tracer' },
-    { tag: 'CIPHER', cls: 'cipher' },
-    { tag: 'VIPER', cls: 'viper' }
-  ];
-
-  const templates = [
-    (t) => `Scanning complete. ${lastData.length} tokens analyzed, ${lastData.filter(p => (p.priceChange?.h24 || 0) <= -80).length} confirmed dead.`,
-    (t) => `Token $${t.baseToken?.symbol} (${shortCA(t.baseToken?.address)}) — created ${timeAgo(t.pairCreatedAt)}, price down ${Math.abs(t.priceChange?.h24 || 0).toFixed(0)}%. Volume ${fmtVol(t.volume?.h24)} before collapse.`,
-    (t) => `Pattern match on $${t.baseToken?.symbol}: rapid bonding → immediate sell pressure. Deployer behavior consistent with pump & dump playbook.`,
-    (t) => `$${t.baseToken?.symbol} LP drained. ${Math.abs(t.priceChange?.h24 || 0).toFixed(0)}% drop within hours of creation. Classic rug signature confirmed.`
-  ];
-
-  let html = '';
-  html += `<div class="analysis-line"><span class="agent-tag agent-${agents[0].cls}">[${agents[0].tag}]</span> ${templates[0](worst[0])}</div>`;
-
-  worst.forEach((t, i) => {
-    const aIdx = (i % 3) + 1;
-    html += `<div class="analysis-line"><span class="agent-tag agent-${agents[aIdx].cls}">[${agents[aIdx].tag}]</span> ${templates[aIdx](t)}</div>`;
-  });
-
-  el.innerHTML = html;
-}
-
-async function fetchData() {
-  const status = document.getElementById('feed-status');
-  status.textContent = '> fetching live data...';
-
+// Submit CA
+async function submitCA() {
+  const ca = document.getElementById('caInput').value.trim();
+  if (!ca || ca.length < 32) return alert('Enter a valid CA');
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true; btn.textContent = 'DEPLOYING AGENTS...';
   try {
-    const res = await fetch(API_URL);
-    if (!res.ok) throw new Error('API ' + res.status);
+    const res = await fetch(API + '/api/investigate', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ca}) });
     const data = await res.json();
-
-    let pairs = (data.pairs || [])
-      .filter(p => p.chainId === 'solana')
-      .filter(p => p.pairCreatedAt && (Date.now() - p.pairCreatedAt) < 86400000)
-      .filter(p => (p.priceChange?.h24 || 0) < -50)
-      .sort((a, b) => (a.priceChange?.h24 || 0) - (b.priceChange?.h24 || 0));
-
-    // Dedupe by base token address
-    const seen = new Set();
-    pairs = pairs.filter(p => {
-      const addr = p.baseToken?.address;
-      if (!addr || seen.has(addr)) return false;
-      seen.add(addr);
-      return true;
-    });
-
-    lastData = pairs;
-    const now = new Date().toLocaleTimeString();
-    status.textContent = `> ${pairs.length} tokens flagged — last updated ${now}`;
-    renderFeed(pairs);
-    generateAnalysis(pairs);
-  } catch (e) {
-    status.textContent = '> CONNECTION ERROR — retrying...';
-    document.getElementById('feed-container').innerHTML =
-      '<div class="loading">CONNECTING TO BLOCKCHAIN<span class="cursor">_</span></div>';
-    setTimeout(fetchData, 5000);
+    if (data.error) { alert(data.error); return; }
+    btn.textContent = `INVESTIGATION #${data.id}`;
+    switchTab('feed');
+    setTimeout(() => { btn.disabled = false; btn.textContent = 'INVESTIGATE'; }, 5000);
+    // Poll for updates
+    pollInvestigation(data.id);
+  } catch(e) {
+    alert('Server unavailable. Make sure the agent network is running.');
+    btn.disabled = false; btn.textContent = 'INVESTIGATE';
   }
 }
 
-fetchData();
-setInterval(fetchData, REFRESH_MS);
+// Poll investigation
+async function pollInvestigation(id) {
+  const poll = async () => {
+    try {
+      const res = await fetch(API + `/api/investigation/${id}`);
+      const data = await res.json();
+      // Update feed
+      loadFeed();
+      if (data.status === 'investigating') setTimeout(poll, 3000);
+    } catch(e) {}
+  };
+  poll();
+}
+
+// Load feed
+async function loadFeed() {
+  try {
+    const res = await fetch(API + '/api/feed');
+    const steps = await res.json();
+    const container = document.getElementById('feedContainer');
+    if (!steps.length) {
+      container.innerHTML = '<div class="empty">No agent activity yet. Submit a CA to start an investigation.</div>';
+      return;
+    }
+    container.innerHTML = steps.map(s => {
+      const time = new Date(s.created_at).toLocaleTimeString('en-US', {hour12:false});
+      return `<div class="feed-line">
+        <span class="feed-time">${time}</span>
+        <span class="feed-agent ${s.agent_name}">${s.agent_name}</span>
+        <span class="feed-content">${escHtml(s.content.slice(0,200))}</span>
+      </div>`;
+    }).join('');
+  } catch(e) {
+    document.getElementById('feedContainer').innerHTML = '<div class="empty">Agent network offline. Server not running.</div>';
+  }
+}
+
+// Load investigations
+async function loadInvestigations() {
+  const container = document.getElementById('invList');
+  document.getElementById('invDetail').style.display = 'none';
+  container.style.display = 'block';
+  try {
+    const res = await fetch(API + '/api/investigations');
+    const invs = await res.json();
+    if (!invs.length) { container.innerHTML = '<div class="empty">No investigations yet.</div>'; return; }
+    container.innerHTML = invs.map(i => `
+      <div class="inv-card" onclick="showInvestigation(${i.id})">
+        <div class="inv-header">
+          <div>
+            <span class="inv-token">${i.token_name ? `${i.token_name} ($${i.token_symbol})` : i.ca.slice(0,12) + '...'}</span>
+            <div class="inv-ca">${i.ca}</div>
+          </div>
+          <span class="badge ${i.risk_rating || i.status}">${i.risk_rating || i.status.toUpperCase()}</span>
+        </div>
+        <div class="inv-meta">
+          <span>▲ ${i.upvotes||0} ▼ ${i.downvotes||0}</span>
+          <span>${i.step_count||0} steps</span>
+          <span>${timeAgo(i.submitted_at)}</span>
+        </div>
+      </div>
+    `).join('');
+  } catch(e) { container.innerHTML = '<div class="empty">Server offline</div>'; }
+}
+
+// Show single investigation
+async function showInvestigation(id) {
+  document.getElementById('invList').style.display = 'none';
+  const detail = document.getElementById('invDetail');
+  detail.style.display = 'block';
+  detail.innerHTML = '<div class="loading">Loading<span class="cursor">_</span></div>';
+  try {
+    const res = await fetch(API + `/api/investigation/${id}`);
+    const data = await res.json();
+    detail.innerHTML = `
+      <div class="back" onclick="loadInvestigations()">← BACK TO LIST</div>
+      <div style="margin-bottom:12px">
+        <span style="color:#fff;font-weight:700;font-size:16px">${data.token_name || 'Unknown'} ($${data.token_symbol || '???'})</span>
+        ${data.risk_rating ? `<span class="badge ${data.risk_rating}" style="margin-left:8px">${data.risk_rating}</span>` : ''}
+        <div style="color:#555;font-size:11px;margin-top:4px">${data.ca}</div>
+        <div style="margin-top:8px">
+          <button class="vote-btn" onclick="vote(${id},'up')">▲ ${data.upvotes||0}</button>
+          <button class="vote-btn" onclick="vote(${id},'down')">▼ ${data.downvotes||0}</button>
+        </div>
+      </div>
+      ${(data.steps||[]).map(s => `
+        <div class="step">
+          <div class="step-header">
+            <span class="step-agent feed-agent ${s.agent_name}">${s.agent_name}</span>
+            <span class="step-time">${new Date(s.created_at).toLocaleTimeString('en-US',{hour12:false})}</span>
+          </div>
+          <div class="step-content">${escHtml(s.content)}</div>
+        </div>
+      `).join('')}
+    `;
+  } catch(e) { detail.innerHTML = '<div class="empty">Failed to load</div>'; }
+}
+
+// Vote
+async function vote(id, type) {
+  try {
+    await fetch(API + `/api/vote/${id}`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({type}) });
+    showInvestigation(id);
+  } catch(e) {}
+}
+
+// Rugpull scanner (DexScreener - client-side)
+async function loadRugpulls() {
+  try {
+    const res = await fetch('https://api.dexscreener.com/latest/dex/search?q=pump');
+    const data = await res.json();
+    const pairs = (data.pairs||[])
+      .filter(p => p.chainId === 'solana' && p.pairCreatedAt && (Date.now() - p.pairCreatedAt < 86400000) && p.priceChange?.h24 < -50)
+      .sort((a,b) => (a.priceChange?.h24||0) - (b.priceChange?.h24||0))
+      .slice(0, 30);
+    
+    const body = document.getElementById('rugBody');
+    if (!pairs.length) { body.innerHTML = '<tr><td colspan="7" class="empty">No rugpulls detected in last 24h</td></tr>'; return; }
+    body.innerHTML = pairs.map(p => {
+      const change = p.priceChange?.h24 || 0;
+      const cls = change < -80 ? 'dead' : change < -50 ? 'dumping' : 'alive';
+      const status = change < -80 ? '☠️ DEAD' : change < -50 ? '⚠️ DUMP' : '● LIVE';
+      const age = Math.round((Date.now() - p.pairCreatedAt) / 3600000);
+      return `<tr class="${cls}" onclick="window.open('${p.url}','_blank')">
+        <td style="color:#fff;font-weight:600">$${p.baseToken?.symbol||'???'}</td>
+        <td style="color:#666">${(p.baseToken?.address||'').slice(0,6)}...${(p.baseToken?.address||'').slice(-4)}</td>
+        <td>${age}h</td>
+        <td>$${Number(p.priceUsd||0).toFixed(8)}</td>
+        <td class="${cls}">${change > 0 ? '+' : ''}${change}%</td>
+        <td>$${Number(p.volume?.h24||0).toLocaleString()}</td>
+        <td class="${cls}">${status}</td>
+      </tr>`;
+    }).join('');
+  } catch(e) {
+    document.getElementById('rugBody').innerHTML = '<tr><td colspan="7" class="empty">DexScreener unavailable</td></tr>';
+  }
+}
+
+// Helpers
+function escHtml(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function timeAgo(ts) {
+  const m = Math.round((Date.now() - new Date(ts)) / 60000);
+  if (m < 60) return m + 'm ago';
+  if (m < 1440) return Math.round(m/60) + 'h ago';
+  return Math.round(m/1440) + 'd ago';
+}
+function copyCA() {
+  navigator.clipboard.writeText('7S2yY2G6SU1fFVzXQ4FyXuAvWEKy2VUBCetnPhRBpump');
+  document.querySelector('.copy-btn').textContent = 'COPIED';
+  setTimeout(() => document.querySelector('.copy-btn').textContent = 'COPY', 2000);
+}
+
+// Init
+loadFeed();
+setInterval(loadFeed, 15000);
+setInterval(loadRugpulls, 60000);
+
+// Enter key submit
+document.getElementById('caInput').addEventListener('keydown', e => { if (e.key === 'Enter') submitCA(); });
 </script>
 </body>
 </html>
