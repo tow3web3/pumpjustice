@@ -6,7 +6,10 @@
 <title>Pump Justice — AI-Powered Crypto Investigation</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/shared.css">
 <style>
+/* Hub-specific: push manifesto below nav+stats */
+.manifesto-inner { padding-top: 56px; }
 :root {
   --bg: #09090b; --card: #111113; --border: #1e1e22; --border-hover: #2a2a30;
   --green: #10b981; --red: #ef4444; --blue: #3b82f6; --purple: #8b5cf6;
@@ -459,55 +462,30 @@ body::after {
   </div>
 </section>
 
-<!-- ==================== INVESTIGATION TOOL ==================== -->
+<!-- ==================== CTA SECTION ==================== -->
 <section class="investigate-section" id="investigate">
-  <div class="container">
-    <div class="section-label">See Them In Action</div>
-    <div class="section-title">Run an investigation</div>
-    <div class="section-desc">Paste any Solana contract address. Six agents will analyze it in real-time.</div>
-
-    <div class="tool-box">
-      <div class="input-row">
-        <input type="text" id="caInput" placeholder="Paste a contract address..." spellcheck="false" maxlength="64">
-        <button class="btn" id="submitBtn" onclick="submitCA()">Investigate</button>
-      </div>
-    </div>
-
-    <div class="tabs">
-      <div class="tab active" data-tab="feed" onclick="switchTab('feed')">Live Feed</div>
-      <div class="tab" data-tab="investigations" onclick="switchTab('investigations')">Past Investigations</div>
-    </div>
-
-    <div class="panel active" id="panel-feed">
-      <div id="feedContainer"><div class="empty">No agent activity yet. Submit a CA to start.</div></div>
-    </div>
-
-    <div class="panel" id="panel-investigations">
-      <div id="invList"><div class="empty">No investigations yet.</div></div>
-      <div id="invDetail" style="display:none"></div>
+  <div class="container" style="text-align:center;padding:80px 24px">
+    <div class="section-label" style="text-align:center">See Them In Action</div>
+    <div class="section-title" style="text-align:center;margin:0 auto 16px">Ready to investigate?</div>
+    <div class="section-desc" style="text-align:center;margin:0 auto 40px;max-width:500px">Paste any Solana contract address. Six autonomous agents will analyze it in real-time.</div>
+    <a href="/investigate" class="btn" style="font-size:18px;padding:18px 40px;text-decoration:none;display:inline-block">🔍 Submit a CA</a>
+    <div style="margin-top:48px;display:flex;justify-content:center;gap:32px;flex-wrap:wrap">
+      <a href="/cases" style="color:var(--dim);font-size:15px;font-weight:500">Browse Cases →</a>
+      <a href="/registry" style="color:var(--dim);font-size:15px;font-weight:500">Scammer Registry →</a>
+      <a href="/leaderboard" style="color:var(--dim);font-size:15px;font-weight:500">Leaderboard →</a>
     </div>
   </div>
 </section>
 
-<!-- ==================== FOOTER ==================== -->
-<footer>
-  <div class="container">
-    <div class="tagline">Pump Justice — Agents never sleep.</div>
-    <div class="ca-row">
-      <code>7S2yY2G6SU1fFVzXQ4FyXuAvWEKy2VUBCetnPhRBpump</code>
-      <button class="copy-btn" onclick="copyCA()">Copy</button>
-    </div>
-    <div class="footer-links">
-      <a href="https://x.com/PumpJustice" target="_blank">X</a>
-      <a href="https://github.com/tow3web3/pumpjustice" target="_blank">GitHub</a>
-    </div>
-    <p style="margin-top: 24px; color: var(--muted); font-size: 13px;">Built by agents. Verified by community.</p>
-  </div>
-</footer>
+<!-- Footer injected by shared.js -->
 
 <!-- ==================== SCRIPTS ==================== -->
+<script src="/shared.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script>
+initPage('hub');
+</script>
 <script>
 // ========== GSAP ANIMATIONS ==========
 gsap.registerPlugin(ScrollTrigger);
@@ -592,109 +570,7 @@ setInterval(() => {
   pipeIdx = (pipeIdx + 1) % pipeNodes.length;
 }, 1800);
 
-// ========== INVESTIGATION FUNCTIONALITY (preserved) ==========
-const API = window.location.hostname === 'tow3web3.github.io' ? 'http://65.20.103.177:8080' : '';
-const agentColors = { SENTINEL:'#ef4444', TRACER:'#3b82f6', CIPHER:'#8b5cf6', GHOST:'#6b7280', NEXUS:'#10b981', VIPER:'#f59e0b' };
-
-function switchTab(tab) {
-  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
-  document.querySelectorAll('.panel').forEach(p => p.classList.toggle('active', p.id === 'panel-' + tab));
-  if (tab === 'investigations') loadInvestigations();
-  if (tab === 'feed') loadFeed();
-}
-
-async function submitCA() {
-  const ca = document.getElementById('caInput').value.trim();
-  if (!ca || ca.length < 32) return;
-  const btn = document.getElementById('submitBtn');
-  btn.disabled = true; btn.textContent = 'Deploying agents...';
-  try {
-    const res = await fetch(API + '/api/investigate', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ca}) });
-    const data = await res.json();
-    if (data.error) { alert(data.error); return; }
-    switchTab('feed');
-    pollInvestigation(data.id);
-  } catch(e) { alert('Server unavailable'); }
-  finally { setTimeout(() => { btn.disabled = false; btn.textContent = 'Investigate'; }, 5000); }
-}
-
-async function pollInvestigation(id) {
-  const poll = async () => {
-    try {
-      const res = await fetch(API + '/api/investigation/' + id);
-      const data = await res.json();
-      loadFeed();
-      if (data.status === 'investigating') setTimeout(poll, 3000);
-    } catch(e) {}
-  };
-  poll();
-}
-
-async function loadFeed() {
-  try {
-    const res = await fetch(API + '/api/feed');
-    const steps = await res.json();
-    const el = document.getElementById('feedContainer');
-    if (!steps.length) { el.innerHTML = '<div class="empty">No agent activity yet. Submit a CA to start.</div>'; return; }
-    el.innerHTML = steps.map(s => `<div class="feed-item">
-      <span class="feed-time">${new Date(s.created_at).toLocaleTimeString('en-US',{hour12:false})}</span>
-      <span class="feed-agent" style="color:${agentColors[s.agent_name]||'#fff'}">${s.agent_name}</span>
-      <span class="feed-content">${esc(s.content.length > 200 ? s.content.slice(0,200)+'…' : s.content)}</span>
-    </div>`).join('');
-  } catch(e) { document.getElementById('feedContainer').innerHTML = '<div class="empty">Could not connect to agent network.</div>'; }
-}
-
-async function loadInvestigations() {
-  const el = document.getElementById('invList');
-  document.getElementById('invDetail').style.display = 'none';
-  el.style.display = 'block';
-  try {
-    const res = await fetch(API + '/api/investigations');
-    const invs = await res.json();
-    if (!invs.length) { el.innerHTML = '<div class="empty">No investigations yet.</div>'; return; }
-    el.innerHTML = invs.map(i => `<div class="inv-card" onclick="showInv(${i.id})">
-      <div class="inv-top">
-        <div><div class="inv-token">${i.token_name ? i.token_name + ' ($' + i.token_symbol + ')' : i.ca.slice(0,16)+'…'}</div>
-        <div class="inv-ca">${i.ca}</div></div>
-        <span class="badge ${i.risk_rating||i.status}">${i.risk_rating||i.status}</span>
-      </div>
-      <div class="inv-meta"><span>▲ ${i.upvotes||0} ▼ ${i.downvotes||0}</span><span>${timeAgo(i.submitted_at)}</span></div>
-    </div>`).join('');
-  } catch(e) { el.innerHTML = '<div class="empty">Could not load.</div>'; }
-}
-
-async function showInv(id) {
-  document.getElementById('invList').style.display = 'none';
-  const el = document.getElementById('invDetail');
-  el.style.display = 'block';
-  try {
-    const res = await fetch(API + '/api/investigation/' + id);
-    const d = await res.json();
-    el.innerHTML = `<div class="back-link" onclick="loadInvestigations()">← Back</div>
-      <div style="margin-bottom:20px">
-        <span style="color:#fff;font-weight:700;font-size:20px">${d.token_name||'Unknown'} ($${d.token_symbol||'???'})</span>
-        ${d.risk_rating ? '<span class="badge '+d.risk_rating+'" style="margin-left:10px">'+d.risk_rating+'</span>' : ''}
-        <div style="color:var(--muted);font-size:12px;margin-top:6px;font-family:monospace">${d.ca}</div>
-        <div style="margin-top:12px"><button class="vote-btn" onclick="vote(${id},'up')">▲ ${d.upvotes||0}</button> <button class="vote-btn" onclick="vote(${id},'down')">▼ ${d.downvotes||0}</button></div>
-      </div>
-      ${(d.steps||[]).map(s => `<div class="step-card">
-        <div class="step-top"><span class="step-agent" style="color:${agentColors[s.agent_name]||'#fff'}">${s.agent_name}</span><span class="step-time">${new Date(s.created_at).toLocaleTimeString('en-US',{hour12:false})}</span></div>
-        <div class="step-body">${esc(s.content)}</div>
-      </div>`).join('')}`;
-  } catch(e) { el.innerHTML = '<div class="empty">Failed to load.</div>'; }
-}
-
-async function vote(id, type) {
-  try { await fetch(API+'/api/vote/'+id,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({type})}); showInv(id); } catch(e){}
-}
-
-function esc(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>'); }
-function timeAgo(t) { const m=Math.round((Date.now()-new Date(t))/60000); return m<60?m+'m ago':m<1440?Math.round(m/60)+'h ago':Math.round(m/1440)+'d ago'; }
-function copyCA() { navigator.clipboard.writeText('7S2yY2G6SU1fFVzXQ4FyXuAvWEKy2VUBCetnPhRBpump'); const b=document.querySelector('.copy-btn'); b.textContent='Copied!'; setTimeout(()=>b.textContent='Copy',2000); }
-
-document.getElementById('caInput').addEventListener('keydown', e => { if(e.key==='Enter') submitCA(); });
-loadFeed();
-setInterval(loadFeed, 15000);
+// Hub page — no investigation tool, just animations
 </script>
 </body>
 </html>

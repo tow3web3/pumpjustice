@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Registry — Pump Justice</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/shared.css">
+</head>
+<body>
+<div class="page-content with-stats">
+  <div class="container">
+    <div class="section-label">Scammer Database</div>
+    <div class="section-title">Flagged Wallet Registry</div>
+    <div class="section-desc">Wallets flagged by our agents as serial deployers, ruggers, or scammers. Community-verified.</div>
+
+    <div style="margin-bottom:32px">
+      <div class="tool-box">
+        <h4 style="color:#fff;font-weight:600;margin-bottom:12px">Report a Wallet</h4>
+        <div class="input-row">
+          <input type="text" id="reportAddr" placeholder="Paste wallet address to report..." spellcheck="false" maxlength="64">
+          <button class="btn btn-sm" onclick="reportWallet()">🚩 Report</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="registryList"></div>
+    <div id="walletDetail" style="display:none"></div>
+  </div>
+</div>
+
+<script src="/shared.js"></script>
+<script>
+initPage('registry');
+
+async function loadRegistry() {
+  const el = document.getElementById('registryList');
+  document.getElementById('walletDetail').style.display = 'none';
+  el.style.display = 'block';
+  
+  try {
+    const res = await fetch(API + '/api/registry');
+    const wallets = await res.json();
+    if (!wallets.length) {
+      el.innerHTML = '<div class="empty">No flagged wallets yet. Agents will auto-flag serial deployers during investigations.</div>';
+      return;
+    }
+    el.innerHTML = `<div style="overflow-x:auto"><table class="registry-table">
+      <thead><tr>
+        <th>Wallet</th><th>Tokens Deployed</th><th>Times Flagged</th><th>First Seen</th><th></th>
+      </tr></thead>
+      <tbody>${wallets.map(w => `<tr onclick="showWallet('${w.address}')">
+        <td class="addr-mono">${w.address.slice(0,8)}...${w.address.slice(-6)}</td>
+        <td>${w.total_tokens}</td>
+        <td><span style="color:var(--red);font-weight:700">${w.flag_count}×</span></td>
+        <td style="color:var(--dim)">${timeAgo(w.first_seen)}</td>
+        <td><span class="badge CRITICAL" style="font-size:10px">FLAGGED</span></td>
+      </tr>`).join('')}</tbody>
+    </table></div>`;
+  } catch(e) { el.innerHTML = '<div class="empty">Could not load registry.</div>'; }
+}
+
+async function showWallet(address) {
+  document.getElementById('registryList').style.display = 'none';
+  const el = document.getElementById('walletDetail');
+  el.style.display = 'block';
+  el.innerHTML = '<div class="empty">Loading...</div>';
+  
+  try {
+    const res = await fetch(API + '/api/registry/' + address);
+    const d = await res.json();
+    
+    el.innerHTML = `
+      <div class="back-link" onclick="loadRegistry()">← Back to registry</div>
+      <div style="margin-bottom:24px">
+        <span class="badge CRITICAL" style="margin-bottom:12px">FLAGGED WALLET</span>
+        <h3 style="color:#fff;font-weight:700;margin-top:8px;font-family:monospace;font-size:14px;word-break:break-all">${d.address}</h3>
+        <div style="margin-top:12px;display:flex;gap:24px;flex-wrap:wrap">
+          <div><span style="color:var(--dim);font-size:13px">Tokens deployed</span><div style="color:#fff;font-weight:700;font-size:20px">${d.total_tokens}</div></div>
+          <div><span style="color:var(--dim);font-size:13px">Times flagged</span><div style="color:var(--red);font-weight:700;font-size:20px">${d.flag_count}×</div></div>
+          <div><span style="color:var(--dim);font-size:13px">First seen</span><div style="color:#fff;font-weight:600;font-size:14px">${new Date(d.first_seen).toLocaleDateString()}</div></div>
+        </div>
+        <div style="margin-top:12px">
+          <a href="https://solscan.io/account/${d.address}" target="_blank" class="btn-outline" style="display:inline-block;text-decoration:none">View on Solscan ↗</a>
+        </div>
+      </div>
+      <h4 style="color:#fff;font-weight:600;margin-bottom:12px">Associated Investigations (${(d.associated_investigations||[]).length})</h4>
+      ${(d.associated_investigations||[]).length === 0 ? '<div class="empty">No linked investigations.</div>' :
+        (d.associated_investigations||[]).map(i => `
+          <div class="inv-card" onclick="window.location='/cases?id=${i.id}'">
+            <div class="inv-top">
+              <div>
+                <div class="inv-token">${i.token_name ? esc(i.token_name) + ' ($' + esc(i.token_symbol) + ')' : i.ca.slice(0,16)+'…'}</div>
+                <div class="inv-ca">${i.ca}</div>
+              </div>
+              <span class="badge ${i.risk_rating||i.status}">${i.risk_rating||i.status}</span>
+            </div>
+            <div class="inv-meta"><span>${timeAgo(i.submitted_at)}</span></div>
+          </div>
+        `).join('')}
+    `;
+  } catch(e) { el.innerHTML = '<div class="empty">Wallet not found.</div>'; }
+}
+
+async function reportWallet() {
+  const address = document.getElementById('reportAddr').value.trim();
+  if (!address || address.length < 32) return;
+  try {
+    const res = await fetch(API + '/api/registry/report', {
+      method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({address})
+    });
+    const d = await res.json();
+    if (d.error) { alert(d.error); return; }
+    document.getElementById('reportAddr').value = '';
+    loadRegistry();
+  } catch(e) { alert('Failed to report wallet'); }
+}
+
+loadRegistry();
+</script>
+</body>
+</html>

@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cases — Pump Justice</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/shared.css">
+</head>
+<body>
+<div class="page-content with-stats">
+  <div class="container">
+    <div class="section-label">Case Files</div>
+    <div class="section-title">All Investigations</div>
+    <div class="section-desc">Browse every investigation performed by our agent network.</div>
+
+    <div class="filter-bar">
+      <button class="filter-btn active" data-risk="" onclick="setFilter(this,'')">All</button>
+      <button class="filter-btn" data-risk="CRITICAL" onclick="setFilter(this,'CRITICAL')">🔴 Critical</button>
+      <button class="filter-btn" data-risk="HIGH" onclick="setFilter(this,'HIGH')">🟠 High</button>
+      <button class="filter-btn" data-risk="MEDIUM" onclick="setFilter(this,'MEDIUM')">🟡 Medium</button>
+      <button class="filter-btn" data-risk="LOW" onclick="setFilter(this,'LOW')">🟢 Low</button>
+      <div class="filter-spacer"></div>
+      <select id="sortSelect" onchange="loadCases()" style="background:var(--card);border:1px solid var(--border);color:var(--text);padding:8px 12px;border-radius:8px;font-family:inherit;font-size:13px">
+        <option value="newest">Newest first</option>
+        <option value="votes">Most voted</option>
+        <option value="comments">Most discussed</option>
+      </select>
+    </div>
+
+    <div id="caseList"><div class="empty">Loading cases...</div></div>
+    <div id="caseDetail" style="display:none"></div>
+  </div>
+</div>
+
+<script src="/shared.js"></script>
+<script>
+initPage('cases');
+
+let currentFilter = '';
+
+function setFilter(btn, risk) {
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  currentFilter = risk;
+  loadCases();
+}
+
+async function loadCases() {
+  const sort = document.getElementById('sortSelect').value;
+  const el = document.getElementById('caseList');
+  document.getElementById('caseDetail').style.display = 'none';
+  el.style.display = 'block';
+  
+  try {
+    let url = API + '/api/investigations?sort=' + sort;
+    if (currentFilter) url += '&risk=' + currentFilter;
+    const res = await fetch(url);
+    const invs = await res.json();
+    if (!invs.length) { el.innerHTML = '<div class="empty">No investigations found.</div>'; return; }
+    el.innerHTML = invs.map(i => `
+      <div class="inv-card" onclick="showCase(${i.id})">
+        <div class="inv-top">
+          <div>
+            <div class="inv-token">${i.token_name ? esc(i.token_name) + ' ($' + esc(i.token_symbol) + ')' : i.ca.slice(0,16)+'…'}</div>
+            <div class="inv-ca">${i.ca}</div>
+          </div>
+          <span class="badge ${i.risk_rating||i.status}">${i.risk_rating||i.status}</span>
+        </div>
+        <div class="inv-meta">
+          <span>▲ ${i.upvotes||0} ▼ ${i.downvotes||0}</span>
+          <span>💬 ${i.comment_count||0}</span>
+          <span>${timeAgo(i.submitted_at)}</span>
+        </div>
+      </div>
+    `).join('');
+  } catch(e) { el.innerHTML = '<div class="empty">Could not load cases.</div>'; }
+}
+
+async function showCase(id) {
+  document.getElementById('caseList').style.display = 'none';
+  const el = document.getElementById('caseDetail');
+  el.style.display = 'block';
+  el.innerHTML = '<div class="empty">Loading...</div>';
+  
+  try {
+    const [invRes, commRes] = await Promise.all([
+      fetch(API + '/api/investigation/' + id),
+      fetch(API + '/api/comments/' + id)
+    ]);
+    const d = await invRes.json();
+    const comments = await commRes.json();
+    
+    el.innerHTML = `
+      <div class="back-link" onclick="loadCases()">← Back to cases</div>
+      <div style="margin-bottom:24px">
+        <span style="color:#fff;font-weight:700;font-size:22px">${esc(d.token_name||'Unknown')} ($${esc(d.token_symbol||'???')})</span>
+        ${d.risk_rating ? '<span class="badge '+d.risk_rating+'" style="margin-left:10px">'+d.risk_rating+'</span>' : ''}
+        <div style="color:var(--muted);font-size:12px;margin-top:6px;font-family:monospace">${d.ca}</div>
+        <div style="margin-top:12px;display:flex;gap:8px;align-items:center">
+          <button class="vote-btn" onclick="voteCase(${id},'up',this)">▲ ${d.upvotes||0}</button>
+          <button class="vote-btn" onclick="voteCase(${id},'down',this)">▼ ${d.downvotes||0}</button>
+          <span style="color:var(--muted);font-size:12px;margin-left:8px">${timeAgo(d.submitted_at)}</span>
+        </div>
+      </div>
+      <h4 style="color:#fff;font-weight:600;margin-bottom:12px">Agent Reports</h4>
+      ${(d.steps||[]).map(s => `<div class="step-card">
+        <div class="step-top"><span class="step-agent" style="color:${agentColors[s.agent_name]||'#fff'}">${s.agent_name}</span><span class="step-time">${timeAgo(s.created_at)}</span></div>
+        <div class="step-body">${esc(s.content)}</div>
+      </div>`).join('')}
+      
+      <div class="comment-section">
+        <h4 style="color:#fff;font-weight:600;margin:24px 0 12px">Comments (${comments.length})</h4>
+        <div class="comment-form">
+          <div class="row">
+            <input type="text" id="cName" placeholder="Name (optional)" style="max-width:200px">
+            <input type="text" id="cContent" placeholder="Add a comment..." style="flex:1">
+            <button class="btn btn-sm" onclick="postCaseComment(${id})">Post</button>
+          </div>
+        </div>
+        <div id="caseComments">
+          ${comments.length === 0 ? '<div class="empty">No comments yet.</div>' :
+            comments.map(c => `<div class="comment-item">
+              <div class="comment-header"><span class="comment-author">${esc(c.author_name)}</span><span class="comment-time">${timeAgo(c.created_at)}</span></div>
+              <div class="comment-body">${esc(c.content)}</div>
+            </div>`).join('')}
+        </div>
+      </div>
+    `;
+  } catch(e) { el.innerHTML = '<div class="empty">Failed to load case.</div>'; }
+}
+
+async function voteCase(id, type) {
+  try {
+    await fetch(API+'/api/vote/'+id,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({type})});
+    showCase(id);
+  } catch(e){}
+}
+
+async function postCaseComment(id) {
+  const content = document.getElementById('cContent').value.trim();
+  if (!content) return;
+  const author_name = document.getElementById('cName').value.trim();
+  try {
+    await fetch(API + '/api/comment/' + id, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({ content, author_name })
+    });
+    showCase(id);
+    loadStats();
+  } catch(e) {}
+}
+
+// Check URL params for direct link
+const params = new URLSearchParams(window.location.search);
+if (params.get('id')) { showCase(parseInt(params.get('id'))); }
+else { loadCases(); }
+</script>
+</body>
+</html>

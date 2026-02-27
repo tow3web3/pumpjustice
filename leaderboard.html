@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Leaderboard — Pump Justice</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/shared.css">
+</head>
+<body>
+<div class="page-content with-stats">
+  <div class="container">
+    <div class="section-label">Community</div>
+    <div class="section-title">Leaderboard</div>
+    <div class="section-desc">Top contributors protecting the ecosystem. Submit investigations and vote to climb the ranks.</div>
+
+    <div class="grid-2" id="leaderboardGrid">
+      <div>
+        <h3 style="color:#fff;font-weight:700;margin-bottom:16px">🔍 Top Investigators</h3>
+        <div id="lbSubmitters"><div class="empty">Loading...</div></div>
+      </div>
+      <div>
+        <h3 style="color:#fff;font-weight:700;margin-bottom:16px">🗳️ Top Voters</h3>
+        <div id="lbVoters"><div class="empty">Loading...</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="/shared.js"></script>
+<script>
+initPage('leaderboard');
+
+function rankClass(i) { return i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : 'normal'; }
+
+async function loadLeaderboard() {
+  try {
+    const res = await fetch(API + '/api/leaderboard');
+    const d = await res.json();
+    
+    const subEl = document.getElementById('lbSubmitters');
+    if (!d.submitters?.length) {
+      subEl.innerHTML = '<div class="empty">No investigators yet. Be the first to submit a CA!</div>';
+    } else {
+      subEl.innerHTML = d.submitters.map((s, i) => `
+        <div class="lb-card">
+          <div class="lb-rank ${rankClass(i)}">${i+1}</div>
+          <div class="lb-info">
+            <div class="lb-name">${esc(s.name)}</div>
+            <div class="lb-stat">${s.submissions} submissions · ${s.scams_found} scams found</div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    const votEl = document.getElementById('lbVoters');
+    if (!d.voters?.length) {
+      votEl.innerHTML = '<div class="empty">No voters yet. Vote on investigations to appear here!</div>';
+    } else {
+      votEl.innerHTML = d.voters.map((v, i) => `
+        <div class="lb-card">
+          <div class="lb-rank ${rankClass(i)}">${i+1}</div>
+          <div class="lb-info">
+            <div class="lb-name">${esc(v.name)}</div>
+            <div class="lb-stat">${v.total_votes} votes cast</div>
+          </div>
+        </div>
+      `).join('');
+    }
+  } catch(e) {
+    document.getElementById('lbSubmitters').innerHTML = '<div class="empty">Could not load leaderboard.</div>';
+    document.getElementById('lbVoters').innerHTML = '';
+  }
+}
+
+loadLeaderboard();
+</script>
+</body>
+</html>
