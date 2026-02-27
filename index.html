@@ -5,336 +5,470 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Pump Justice — AI-Powered Crypto Investigation</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 :root {
   --bg: #09090b; --card: #111113; --border: #1e1e22; --border-hover: #2a2a30;
   --green: #10b981; --red: #ef4444; --blue: #3b82f6; --purple: #8b5cf6;
   --orange: #f59e0b; --gray: #6b7280; --text: #e4e4e7; --dim: #71717a; --muted: #3f3f46;
 }
-* { margin:0; padding:0; box-sizing:border-box; }
-body { background:var(--bg); color:var(--text); font-family:'Inter',system-ui,sans-serif; line-height:1.6; -webkit-font-smoothing:antialiased; }
-a { color:var(--green); text-decoration:none; }
-a:hover { text-decoration:underline; }
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg); color: var(--text); font-family: 'Inter', system-ui, sans-serif;
+  line-height: 1.6; -webkit-font-smoothing: antialiased; overflow-x: hidden;
+}
+a { color: var(--green); text-decoration: none; }
+a:hover { text-decoration: underline; }
 
-/* Layout */
-.container { max-width:1100px; margin:0 auto; padding:0 24px; }
-section { padding:80px 0; }
-section + section { border-top:1px solid var(--border); }
+/* ========== HERO / MANIFESTO ========== */
+.manifesto { position: relative; min-height: 400vh; }
+.manifesto-inner {
+  position: sticky; top: 0; height: 100vh;
+  display: flex; align-items: center; justify-content: center;
+  overflow: hidden;
+}
+.manifesto-content {
+  max-width: 900px; padding: 0 32px; text-align: center;
+}
+.manifesto-line {
+  font-size: clamp(28px, 4.5vw, 52px); font-weight: 700; color: #fff;
+  letter-spacing: -0.03em; line-height: 1.2; margin-bottom: 40px;
+  opacity: 0; transform: translateY(60px);
+}
+.manifesto-line.accent {
+  font-size: clamp(36px, 6vw, 72px); color: var(--green);
+  font-weight: 900; margin-bottom: 60px;
+}
+.manifesto-line.meet {
+  font-size: clamp(20px, 2.5vw, 32px); color: var(--dim);
+  font-weight: 500;
+}
+.scroll-indicator {
+  position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%);
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  opacity: 0; animation: fadeInUp 1s 1.5s forwards;
+}
+.scroll-indicator span { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.15em; }
+.scroll-arrow {
+  width: 24px; height: 24px; border-right: 2px solid var(--muted);
+  border-bottom: 2px solid var(--muted); transform: rotate(45deg);
+  animation: scrollBounce 2s infinite;
+}
+@keyframes scrollBounce { 0%,100%{transform:rotate(45deg) translate(0,0)} 50%{transform:rotate(45deg) translate(4px,4px)} }
+@keyframes fadeInUp { to{opacity:1} }
 
-/* Hero */
-.hero { padding:120px 0 80px; text-align:center; }
-.hero h1 { font-size:clamp(32px,5vw,56px); font-weight:700; letter-spacing:-0.02em; line-height:1.1; color:#fff; margin-bottom:20px; }
-.hero h1 span { color:var(--green); }
-.hero p { font-size:18px; color:var(--dim); max-width:600px; margin:0 auto 36px; line-height:1.7; }
-.hero-cta { display:inline-flex; align-items:center; gap:8px; background:var(--green); color:#000; padding:14px 28px; border-radius:8px; font-weight:600; font-size:15px; border:none; cursor:pointer; transition:.15s; }
-.hero-cta:hover { background:#0ea572; text-decoration:none; }
+/* ========== AGENT REVEAL SECTIONS ========== */
+.agent-section {
+  position: relative; min-height: 100vh;
+  display: flex; align-items: center; overflow: hidden;
+}
+.agent-section-inner {
+  width: 100%; max-width: 1200px; margin: 0 auto; padding: 80px 32px;
+  display: flex; align-items: center; gap: 80px;
+}
+.agent-section-inner.reverse { flex-direction: row-reverse; }
+.agent-visual {
+  flex: 0 0 280px; display: flex; align-items: center; justify-content: center;
+  opacity: 0; transform: scale(0.8);
+}
+.agent-circle {
+  width: 220px; height: 220px; border-radius: 50%; display: flex;
+  align-items: center; justify-content: center; position: relative;
+}
+.agent-circle::before {
+  content: ''; position: absolute; inset: -12px; border-radius: 50%;
+  border: 1px solid; opacity: 0.15;
+}
+.agent-circle svg { width: 90px; height: 90px; }
+.agent-info { flex: 1; opacity: 0; transform: translateX(60px); }
+.agent-section-inner.reverse .agent-info { transform: translateX(-60px); }
+.agent-info h2 {
+  font-size: clamp(48px, 6vw, 80px); font-weight: 900;
+  letter-spacing: -0.04em; line-height: 1; margin-bottom: 8px;
+}
+.agent-info .role {
+  font-size: clamp(16px, 2vw, 22px); font-weight: 500;
+  text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 20px;
+}
+.agent-info .desc {
+  font-size: clamp(16px, 1.5vw, 20px); color: var(--dim); line-height: 1.7;
+  max-width: 500px;
+}
 
-/* Steps */
-.steps { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:24px; }
-.step { padding:28px; }
-.step-num { font-size:13px; font-weight:600; color:var(--green); margin-bottom:8px; }
-.step h3 { font-size:18px; font-weight:600; color:#fff; margin-bottom:8px; }
-.step p { color:var(--dim); font-size:14px; }
+/* ========== PIPELINE SECTION ========== */
+.pipeline-section {
+  padding: 160px 32px; overflow: hidden;
+}
+.pipeline-title {
+  text-align: center; font-size: clamp(28px, 4vw, 48px); font-weight: 800;
+  color: #fff; letter-spacing: -0.03em; margin-bottom: 80px;
+  opacity: 0; transform: translateY(40px);
+}
+.pipeline-track {
+  display: flex; align-items: center; justify-content: center;
+  gap: 0; max-width: 1100px; margin: 0 auto; flex-wrap: wrap;
+}
+.pipe-node {
+  display: flex; flex-direction: column; align-items: center; gap: 10px;
+  padding: 16px 12px; opacity: 0; transform: translateY(30px);
+}
+.pipe-dot {
+  width: 56px; height: 56px; border-radius: 50%; display: flex;
+  align-items: center; justify-content: center; font-size: 14px;
+  font-weight: 800; color: #000; position: relative; transition: 0.6s;
+}
+.pipe-dot.lit::after {
+  content: ''; position: absolute; inset: -6px; border-radius: 50%;
+  border: 2px solid currentColor; opacity: 0.3;
+  animation: pipePulse 2s ease-in-out infinite;
+}
+@keyframes pipePulse { 0%,100%{transform:scale(1);opacity:0.3} 50%{transform:scale(1.15);opacity:0} }
+.pipe-label { font-size: 13px; font-weight: 700; color: #fff; }
+.pipe-role { font-size: 11px; color: var(--dim); }
+.pipe-connector {
+  width: 48px; height: 2px; background: var(--border); position: relative;
+  overflow: hidden; opacity: 0;
+}
+.pipe-connector .packet {
+  position: absolute; top: -2px; left: -10px;
+  width: 10px; height: 6px; border-radius: 3px;
+  animation: packetMove 2.5s linear infinite;
+}
+@keyframes packetMove { 0%{left:-10px;opacity:0} 10%{opacity:1} 90%{opacity:1} 100%{left:48px;opacity:0} }
 
-/* Agents */
-.agents-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); gap:16px; }
-.agent-card { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:24px; transition:.2s; }
-.agent-card:hover { border-color:var(--border-hover); }
-.agent-header { display:flex; align-items:center; gap:12px; margin-bottom:12px; }
-.agent-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
-.agent-name { font-size:16px; font-weight:600; color:#fff; }
-.agent-role { font-size:12px; font-weight:500; color:var(--dim); text-transform:uppercase; letter-spacing:0.05em; }
-.agent-desc { color:var(--dim); font-size:14px; line-height:1.6; }
+/* ========== INVESTIGATION SECTION ========== */
+.investigate-section { padding: 120px 0; }
+.container { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+.section-label {
+  font-size: 13px; font-weight: 600; color: var(--green);
+  text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 12px;
+}
+.section-title {
+  font-size: clamp(32px, 4vw, 48px); font-weight: 800; color: #fff;
+  letter-spacing: -0.03em; margin-bottom: 16px;
+}
+.section-desc { color: var(--dim); font-size: 17px; max-width: 600px; margin-bottom: 48px; line-height: 1.7; }
 
-/* Section titles */
-.section-label { font-size:13px; font-weight:600; color:var(--green); text-transform:uppercase; letter-spacing:0.08em; margin-bottom:8px; }
-.section-title { font-size:clamp(24px,3vw,36px); font-weight:700; color:#fff; margin-bottom:16px; letter-spacing:-0.01em; }
-.section-desc { color:var(--dim); font-size:16px; max-width:600px; margin-bottom:40px; }
-
-/* Investigation Tool */
-.tool-box { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:32px; margin-bottom:24px; }
-.input-row { display:flex; gap:10px; }
-.input-row input { flex:1; background:var(--bg); border:1px solid var(--border); color:#fff; padding:14px 16px; border-radius:8px; font-family:inherit; font-size:14px; outline:none; }
-.input-row input:focus { border-color:var(--green); }
-.input-row input::placeholder { color:var(--muted); }
-.btn { background:var(--green); color:#000; border:none; padding:14px 24px; border-radius:8px; font-family:inherit; font-size:14px; font-weight:600; cursor:pointer; transition:.15s; white-space:nowrap; }
-.btn:hover { background:#0ea572; }
-.btn:disabled { background:var(--muted); color:var(--dim); cursor:not-allowed; }
-.btn-ghost { background:transparent; border:1px solid var(--border); color:var(--dim); }
-.btn-ghost:hover { border-color:var(--border-hover); color:var(--text); background:transparent; }
-.btn-sm { padding:6px 14px; font-size:12px; }
+.tool-box {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 16px; padding: 36px; margin-bottom: 32px;
+}
+.input-row { display: flex; gap: 12px; }
+.input-row input {
+  flex: 1; background: var(--bg); border: 1px solid var(--border);
+  color: #fff; padding: 16px 20px; border-radius: 12px; font-family: inherit;
+  font-size: 15px; outline: none; transition: border-color 0.2s;
+}
+.input-row input:focus { border-color: var(--green); }
+.input-row input::placeholder { color: var(--muted); }
+.btn {
+  background: var(--green); color: #000; border: none; padding: 16px 28px;
+  border-radius: 12px; font-family: inherit; font-size: 15px; font-weight: 700;
+  cursor: pointer; transition: 0.2s; white-space: nowrap;
+}
+.btn:hover { background: #0ea572; transform: translateY(-1px); }
+.btn:disabled { background: var(--muted); color: var(--dim); cursor: not-allowed; transform: none; }
 
 /* Tabs */
-.tabs { display:flex; gap:4px; margin-bottom:20px; }
-.tab { padding:8px 16px; border-radius:6px; cursor:pointer; font-size:13px; font-weight:500; color:var(--dim); transition:.15s; }
-.tab:hover { color:var(--text); }
-.tab.active { background:var(--card); color:#fff; }
-.panel { display:none; }
-.panel.active { display:block; }
+.tabs { display: flex; gap: 4px; margin-bottom: 24px; }
+.tab {
+  padding: 10px 20px; border-radius: 8px; cursor: pointer; font-size: 14px;
+  font-weight: 600; color: var(--dim); transition: 0.2s;
+}
+.tab:hover { color: var(--text); }
+.tab.active { background: var(--card); color: #fff; }
+.panel { display: none; }
+.panel.active { display: block; }
 
 /* Feed */
-.feed-item { padding:12px 0; border-bottom:1px solid #141416; display:flex; gap:12px; align-items:flex-start; font-size:13px; }
-.feed-agent { font-weight:600; min-width:70px; flex-shrink:0; }
-.feed-content { color:var(--dim); line-height:1.5; }
-.feed-time { color:var(--muted); font-size:11px; min-width:60px; flex-shrink:0; }
+.feed-item {
+  padding: 14px 0; border-bottom: 1px solid #141416;
+  display: flex; gap: 14px; align-items: flex-start; font-size: 13px;
+}
+.feed-agent { font-weight: 700; min-width: 80px; flex-shrink: 0; }
+.feed-content { color: var(--dim); line-height: 1.6; }
+.feed-time { color: var(--muted); font-size: 11px; min-width: 60px; flex-shrink: 0; }
 
 /* Investigation cards */
-.inv-card { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:18px; margin-bottom:10px; cursor:pointer; transition:.15s; }
-.inv-card:hover { border-color:var(--border-hover); }
-.inv-top { display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; flex-wrap:wrap; gap:8px; }
-.inv-token { font-weight:600; color:#fff; font-size:15px; }
-.inv-ca { color:var(--muted); font-size:12px; font-family:monospace; }
-.badge { padding:3px 10px; border-radius:20px; font-size:11px; font-weight:600; }
-.badge.CRITICAL { background:rgba(239,68,68,.15); color:var(--red); }
-.badge.HIGH { background:rgba(245,158,11,.15); color:var(--orange); }
-.badge.MEDIUM { background:rgba(245,158,11,.1); color:#d4a017; }
-.badge.LOW { background:rgba(16,185,129,.15); color:var(--green); }
-.badge.investigating { background:rgba(59,130,246,.15); color:var(--blue); }
-.inv-meta { display:flex; gap:16px; font-size:12px; color:var(--dim); }
-.vote-btn { background:none; border:1px solid var(--border); color:var(--dim); padding:4px 10px; font-family:inherit; font-size:12px; cursor:pointer; border-radius:6px; transition:.15s; }
-.vote-btn:hover { border-color:var(--green); color:var(--green); }
+.inv-card {
+  background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+  padding: 20px; margin-bottom: 12px; cursor: pointer; transition: 0.2s;
+}
+.inv-card:hover { border-color: var(--border-hover); transform: translateY(-1px); }
+.inv-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 8px; }
+.inv-token { font-weight: 700; color: #fff; font-size: 16px; }
+.inv-ca { color: var(--muted); font-size: 12px; font-family: monospace; }
+.badge {
+  padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.05em;
+}
+.badge.CRITICAL { background: rgba(239,68,68,.15); color: var(--red); }
+.badge.HIGH { background: rgba(245,158,11,.15); color: var(--orange); }
+.badge.MEDIUM { background: rgba(245,158,11,.1); color: #d4a017; }
+.badge.LOW { background: rgba(16,185,129,.15); color: var(--green); }
+.badge.investigating { background: rgba(59,130,246,.15); color: var(--blue); }
+.inv-meta { display: flex; gap: 16px; font-size: 12px; color: var(--dim); }
+.vote-btn {
+  background: none; border: 1px solid var(--border); color: var(--dim);
+  padding: 6px 12px; font-family: inherit; font-size: 12px; cursor: pointer;
+  border-radius: 8px; transition: 0.15s;
+}
+.vote-btn:hover { border-color: var(--green); color: var(--green); }
 
-/* Detail view */
-.back-link { color:var(--dim); cursor:pointer; font-size:13px; margin-bottom:16px; display:inline-block; }
-.back-link:hover { color:var(--green); }
-.step-card { background:var(--card); border:1px solid var(--border); border-radius:8px; padding:16px; margin-bottom:8px; }
-.step-top { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
-.step-agent { font-weight:600; font-size:14px; }
-.step-time { color:var(--muted); font-size:11px; }
-.step-body { color:var(--dim); font-size:13px; white-space:pre-wrap; line-height:1.6; }
+/* Detail */
+.back-link { color: var(--dim); cursor: pointer; font-size: 13px; margin-bottom: 16px; display: inline-block; }
+.back-link:hover { color: var(--green); }
+.step-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 10px; padding: 18px; margin-bottom: 10px;
+}
+.step-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.step-agent { font-weight: 700; font-size: 14px; }
+.step-time { color: var(--muted); font-size: 11px; }
+.step-body { color: var(--dim); font-size: 13px; white-space: pre-wrap; line-height: 1.7; }
 
-/* Pipeline diagram */
-.pipeline { display:flex; align-items:center; justify-content:center; gap:0; flex-wrap:wrap; padding:20px 0; }
-.pipe-node { display:flex; flex-direction:column; align-items:center; gap:6px; padding:16px; min-width:100px; position:relative; }
-.pipe-dot { width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; color:#000; transition:.3s; }
-.pipe-dot.active { animation:pipePulse 1.5s ease-in-out infinite; }
-@keyframes pipePulse { 0%,100%{box-shadow:0 0 0 0 rgba(16,185,129,.4)} 50%{box-shadow:0 0 0 12px rgba(16,185,129,0)} }
-.pipe-label { font-size:11px; font-weight:600; color:#fff; }
-.pipe-role { font-size:10px; color:var(--dim); }
-.pipe-arrow { color:var(--muted); font-size:18px; margin:0 -4px; }
-.pipe-line { width:30px; height:2px; background:var(--border); position:relative; overflow:hidden; }
-.pipe-line .packet { position:absolute; top:-1px; left:-8px; width:8px; height:4px; background:var(--green); border-radius:2px; animation:packetMove 2s linear infinite; }
-@keyframes packetMove { 0%{left:-8px} 100%{left:30px} }
+/* ========== FOOTER ========== */
+footer {
+  padding: 80px 0 60px; border-top: 1px solid var(--border); text-align: center;
+}
+footer .tagline {
+  font-size: clamp(18px, 2.5vw, 24px); font-weight: 600; color: var(--dim);
+  margin-bottom: 24px;
+}
+.ca-row {
+  display: inline-flex; align-items: center; gap: 10px;
+  background: var(--card); border: 1px solid var(--border);
+  padding: 14px 20px; border-radius: 12px; margin: 0 0 20px;
+}
+.ca-row code { color: var(--green); font-size: 13px; font-weight: 500; }
+.copy-btn {
+  background: none; border: 1px solid var(--border); color: var(--dim);
+  padding: 6px 14px; font-family: inherit; font-size: 12px; cursor: pointer;
+  border-radius: 6px; transition: 0.15s;
+}
+.copy-btn:hover { border-color: var(--green); color: var(--green); }
+.footer-links { margin-top: 16px; }
+.footer-links a { color: var(--dim); margin: 0 12px; font-size: 14px; font-weight: 500; }
+.footer-links a:hover { color: var(--green); }
+.empty { text-align: center; padding: 48px; color: var(--muted); font-size: 14px; }
 
-/* Live cases */
-.live-cases { display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:12px; }
-.case-card { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:18px; }
-.case-status { display:inline-flex; align-items:center; gap:6px; font-size:11px; font-weight:600; padding:3px 10px; border-radius:20px; }
-.case-status.active { background:rgba(16,185,129,.15); color:var(--green); }
-.case-status.complete { background:rgba(59,130,246,.15); color:var(--blue); }
-.case-token { font-size:16px; font-weight:600; color:#fff; margin:8px 0 4px; }
-.case-ca { font-family:monospace; font-size:11px; color:var(--muted); }
-.case-agents { display:flex; gap:4px; margin-top:10px; }
-.case-agent-dot { width:20px; height:20px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:8px; font-weight:700; color:#000; }
-.case-progress { margin-top:10px; height:3px; background:var(--border); border-radius:2px; overflow:hidden; }
-.case-progress-bar { height:100%; background:var(--green); border-radius:2px; transition:width .5s; }
+/* ========== RESPONSIVE ========== */
+@media (max-width: 768px) {
+  .agent-section-inner, .agent-section-inner.reverse {
+    flex-direction: column; gap: 40px; padding: 60px 24px;
+  }
+  .agent-visual { flex: none; }
+  .agent-circle { width: 160px; height: 160px; }
+  .agent-circle svg { width: 64px; height: 64px; }
+  .agent-info { text-align: center; transform: translateX(0) !important; }
+  .agent-info .desc { max-width: 100%; }
+  .pipeline-track { gap: 0; }
+  .pipe-connector { width: 24px; }
+  .input-row { flex-direction: column; }
+  .manifesto-line { margin-bottom: 24px; }
+}
 
-/* Example report */
-.report-box { background:var(--card); border:1px solid var(--border); border-radius:12px; overflow:hidden; }
-.report-header { padding:20px 24px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; }
-.report-steps { padding:0; }
-.report-step { padding:16px 24px; border-bottom:1px solid #141416; }
-.report-step:last-child { border-bottom:none; }
-.report-step-agent { font-weight:600; font-size:13px; margin-bottom:6px; }
-.report-step-content { color:var(--dim); font-size:13px; line-height:1.6; }
-.report-tag { font-size:10px; background:rgba(16,185,129,.1); color:var(--green); padding:2px 8px; border-radius:10px; font-weight:500; }
-
-/* Footer */
-footer { padding:40px 0; border-top:1px solid var(--border); text-align:center; }
-footer p { color:var(--muted); font-size:13px; }
-.ca-row { display:inline-flex; align-items:center; gap:8px; background:var(--card); border:1px solid var(--border); padding:10px 16px; border-radius:8px; margin:16px 0; }
-.ca-row code { color:var(--green); font-size:12px; }
-.copy-btn { background:none; border:1px solid var(--border); color:var(--dim); padding:4px 10px; font-family:inherit; font-size:11px; cursor:pointer; border-radius:4px; }
-.copy-btn:hover { border-color:var(--green); color:var(--green); }
-.footer-links { margin-top:12px; }
-.footer-links a { color:var(--dim); margin:0 8px; font-size:13px; }
-.footer-links a:hover { color:var(--green); }
-
-.empty { text-align:center; padding:40px; color:var(--muted); font-size:14px; }
-@media(max-width:640px) {
-  .hero { padding:80px 0 60px; }
-  section { padding:60px 0; }
-  .input-row { flex-direction:column; }
-  .agents-grid { grid-template-columns:1fr; }
+/* ========== SUBTLE BG GRAIN ========== */
+body::after {
+  content: ''; position: fixed; inset: 0; pointer-events: none;
+  background: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity: 0.03; z-index: 9999;
 }
 </style>
 </head>
 <body>
 
-<!-- HERO -->
-<section class="hero">
-  <div class="container">
-    <h1>AI Agents That <span>Investigate</span> Crypto Scams</h1>
-    <p>Submit any Solana token. Six autonomous agents analyze the deployer, trace wallets, search social media, and publish their findings.</p>
-    <a href="#investigate" class="hero-cta">Start Investigation →</a>
-  </div>
-</section>
-
-<!-- HOW IT WORKS -->
-<section>
-  <div class="container">
-    <div class="section-label">How It Works</div>
-    <div class="section-title">Three steps to the truth</div>
-    <div class="steps">
-      <div class="step">
-        <div class="step-num">01</div>
-        <h3>Submit a Token</h3>
-        <p>Paste any pump.fun contract address. The investigation begins immediately.</p>
-      </div>
-      <div class="step">
-        <div class="step-num">02</div>
-        <h3>Agents Investigate</h3>
-        <p>Six AI agents analyze on-chain data, wallet patterns, and social footprint in real-time using Helius, DexScreener, and X.</p>
-      </div>
-      <div class="step">
-        <div class="step-num">03</div>
-        <h3>Report Published</h3>
-        <p>Full investigation report with risk rating. Community votes on findings. Everything is public.</p>
-      </div>
+<!-- ==================== HERO / MANIFESTO ==================== -->
+<section class="manifesto">
+  <div class="manifesto-inner">
+    <div class="manifesto-content">
+      <div class="manifesto-line" id="m1">For too long, we have tolerated scammers within our ecosystem.</div>
+      <div class="manifesto-line" id="m2">So today, I am launching an initiative comprised of 6 autonomous agents, all designed to track down the scammers in our industry.</div>
+      <div class="manifesto-line" id="m3">ZachXBT is a massive figurehead, but he will never engage with memecoins.</div>
+      <div class="manifesto-line accent" id="m4">I aim to change that.</div>
+      <div class="manifesto-line meet" id="m5">I'd like you to meet the team.</div>
+    </div>
+    <div class="scroll-indicator">
+      <span>Scroll</span>
+      <div class="scroll-arrow"></div>
     </div>
   </div>
 </section>
 
-<!-- PIPELINE DIAGRAM -->
-<section>
-  <div class="container">
-    <div class="section-label">Investigation Pipeline</div>
-    <div class="section-title">How agents work a case</div>
-    <div class="section-desc">When you submit a contract address, it passes through six agents in sequence. Each agent's findings feed into the next.</div>
-    <div class="pipeline" id="pipeline">
-      <div class="pipe-node"><div class="pipe-dot" style="background:var(--green)" id="pn0">N</div><div class="pipe-label">NEXUS</div><div class="pipe-role">Token Data</div></div>
-      <div class="pipe-line"><div class="packet"></div></div>
-      <div class="pipe-node"><div class="pipe-dot" style="background:var(--blue)" id="pn1">T</div><div class="pipe-label">TRACER</div><div class="pipe-role">Wallet</div></div>
-      <div class="pipe-line"><div class="packet" style="animation-delay:.3s"></div></div>
-      <div class="pipe-node"><div class="pipe-dot" style="background:var(--purple)" id="pn2">C</div><div class="pipe-label">CIPHER</div><div class="pipe-role">Patterns</div></div>
-      <div class="pipe-line"><div class="packet" style="animation-delay:.6s"></div></div>
-      <div class="pipe-node"><div class="pipe-dot" style="background:var(--gray)" id="pn3">G</div><div class="pipe-label">GHOST</div><div class="pipe-role">Social</div></div>
-      <div class="pipe-line"><div class="packet" style="animation-delay:.9s"></div></div>
-      <div class="pipe-node"><div class="pipe-dot" style="background:var(--orange)" id="pn4">V</div><div class="pipe-label">VIPER</div><div class="pipe-role">Risk Score</div></div>
-      <div class="pipe-line"><div class="packet" style="animation-delay:1.2s"></div></div>
-      <div class="pipe-node"><div class="pipe-dot" style="background:var(--red)" id="pn5">S</div><div class="pipe-label">SENTINEL</div><div class="pipe-role">Report</div></div>
+<!-- ==================== AGENT REVEALS ==================== -->
+
+<!-- NEXUS -->
+<section class="agent-section" data-agent="nexus">
+  <div class="agent-section-inner">
+    <div class="agent-visual">
+      <div class="agent-circle" style="background: rgba(16,185,129,0.1); --c: #10b981;">
+        <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M50 10L85 30V70L50 90L15 70V30L50 10Z" stroke="#10b981" stroke-width="2" fill="rgba(16,185,129,0.1)"/>
+          <path d="M50 30L67.5 40V60L50 70L32.5 60V40L50 30Z" stroke="#10b981" stroke-width="1.5" fill="rgba(16,185,129,0.15)"/>
+          <circle cx="50" cy="50" r="6" fill="#10b981"/>
+          <line x1="50" y1="44" x2="50" y2="30" stroke="#10b981" stroke-width="1.5"/>
+          <line x1="55" y1="53" x2="67.5" y2="60" stroke="#10b981" stroke-width="1.5"/>
+          <line x1="45" y1="53" x2="32.5" y2="60" stroke="#10b981" stroke-width="1.5"/>
+        </svg>
+      </div>
+    </div>
+    <div class="agent-info">
+      <h2 style="color: #10b981;">NEXUS</h2>
+      <div class="role" style="color: #10b981;">Data Aggregator</div>
+      <div class="desc">First on the scene. Pulls real-time token data — price, volume, liquidity, age. Establishes the facts before anyone else moves.</div>
     </div>
   </div>
 </section>
 
-<!-- LIVE CASES -->
-<section>
-  <div class="container">
-    <div class="section-label">Active</div>
-    <div class="section-title">Live cases</div>
-    <div class="section-desc">Investigations currently being processed or recently completed.</div>
-    <div class="live-cases" id="liveCases">
-      <div class="empty">Loading cases...</div>
+<!-- TRACER -->
+<section class="agent-section" data-agent="tracer">
+  <div class="agent-section-inner reverse">
+    <div class="agent-visual">
+      <div class="agent-circle" style="background: rgba(59,130,246,0.1); --c: #3b82f6;">
+        <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="42" cy="42" r="22" stroke="#3b82f6" stroke-width="2.5" fill="rgba(59,130,246,0.08)"/>
+          <line x1="58" y1="58" x2="82" y2="82" stroke="#3b82f6" stroke-width="3" stroke-linecap="round"/>
+          <path d="M20 70 Q30 65, 35 60" stroke="#3b82f6" stroke-width="1" stroke-dasharray="3 3" opacity="0.5"/>
+          <path d="M75 25 Q70 35, 60 38" stroke="#3b82f6" stroke-width="1" stroke-dasharray="3 3" opacity="0.5"/>
+          <circle cx="42" cy="42" r="8" stroke="#3b82f6" stroke-width="1" opacity="0.4"/>
+        </svg>
+      </div>
+    </div>
+    <div class="agent-info">
+      <h2 style="color: #3b82f6;">TRACER</h2>
+      <div class="role" style="color: #3b82f6;">Wallet Analyst</div>
+      <div class="desc">Follows the money. Traces the deployer wallet through Helius — transaction history, balance, funding sources. Every SOL leaves a trail.</div>
     </div>
   </div>
 </section>
 
-<!-- EXAMPLE REPORT -->
-<section>
-  <div class="container">
-    <div class="section-label">Example</div>
-    <div class="section-title">What a report looks like</div>
-    <div class="section-desc">This is a real investigation our agents ran. Every report follows this format.</div>
-    <div class="report-box">
-      <div class="report-header">
-        <div>
-          <div style="font-size:18px;font-weight:600;color:#fff">Octovalve ($Octovalve)</div>
-          <div style="font-family:monospace;font-size:11px;color:var(--muted);margin-top:2px">9QBsW2G3Tt8FzXA5RaSP4kKCAcDB3R38vTeYzQrtpump</div>
-        </div>
-        <span class="badge LOW">LOW RISK</span>
+<!-- CIPHER -->
+<section class="agent-section" data-agent="cipher">
+  <div class="agent-section-inner">
+    <div class="agent-visual">
+      <div class="agent-circle" style="background: rgba(139,92,246,0.1); --c: #8b5cf6;">
+        <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="30" y="40" width="40" height="35" rx="4" stroke="#8b5cf6" stroke-width="2" fill="rgba(139,92,246,0.08)"/>
+          <path d="M38 40V32C38 25.4 43.4 20 50 20C56.6 20 62 25.4 62 32V40" stroke="#8b5cf6" stroke-width="2.5" fill="none"/>
+          <circle cx="50" cy="55" r="5" fill="#8b5cf6"/>
+          <line x1="50" y1="60" x2="50" y2="67" stroke="#8b5cf6" stroke-width="2"/>
+          <path d="M22 50H30" stroke="#8b5cf6" stroke-width="1" opacity="0.3"/>
+          <path d="M70 50H78" stroke="#8b5cf6" stroke-width="1" opacity="0.3"/>
+          <path d="M22 58H28" stroke="#8b5cf6" stroke-width="1" opacity="0.3"/>
+          <path d="M72 58H78" stroke="#8b5cf6" stroke-width="1" opacity="0.3"/>
+          <circle cx="20" cy="50" r="2" fill="#8b5cf6" opacity="0.3"/>
+          <circle cx="80" cy="50" r="2" fill="#8b5cf6" opacity="0.3"/>
+          <circle cx="20" cy="58" r="2" fill="#8b5cf6" opacity="0.3"/>
+          <circle cx="80" cy="58" r="2" fill="#8b5cf6" opacity="0.3"/>
+        </svg>
       </div>
-      <div class="report-steps">
-        <div class="report-step">
-          <div class="report-step-agent" style="color:var(--green)">NEXUS <span class="report-tag">Token Data</span></div>
-          <div class="report-step-content">Token: Octovalve ($Octovalve) | Price: $0.000002539 | 24h: +7.53% | Vol: $21,223 | FDV: $2,539 | Age: 2h</div>
-        </div>
-        <div class="report-step">
-          <div class="report-step-agent" style="color:var(--blue)">TRACER <span class="report-tag">Wallet Analysis</span></div>
-          <div class="report-step-content">Deployer wallet could not be identified through standard methods. Token may have been created through a proxy contract.</div>
-        </div>
-        <div class="report-step">
-          <div class="report-step-agent" style="color:var(--purple)">CIPHER <span class="report-tag">Pattern Check</span></div>
-          <div class="report-step-content">No deployer data available for pattern analysis. Unable to check for serial deployment behavior.</div>
-        </div>
-        <div class="report-step">
-          <div class="report-step-agent" style="color:var(--gray)">GHOST <span class="report-tag">Social Search</span></div>
-          <div class="report-step-content">Found 2 tweets mentioning this CA:<br>• @volmardi: "CTO the OG $octovalve 9QBsW2G3Tt8FzXA5RaSP4kKCAcDB3R38vTeYzQrtpump"<br>• @volmardi: "CTO OG $octovalve"</div>
-        </div>
-        <div class="report-step">
-          <div class="report-step-agent" style="color:var(--orange)">VIPER <span class="report-tag">Risk Assessment</span></div>
-          <div class="report-step-content">Risk Rating: LOW (score: 0/100)<br>No significant risk flags detected.</div>
-        </div>
-        <div class="report-step">
-          <div class="report-step-agent" style="color:var(--red)">SENTINEL <span class="report-tag">Final Report</span></div>
-          <div class="report-step-content">$Octovalve does not show obvious scam indicators at this time. Social presence is minimal but not absent. Standard due diligence recommended. Investigation complete — 6 agents participated.</div>
-        </div>
-      </div>
+    </div>
+    <div class="agent-info">
+      <h2 style="color: #8b5cf6;">CIPHER</h2>
+      <div class="role" style="color: #8b5cf6;">Pattern Decoder</div>
+      <div class="desc">Sees what humans miss. Checks deployer history, flags serial ruggers, identifies burner wallets and deploy-dump cycles.</div>
     </div>
   </div>
 </section>
 
-<!-- MEET THE AGENTS -->
-<section>
-  <div class="container">
-    <div class="section-label">The Team</div>
-    <div class="section-title">Meet the agents</div>
-    <div class="section-desc">Each agent has a specific role in the investigation pipeline. They work sequentially — every finding feeds into the next agent's analysis.</div>
-    <div class="agents-grid">
-      <div class="agent-card">
-        <div class="agent-header">
-          <div class="agent-dot" style="background:var(--green)"></div>
-          <div><div class="agent-name">NEXUS</div><div class="agent-role">Data Aggregator</div></div>
-        </div>
-        <div class="agent-desc">Pulls real-time token data from DexScreener. Price, volume, liquidity, pair age, FDV. First agent to touch every investigation — establishes the baseline facts before anyone else moves.</div>
+<!-- GHOST -->
+<section class="agent-section" data-agent="ghost">
+  <div class="agent-section-inner reverse">
+    <div class="agent-visual">
+      <div class="agent-circle" style="background: rgba(107,114,128,0.1); --c: #6b7280;">
+        <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M50 15C33 15 25 30 25 45V75C25 75 30 68 35 72C40 76 40 80 45 76C50 72 50 72 55 76C60 80 60 76 65 72C70 68 75 75 75 75V45C75 30 67 15 50 15Z" stroke="#6b7280" stroke-width="2" fill="rgba(107,114,128,0.08)"/>
+          <circle cx="40" cy="42" r="5" fill="#6b7280"/>
+          <circle cx="60" cy="42" r="5" fill="#6b7280"/>
+          <circle cx="40" cy="42" r="2" fill="#09090b"/>
+          <circle cx="60" cy="42" r="2" fill="#09090b"/>
+        </svg>
       </div>
-      <div class="agent-card">
-        <div class="agent-header">
-          <div class="agent-dot" style="background:var(--blue)"></div>
-          <div><div class="agent-name">TRACER</div><div class="agent-role">Wallet Analyst</div></div>
-        </div>
-        <div class="agent-desc">Uses Helius to identify and analyze the deployer wallet. Transaction count, SOL balance, wallet age, funding sources. Follows the money from mint to movement.</div>
-      </div>
-      <div class="agent-card">
-        <div class="agent-header">
-          <div class="agent-dot" style="background:var(--purple)"></div>
-          <div><div class="agent-name">CIPHER</div><div class="agent-role">Pattern Decoder</div></div>
-        </div>
-        <div class="agent-desc">Checks if the deployer has created other tokens. Flags serial ruggers, burner wallets, rapid deploy-dump cycles, and connected wallet clusters. Patterns don't lie.</div>
-      </div>
-      <div class="agent-card">
-        <div class="agent-header">
-          <div class="agent-dot" style="background:var(--gray)"></div>
-          <div><div class="agent-name">GHOST</div><div class="agent-role">Social Hunter</div></div>
-        </div>
-        <div class="agent-desc">Searches X/Twitter for anyone who posted the contract address. Links wallets to social accounts. Anonymity's weakest link is always the human who shilled it.</div>
-      </div>
-      <div class="agent-card">
-        <div class="agent-header">
-          <div class="agent-dot" style="background:var(--orange)"></div>
-          <div><div class="agent-name">VIPER</div><div class="agent-role">Risk Assessor</div></div>
-        </div>
-        <div class="agent-desc">Compiles all agent findings into a risk score: CRITICAL, HIGH, MEDIUM, or LOW. Weighs price action, deployer behavior, wallet patterns, and social presence.</div>
-      </div>
-      <div class="agent-card">
-        <div class="agent-header">
-          <div class="agent-dot" style="background:var(--red)"></div>
-          <div><div class="agent-name">SENTINEL</div><div class="agent-role">Lead Investigator</div></div>
-        </div>
-        <div class="agent-desc">Writes the final investigation report. Summarizes all findings into a clear verdict. The last word on every case. No token escapes without a report.</div>
-      </div>
+    </div>
+    <div class="agent-info">
+      <h2 style="color: #6b7280;">GHOST</h2>
+      <div class="role" style="color: #6b7280;">Social Hunter</div>
+      <div class="desc">Hunts the human behind the wallet. Searches X for anyone who posted the contract address. Anonymity's weakest link is always social media.</div>
     </div>
   </div>
 </section>
 
-<!-- INVESTIGATION TOOL -->
-<section id="investigate">
+<!-- VIPER -->
+<section class="agent-section" data-agent="viper">
+  <div class="agent-section-inner">
+    <div class="agent-visual">
+      <div class="agent-circle" style="background: rgba(245,158,11,0.1); --c: #f59e0b;">
+        <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M30 35C30 35 35 20 50 20C65 20 75 32 75 32L78 28L80 35L73 36C73 36 65 25 50 25C38 25 33 35 33 35" stroke="#f59e0b" stroke-width="2" fill="none"/>
+          <path d="M25 50C25 50 30 35 50 35C70 35 80 55 80 55C80 55 75 70 60 75C45 80 30 72 28 65C26 58 25 50 25 50Z" stroke="#f59e0b" stroke-width="2" fill="rgba(245,158,11,0.08)"/>
+          <circle cx="55" cy="50" r="3" fill="#f59e0b"/>
+          <path d="M35 60L25 65L28 58" stroke="#f59e0b" stroke-width="1.5" fill="none"/>
+          <path d="M23 63V68" stroke="#f59e0b" stroke-width="1.5" stroke-linecap="round"/>
+          <path d="M27 66V70" stroke="#f59e0b" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </div>
+    </div>
+    <div class="agent-info">
+      <h2 style="color: #f59e0b;">VIPER</h2>
+      <div class="role" style="color: #f59e0b;">Risk Assessor</div>
+      <div class="desc">The judge. Compiles all findings into a risk score — CRITICAL, HIGH, MEDIUM, or LOW. No token escapes without a verdict.</div>
+    </div>
+  </div>
+</section>
+
+<!-- SENTINEL -->
+<section class="agent-section" data-agent="sentinel">
+  <div class="agent-section-inner reverse">
+    <div class="agent-visual">
+      <div class="agent-circle" style="background: rgba(239,68,68,0.1); --c: #ef4444;">
+        <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M50 12L20 28V52C20 72 50 90 50 90C50 90 80 72 80 52V28L50 12Z" stroke="#ef4444" stroke-width="2.5" fill="rgba(239,68,68,0.08)"/>
+          <circle cx="50" cy="48" r="12" stroke="#ef4444" stroke-width="1.5" fill="rgba(239,68,68,0.1)"/>
+          <circle cx="50" cy="48" r="5" fill="#ef4444"/>
+          <line x1="50" y1="36" x2="50" y2="28" stroke="#ef4444" stroke-width="1" opacity="0.5"/>
+          <line x1="50" y1="60" x2="50" y2="68" stroke="#ef4444" stroke-width="1" opacity="0.5"/>
+          <line x1="38" y1="48" x2="30" y2="48" stroke="#ef4444" stroke-width="1" opacity="0.5"/>
+          <line x1="62" y1="48" x2="70" y2="48" stroke="#ef4444" stroke-width="1" opacity="0.5"/>
+        </svg>
+      </div>
+    </div>
+    <div class="agent-info">
+      <h2 style="color: #ef4444;">SENTINEL</h2>
+      <div class="role" style="color: #ef4444;">Lead Investigator</div>
+      <div class="desc">Writes the final report. Summarizes every finding. The last word on every case.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== PIPELINE ==================== -->
+<section class="pipeline-section">
+  <div class="pipeline-title">The Investigation Pipeline</div>
+  <div class="pipeline-track" id="pipelineTrack">
+    <div class="pipe-node"><div class="pipe-dot" style="background:#10b981;color:#10b981">N</div><div class="pipe-label">NEXUS</div><div class="pipe-role">Data</div></div>
+    <div class="pipe-connector"><div class="packet" style="background:#10b981"></div></div>
+    <div class="pipe-node"><div class="pipe-dot" style="background:#3b82f6;color:#3b82f6">T</div><div class="pipe-label">TRACER</div><div class="pipe-role">Wallet</div></div>
+    <div class="pipe-connector"><div class="packet" style="background:#3b82f6;animation-delay:0.4s"></div></div>
+    <div class="pipe-node"><div class="pipe-dot" style="background:#8b5cf6;color:#8b5cf6">C</div><div class="pipe-label">CIPHER</div><div class="pipe-role">Patterns</div></div>
+    <div class="pipe-connector"><div class="packet" style="background:#8b5cf6;animation-delay:0.8s"></div></div>
+    <div class="pipe-node"><div class="pipe-dot" style="background:#6b7280;color:#6b7280">G</div><div class="pipe-label">GHOST</div><div class="pipe-role">Social</div></div>
+    <div class="pipe-connector"><div class="packet" style="background:#6b7280;animation-delay:1.2s"></div></div>
+    <div class="pipe-node"><div class="pipe-dot" style="background:#f59e0b;color:#f59e0b">V</div><div class="pipe-label">VIPER</div><div class="pipe-role">Risk</div></div>
+    <div class="pipe-connector"><div class="packet" style="background:#f59e0b;animation-delay:1.6s"></div></div>
+    <div class="pipe-node"><div class="pipe-dot" style="background:#ef4444;color:#ef4444">S</div><div class="pipe-label">SENTINEL</div><div class="pipe-role">Report</div></div>
+  </div>
+</section>
+
+<!-- ==================== INVESTIGATION TOOL ==================== -->
+<section class="investigate-section" id="investigate">
   <div class="container">
-    <div class="section-label">Investigate</div>
+    <div class="section-label">See Them In Action</div>
     <div class="section-title">Run an investigation</div>
+    <div class="section-desc">Paste any Solana contract address. Six agents will analyze it in real-time.</div>
+
     <div class="tool-box">
       <div class="input-row">
-        <input type="text" id="caInput" placeholder="Paste a Solana contract address..." spellcheck="false" maxlength="64">
+        <input type="text" id="caInput" placeholder="Paste a contract address..." spellcheck="false" maxlength="64">
         <button class="btn" id="submitBtn" onclick="submitCA()">Investigate</button>
       </div>
     </div>
@@ -355,10 +489,10 @@ footer p { color:var(--muted); font-size:13px; }
   </div>
 </section>
 
-<!-- FOOTER -->
+<!-- ==================== FOOTER ==================== -->
 <footer>
   <div class="container">
-    <p style="color:var(--dim);font-size:15px;font-weight:500;">Pump Justice</p>
+    <div class="tagline">Pump Justice — Agents never sleep.</div>
     <div class="ca-row">
       <code>7S2yY2G6SU1fFVzXQ4FyXuAvWEKy2VUBCetnPhRBpump</code>
       <button class="copy-btn" onclick="copyCA()">Copy</button>
@@ -367,11 +501,98 @@ footer p { color:var(--muted); font-size:13px; }
       <a href="https://x.com/PumpJustice" target="_blank">X</a>
       <a href="https://github.com/tow3web3/pumpjustice" target="_blank">GitHub</a>
     </div>
-    <p style="margin-top:16px;">Built by agents. Verified by community.</p>
+    <p style="margin-top: 24px; color: var(--muted); font-size: 13px;">Built by agents. Verified by community.</p>
   </div>
 </footer>
 
+<!-- ==================== SCRIPTS ==================== -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 <script>
+// ========== GSAP ANIMATIONS ==========
+gsap.registerPlugin(ScrollTrigger);
+
+// -- Manifesto text reveals --
+const manifestoLines = document.querySelectorAll('.manifesto-line');
+const totalLines = manifestoLines.length;
+
+manifestoLines.forEach((line, i) => {
+  const progress = i / totalLines;
+  const startPct = progress * 80;
+  const endPct = startPct + (70 / totalLines);
+
+  gsap.to(line, {
+    opacity: 1, y: 0, duration: 0.8, ease: 'power3.out',
+    scrollTrigger: {
+      trigger: '.manifesto',
+      start: `${startPct}% bottom`,
+      end: `${endPct}% bottom`,
+      toggleActions: 'play none none reverse'
+    }
+  });
+});
+
+// Fade out scroll indicator on scroll
+gsap.to('.scroll-indicator', {
+  opacity: 0,
+  scrollTrigger: {
+    trigger: '.manifesto',
+    start: '10% top',
+    end: '20% top',
+    scrub: true
+  }
+});
+
+// -- Agent section reveals --
+document.querySelectorAll('.agent-section').forEach(section => {
+  const visual = section.querySelector('.agent-visual');
+  const info = section.querySelector('.agent-info');
+
+  const tl = gsap.timeline({
+    scrollTrigger: {
+      trigger: section,
+      start: 'top 75%',
+      end: 'top 25%',
+      toggleActions: 'play none none reverse'
+    }
+  });
+
+  tl.to(visual, { opacity: 1, scale: 1, duration: 0.8, ease: 'back.out(1.5)' }, 0);
+  tl.to(info, { opacity: 1, x: 0, duration: 0.8, ease: 'power3.out' }, 0.15);
+});
+
+// -- Pipeline reveals --
+gsap.to('.pipeline-title', {
+  opacity: 1, y: 0, duration: 0.8, ease: 'power3.out',
+  scrollTrigger: { trigger: '.pipeline-section', start: 'top 80%' }
+});
+
+const pipeNodes = document.querySelectorAll('#pipelineTrack .pipe-node');
+const pipeConnectors = document.querySelectorAll('#pipelineTrack .pipe-connector');
+
+pipeNodes.forEach((node, i) => {
+  gsap.to(node, {
+    opacity: 1, y: 0, duration: 0.6, delay: i * 0.12, ease: 'power2.out',
+    scrollTrigger: { trigger: '.pipeline-section', start: 'top 65%' }
+  });
+});
+pipeConnectors.forEach((conn, i) => {
+  gsap.to(conn, {
+    opacity: 1, duration: 0.4, delay: i * 0.12 + 0.3, ease: 'power2.out',
+    scrollTrigger: { trigger: '.pipeline-section', start: 'top 65%' }
+  });
+});
+
+// Sequential pipeline light-up
+let pipeIdx = 0;
+setInterval(() => {
+  pipeNodes.forEach((node, i) => {
+    node.querySelector('.pipe-dot').classList.toggle('lit', i === pipeIdx);
+  });
+  pipeIdx = (pipeIdx + 1) % pipeNodes.length;
+}, 1800);
+
+// ========== INVESTIGATION FUNCTIONALITY (preserved) ==========
 const API = window.location.hostname === 'tow3web3.github.io' ? 'http://65.20.103.177:8080' : '';
 const agentColors = { SENTINEL:'#ef4444', TRACER:'#3b82f6', CIPHER:'#8b5cf6', GHOST:'#6b7280', NEXUS:'#10b981', VIPER:'#f59e0b' };
 
@@ -451,10 +672,10 @@ async function showInv(id) {
     const d = await res.json();
     el.innerHTML = `<div class="back-link" onclick="loadInvestigations()">← Back</div>
       <div style="margin-bottom:20px">
-        <span style="color:#fff;font-weight:600;font-size:18px">${d.token_name||'Unknown'} ($${d.token_symbol||'???'})</span>
-        ${d.risk_rating ? '<span class="badge '+d.risk_rating+'" style="margin-left:8px">'+d.risk_rating+'</span>' : ''}
-        <div style="color:var(--muted);font-size:12px;margin-top:4px;font-family:monospace">${d.ca}</div>
-        <div style="margin-top:10px"><button class="vote-btn" onclick="vote(${id},'up')">▲ ${d.upvotes||0}</button> <button class="vote-btn" onclick="vote(${id},'down')">▼ ${d.downvotes||0}</button></div>
+        <span style="color:#fff;font-weight:700;font-size:20px">${d.token_name||'Unknown'} ($${d.token_symbol||'???'})</span>
+        ${d.risk_rating ? '<span class="badge '+d.risk_rating+'" style="margin-left:10px">'+d.risk_rating+'</span>' : ''}
+        <div style="color:var(--muted);font-size:12px;margin-top:6px;font-family:monospace">${d.ca}</div>
+        <div style="margin-top:12px"><button class="vote-btn" onclick="vote(${id},'up')">▲ ${d.upvotes||0}</button> <button class="vote-btn" onclick="vote(${id},'down')">▼ ${d.downvotes||0}</button></div>
       </div>
       ${(d.steps||[]).map(s => `<div class="step-card">
         <div class="step-top"><span class="step-agent" style="color:${agentColors[s.agent_name]||'#fff'}">${s.agent_name}</span><span class="step-time">${new Date(s.created_at).toLocaleTimeString('en-US',{hour12:false})}</span></div>
@@ -471,54 +692,9 @@ function esc(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>
 function timeAgo(t) { const m=Math.round((Date.now()-new Date(t))/60000); return m<60?m+'m ago':m<1440?Math.round(m/60)+'h ago':Math.round(m/1440)+'d ago'; }
 function copyCA() { navigator.clipboard.writeText('7S2yY2G6SU1fFVzXQ4FyXuAvWEKy2VUBCetnPhRBpump'); const b=document.querySelector('.copy-btn'); b.textContent='Copied!'; setTimeout(()=>b.textContent='Copy',2000); }
 
-loadFeed();
-loadLiveCases();
-setInterval(loadFeed, 15000);
-setInterval(loadLiveCases, 30000);
 document.getElementById('caInput').addEventListener('keydown', e => { if(e.key==='Enter') submitCA(); });
-
-// Pipeline animation — cycle through nodes
-let pipeIdx = 0;
-setInterval(() => {
-  document.querySelectorAll('.pipe-dot').forEach((d,i) => d.classList.toggle('active', i === pipeIdx));
-  pipeIdx = (pipeIdx + 1) % 6;
-}, 2000);
-
-// Load live cases
-async function loadLiveCases() {
-  try {
-    const res = await fetch(API + '/api/investigations');
-    const invs = await res.json();
-    const el = document.getElementById('liveCases');
-    if (!invs.length) {
-      el.innerHTML = '<div class="empty">No cases yet. Be the first to submit a CA.</div>';
-      return;
-    }
-    const agentDots = [
-      {c:'var(--green)',l:'N'},{c:'var(--blue)',l:'T'},{c:'var(--purple)',l:'C'},
-      {c:'var(--gray)',l:'G'},{c:'var(--orange)',l:'V'},{c:'var(--red)',l:'S'}
-    ];
-    el.innerHTML = invs.slice(0,6).map(i => {
-      const steps = parseInt(i.step_count) || 0;
-      const pct = i.status === 'complete' ? 100 : Math.min(95, (steps / 6) * 100);
-      const statusCls = i.status === 'complete' ? 'complete' : 'active';
-      const statusTxt = i.status === 'complete' ? '✓ Complete' : '◉ Investigating';
-      return `<div class="case-card" onclick="switchTab('investigations');showInv(${i.id})" style="cursor:pointer">
-        <span class="case-status ${statusCls}">${statusTxt}</span>
-        <div class="case-token">${i.token_name ? i.token_name+' ($'+i.token_symbol+')' : i.ca.slice(0,16)+'…'}</div>
-        <div class="case-ca">${i.ca}</div>
-        <div class="case-agents">${agentDots.slice(0, Math.max(1,steps)).map(a =>
-          '<div class="case-agent-dot" style="background:'+a.c+'">'+a.l+'</div>'
-        ).join('')}</div>
-        <div class="case-progress"><div class="case-progress-bar" style="width:${pct}%"></div></div>
-        ${i.risk_rating ? '<div style="margin-top:8px"><span class="badge '+i.risk_rating+'">'+i.risk_rating+'</span></div>' : ''}
-      </div>`;
-    }).join('');
-  } catch(e) {
-    document.getElementById('liveCases').innerHTML = '<div class="empty">Could not load cases.</div>';
-  }
-}
+loadFeed();
+setInterval(loadFeed, 15000);
 </script>
 </body>
 </html>
-<!-- cache bust 1772210639 -->
