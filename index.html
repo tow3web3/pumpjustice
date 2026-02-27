@@ -3,1002 +3,312 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PUMP JUSTICE — AI Agent Investigation Platform</title>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<title>PUMP JUSTICE — Agent Network</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
 <style>
-*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-:root {
-  --green: #00ff41;
-  --red: #ff0055;
-  --bg: #0a0a0a;
-  --dim: #0a3a0a;
-  --gray: #1a1a1a;
-  --text: #b0b0b0;
-  --orange: #ff8c00;
-  --blue: #00aaff;
-  --purple: #aa44ff;
-  --ghost: #8899aa;
-}
-html { scroll-behavior: smooth; }
-body {
-  background: var(--bg);
-  color: var(--green);
-  font-family: 'JetBrains Mono', 'Space Mono', monospace;
-  overflow-x: hidden;
-  line-height: 1.6;
-}
-/* CRT Overlay */
-body::after {
-  content: '';
-  position: fixed;
-  inset: 0;
-  background: repeating-linear-gradient(
-    0deg,
-    rgba(0,0,0,0.15) 0px,
-    rgba(0,0,0,0.15) 1px,
-    transparent 1px,
-    transparent 3px
-  );
-  pointer-events: none;
-  z-index: 9999;
-}
-/* Glow utility */
-.glow { text-shadow: 0 0 10px var(--green), 0 0 20px rgba(0,255,65,0.3); }
-.glow-red { text-shadow: 0 0 10px var(--red), 0 0 20px rgba(255,0,85,0.3); }
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0a0a0a;--green:#00ff41;--red:#ff0055;--yellow:#ffaa00;--dim:#333;--text:#ccc;--mono:'JetBrains Mono',monospace}
+body{background:var(--bg);color:var(--text);font-family:var(--mono);font-size:13px;line-height:1.6;overflow-x:hidden}
+::selection{background:var(--green);color:#000}
+a{color:var(--green);text-decoration:none}
+a:hover{text-decoration:underline}
 
-/* ===== BOOT SEQUENCE ===== */
-#boot-screen {
-  position: fixed; inset: 0; background: var(--bg);
-  z-index: 10000; display: flex; align-items: center; justify-content: center;
-  transition: opacity 0.8s;
-}
-#boot-screen.fade { opacity: 0; pointer-events: none; }
-#boot-text { font-size: 14px; max-width: 600px; padding: 20px; }
-#boot-text .line { opacity: 0; margin: 4px 0; }
-#boot-text .line.visible { opacity: 1; }
-#boot-text .ok { color: var(--green); }
-#boot-text .warn { color: var(--orange); }
+/* CRT overlay */
+body::after{content:'';position:fixed;top:0;left:0;width:100%;height:100%;
+background:repeating-linear-gradient(0deg,rgba(0,0,0,.03) 0px,rgba(0,0,0,.03) 1px,transparent 1px,transparent 2px);
+pointer-events:none;z-index:9999}
 
-/* ===== TOP BAR ===== */
-#topbar {
-  position: sticky; top: 0; z-index: 100;
-  background: rgba(10,10,10,0.95);
-  border-bottom: 1px solid #1a3a1a;
-  padding: 12px 24px;
-  display: flex; align-items: center; justify-content: space-between;
-  flex-wrap: wrap; gap: 10px;
-}
-#topbar .logo {
-  font-size: 22px; font-weight: 700;
-  font-family: 'Space Mono', monospace;
-  letter-spacing: 3px;
-}
-#topbar .stats { display: flex; gap: 20px; flex-wrap: wrap; font-size: 12px; color: var(--text); }
-#topbar .stats span { display: flex; align-items: center; gap: 6px; }
-#topbar .stats .val { color: var(--green); font-weight: 700; }
-.blink-dot {
-  width: 8px; height: 8px; border-radius: 50%; background: var(--green);
-  box-shadow: 0 0 6px var(--green);
-  animation: blink 1.5s infinite;
-}
-@keyframes blink { 0%,100%{ opacity:1 } 50%{ opacity:0.2 } }
+.container{max-width:1200px;margin:0 auto;padding:20px 16px}
 
-/* ===== SECTIONS ===== */
-section { padding: 40px 24px; max-width: 1200px; margin: 0 auto; }
-.section-title {
-  font-size: 14px; letter-spacing: 4px; color: var(--green);
-  margin-bottom: 24px; border-left: 3px solid var(--green); padding-left: 12px;
-}
+/* Header */
+.header{display:flex;justify-content:space-between;align-items:center;padding:16px 0;border-bottom:1px solid var(--dim);margin-bottom:24px}
+.header h1{font-size:24px;color:var(--green);font-weight:700;letter-spacing:4px}
+.header .sub{font-size:11px;color:#666;letter-spacing:2px;margin-top:2px}
+.live-dot{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--green)}
+.live-dot span{width:8px;height:8px;background:var(--green);border-radius:50%;display:inline-block;animation:blink 1.5s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
 
-/* ===== NETWORK CANVAS ===== */
-#network-section { max-width: 100%; padding: 20px; }
-#network-wrap {
-  position: relative; width: 100%; max-width: 1200px; margin: 0 auto;
-  border: 1px solid #1a3a1a; background: #050505;
-}
-#networkCanvas { width: 100%; display: block; cursor: crosshair; }
-#agent-tooltip {
-  display: none; position: absolute;
-  background: rgba(0,0,0,0.95); border: 1px solid var(--green);
-  padding: 10px 14px; font-size: 11px; pointer-events: none;
-  z-index: 50; min-width: 180px;
-}
-#agent-tooltip .tt-name { font-weight: 700; font-size: 13px; margin-bottom: 4px; }
-#agent-tooltip .tt-role { color: var(--text); margin-bottom: 6px; }
-#agent-tooltip .tt-stat { color: var(--text); }
-#agent-tooltip .tt-stat span { color: var(--green); }
+/* Feed */
+.feed-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.feed-header h2{font-size:14px;color:var(--green);letter-spacing:2px}
+.refresh-info{font-size:11px;color:#555}
+#feed-status{font-size:12px;color:#555;margin-bottom:8px}
 
-/* ===== LIVE FEED ===== */
-#feed-section { padding-top: 0; }
-#feed {
-  background: #050505; border: 1px solid #1a3a1a;
-  height: 300px; overflow-y: auto; padding: 16px;
-  font-size: 12px; line-height: 1.8;
-  scrollbar-width: thin; scrollbar-color: #1a3a1a transparent;
-}
-#feed::-webkit-scrollbar { width: 6px; }
-#feed::-webkit-scrollbar-thumb { background: #1a3a1a; }
-#feed .msg { opacity: 0; animation: fadeIn 0.3s forwards; }
-@keyframes fadeIn { to { opacity: 1; } }
-#feed .timestamp { color: #555; }
-#feed .agent-name { font-weight: 700; }
-#feed .arrow { color: #555; }
-#feed .alert-msg { color: var(--red); }
+.feed-table{width:100%;border-collapse:collapse}
+.feed-table th{text-align:left;font-size:11px;color:#555;padding:8px 6px;border-bottom:1px solid #222;font-weight:400;letter-spacing:1px;white-space:nowrap}
+.feed-table td{padding:7px 6px;border-bottom:1px solid #111;font-size:12px;white-space:nowrap}
+.feed-table tr.row-link{cursor:pointer;transition:background .15s}
+.feed-table tr.row-link:hover{background:#111}
+.token-name{color:var(--green);font-weight:500}
+.ca-short{color:#666;font-size:11px}
+.status-dead{color:var(--red);font-weight:700}
+.status-dumping{color:var(--yellow);font-weight:700}
+.status-alive{color:var(--green)}
+.change-dead{color:var(--red)}
+.change-dumping{color:var(--yellow)}
+.change-alive{color:var(--green)}
 
-/* ===== CASES ===== */
-.cases-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
-.case-card {
-  background: #0d0d0d; border: 1px solid #1a3a1a; padding: 16px;
-  transition: border-color 0.3s;
-}
-.case-card:hover { border-color: var(--green); }
-.case-id { font-size: 11px; color: #555; }
-.case-title { font-size: 14px; margin: 6px 0; }
-.case-status { font-size: 11px; margin-bottom: 10px; }
-.case-status.hunting { color: var(--red); }
-.case-status.closing { color: var(--orange); }
-.case-status.evidence { color: var(--green); }
-.progress-bar { height: 3px; background: #1a1a1a; margin-bottom: 10px; border-radius: 2px; overflow: hidden; }
-.progress-bar .fill { height: 100%; background: var(--green); transition: width 1s; }
-.case-agents { display: flex; gap: 6px; }
-.case-agents .mini-avatar {
-  width: 22px; height: 22px; border-radius: 50%; font-size: 8px;
-  display: flex; align-items: center; justify-content: center;
-  font-weight: 700; color: #000;
-}
+.loading{text-align:center;padding:40px;color:#555}
+.loading .cursor{animation:blink .8s infinite}
 
-/* ===== AGENT PROFILES ===== */
-.agents-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
-.agent-card {
-  background: #0d0d0d; border: 1px solid #1a3a1a; padding: 20px;
-  transition: border-color 0.3s; position: relative;
-}
-.agent-card:hover { border-color: var(--green); }
-.agent-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
-.agent-avatar {
-  width: 40px; height: 40px; border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  font-weight: 700; font-size: 14px; color: #000; flex-shrink: 0;
-}
-.agent-card .name { font-size: 15px; font-weight: 700; }
-.agent-card .role { font-size: 11px; color: var(--text); }
-.agent-stats { font-size: 11px; color: var(--text); margin-top: 8px; }
-.agent-stats div { margin: 3px 0; display: flex; justify-content: space-between; }
-.agent-stats .val { color: var(--green); }
-.agent-card .status-badge {
-  position: absolute; top: 12px; right: 12px;
-  font-size: 9px; padding: 2px 8px; border-radius: 2px;
-  text-transform: uppercase; letter-spacing: 1px;
-}
-.status-investigating { background: rgba(255,0,85,0.2); color: var(--red); border: 1px solid var(--red); }
-.status-analyzing { background: rgba(0,255,65,0.1); color: var(--green); border: 1px solid var(--green); }
-.status-monitoring { background: rgba(255,140,0,0.15); color: var(--orange); border: 1px solid var(--orange); }
-/* Sparkline */
-.sparkline { display: flex; align-items: flex-end; gap: 2px; height: 20px; margin-top: 10px; }
-.sparkline .bar { width: 4px; background: var(--green); opacity: 0.6; border-radius: 1px; }
+/* Analysis */
+.analysis{margin-top:32px;padding:16px;border:1px solid #1a1a1a;background:#050505}
+.analysis h2{font-size:13px;color:var(--green);letter-spacing:2px;margin-bottom:12px}
+.analysis-line{margin:4px 0;font-size:12px;line-height:1.7}
+.agent-tag{font-weight:700}
+.agent-sentinel{color:#00ff41}.agent-tracer{color:#00bfff}.agent-cipher{color:#ff6600}.agent-viper{color:var(--red)}.agent-ghost{color:#888}.agent-nexus{color:#cc66ff}
 
-/* ===== STATS ===== */
-.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 24px; text-align: center; }
-.stat-block .num { font-size: 36px; font-weight: 700; font-family: 'Space Mono', monospace; }
-.stat-block .label { font-size: 11px; color: var(--text); letter-spacing: 2px; margin-top: 4px; }
+/* Agent bar */
+.agent-bar{display:flex;flex-wrap:wrap;gap:16px;margin-top:24px;padding:12px 0;border-top:1px solid #1a1a1a;border-bottom:1px solid #1a1a1a;justify-content:center}
+.agent-item{font-size:11px;color:#666;display:flex;align-items:center;gap:6px}
+.agent-item .dot{width:6px;height:6px;background:var(--green);border-radius:50%;display:inline-block}
 
-/* ===== FOOTER ===== */
-footer {
-  border-top: 1px solid #1a3a1a; padding: 30px 24px; text-align: center;
-  font-size: 12px; color: #555; max-width: 1200px; margin: 0 auto;
-}
-footer .tagline { color: var(--green); font-size: 14px; margin-bottom: 12px; }
-footer .ca {
-  background: #0d0d0d; border: 1px solid #1a3a1a; padding: 8px 16px;
-  display: inline-block; margin: 10px 0; cursor: pointer; font-size: 11px;
-  transition: border-color 0.3s; color: var(--text);
-}
-footer .ca:hover { border-color: var(--green); color: var(--green); }
-footer .ca.copied { border-color: var(--green); color: var(--green); }
-footer .links { margin: 12px 0; }
-footer .links a { color: var(--green); text-decoration: none; margin: 0 12px; }
-footer .links a:hover { text-decoration: underline; }
-footer .motto { color: var(--text); font-style: italic; margin-top: 12px; }
-footer .version { color: #333; font-size: 10px; margin-top: 16px; }
-footer .ascii-line { color: #1a3a1a; font-size: 10px; margin: 12px 0; letter-spacing: 2px; overflow: hidden; }
+/* How it works */
+.how{margin-top:32px}
+.how h2{font-size:13px;color:var(--green);letter-spacing:2px;margin-bottom:12px}
+.how ol{list-style:none;counter-reset:steps}
+.how li{counter-increment:steps;margin:8px 0;font-size:12px;color:#888}
+.how li::before{content:counter(steps) ".";color:var(--green);margin-right:8px;font-weight:700}
 
-/* ===== FLICKER ANIMATION ===== */
-@keyframes flicker {
-  0%, 100% { opacity: 1; }
-  92% { opacity: 1; }
-  93% { opacity: 0.8; }
-  94% { opacity: 1; }
-  96% { opacity: 0.9; }
-  97% { opacity: 1; }
-}
-body { animation: flicker 8s infinite; }
+/* Footer */
+.footer{margin-top:40px;padding:20px 0;border-top:1px solid #1a1a1a;text-align:center;font-size:11px;color:#444}
+.footer .motto{color:#666;margin-bottom:8px}
+.ca-line{display:flex;align-items:center;justify-content:center;gap:8px;margin:8px 0;flex-wrap:wrap}
+.ca-line code{color:var(--green);font-size:11px;word-break:break-all}
+.copy-btn{background:none;border:1px solid #333;color:#666;padding:2px 8px;font-family:var(--mono);font-size:10px;cursor:pointer;transition:all .2s}
+.copy-btn:hover{border-color:var(--green);color:var(--green)}
+.copy-btn.copied{border-color:var(--green);color:var(--green)}
+.footer-links{margin-top:8px}
+.footer-links a{color:#555;margin:0 8px;font-size:11px}
+.footer-links a:hover{color:var(--green)}
 
-/* ===== TYPING CURSOR ===== */
-.cursor {
-  display: inline-block; width: 8px; height: 14px;
-  background: var(--green); margin-left: 4px;
-  animation: blink 1s step-end infinite;
-}
-
-/* ===== SCROLLBAR GLOBAL ===== */
-::-webkit-scrollbar { width: 6px; height: 6px; }
-::-webkit-scrollbar-track { background: var(--bg); }
-::-webkit-scrollbar-thumb { background: #1a3a1a; border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: var(--green); }
-
-/* ===== SELECTION ===== */
-::selection { background: var(--green); color: var(--bg); }
-
-/* ===== LINK STYLES ===== */
-a { transition: color 0.2s, text-shadow 0.2s; }
-a:hover { text-shadow: 0 0 8px var(--green); }
-
-/* ===== NETWORK PULSE ===== */
-.pulse-container {
-  background: #050505; border: 1px solid #1a3a1a; padding: 20px;
-}
-.pulse-row {
-  display: flex; align-items: center; gap: 12px; margin: 8px 0;
-  font-size: 11px;
-}
-.pulse-label { width: 80px; color: var(--text); flex-shrink: 0; }
-.pulse-bars { flex: 1; display: flex; gap: 2px; height: 16px; align-items: flex-end; }
-.pulse-bars .pbar {
-  flex: 1; border-radius: 1px; min-width: 2px;
-  animation: pulseBar 3s infinite;
-}
-@keyframes pulseBar { 0%,100%{opacity:0.6} 50%{opacity:1} }
-.pulse-val { width: 80px; text-align: right; flex-shrink: 0; font-weight: 700; }
-
-/* ===== THREAT TABLE ===== */
-#threat-log { overflow-x: auto; }
-.threat-table {
-  width: 100%; border-collapse: collapse; font-size: 11px;
-  background: #050505; border: 1px solid #1a3a1a;
-}
-.threat-table th {
-  text-align: left; padding: 10px 12px; color: var(--green);
-  border-bottom: 1px solid #1a3a1a; font-size: 10px; letter-spacing: 2px;
-}
-.threat-table td {
-  padding: 8px 12px; border-bottom: 1px solid #0f0f0f; color: var(--text);
-}
-.threat-table tr:hover td { background: #0d1a0d; }
-.threat-table .type-rug { color: var(--red); }
-.threat-table .type-honey { color: var(--orange); }
-.threat-table .type-pump { color: var(--purple); }
-.threat-table .type-flash { color: var(--blue); }
-.threat-table .status-flagged { color: var(--red); }
-.threat-table .status-tracking { color: var(--orange); }
-.threat-table .status-neutralized { color: var(--green); }
-
-/* ===== HOW IT WORKS ===== */
-.how-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; }
-.how-step {
-  background: #0d0d0d; border: 1px solid #1a3a1a; padding: 24px;
-  transition: border-color 0.3s;
-}
-.how-step:hover { border-color: var(--green); }
-.how-num { font-size: 28px; font-weight: 700; font-family: 'Space Mono', monospace; margin-bottom: 8px; }
-.how-title { font-size: 14px; font-weight: 700; margin-bottom: 8px; letter-spacing: 2px; }
-.how-desc { font-size: 11px; color: var(--text); line-height: 1.7; }
-
-/* ===== BUSTS ===== */
-.busts-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
-.bust-card {
-  background: #0d0d0d; border: 1px solid #1a3a1a; padding: 18px;
-  transition: border-color 0.3s;
-}
-.bust-card:hover { border-color: var(--green); }
-.bust-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-.bust-tag {
-  font-size: 9px; padding: 2px 8px; border-radius: 2px;
-  text-transform: uppercase; letter-spacing: 1px;
-}
-.bust-tag.resolved { background: rgba(0,255,65,0.1); color: var(--green); border: 1px solid var(--green); }
-.bust-tag.active { background: rgba(255,0,85,0.15); color: var(--red); border: 1px solid var(--red); }
-.bust-date { font-size: 10px; color: #555; }
-.bust-title { font-size: 15px; font-weight: 700; margin-bottom: 8px; }
-.bust-desc { font-size: 11px; color: var(--text); line-height: 1.7; margin-bottom: 8px; }
-.bust-agents { font-size: 10px; color: #555; }
-
-/* ===== RESPONSIVE ===== */
-@media (max-width: 768px) {
-  #topbar { flex-direction: column; align-items: flex-start; }
-  #topbar .stats { gap: 12px; }
-  .stat-block .num { font-size: 24px; }
-  #feed { height: 250px; font-size: 11px; }
-  section { padding: 24px 16px; }
+@media(max-width:768px){
+  .feed-table th:nth-child(3),.feed-table td:nth-child(3),
+  .feed-table th:nth-child(6),.feed-table td:nth-child(6){display:none}
+  .header h1{font-size:18px}
+  .container{padding:12px 10px}
 }
 </style>
 </head>
 <body>
+<div class="container">
+  <header class="header">
+    <div>
+      <h1>PUMP JUSTICE</h1>
+      <div class="sub">AGENT NETWORK</div>
+    </div>
+    <div class="live-dot"><span></span> LIVE</div>
+  </header>
 
-<!--
-  ╔══════════════════════════════════════════════════════════════╗
-  ║  PUMP JUSTICE — AI Agent Investigation Platform             ║
-  ║  Version 3.0 — Agent Network                                ║
-  ║                                                              ║
-  ║  6 Autonomous AI Agents investigating crypto scams           ║
-  ║  on the Solana blockchain in real-time.                      ║
-  ║                                                              ║
-  ║  AGENTS:                                                     ║
-  ║  ├─ SENTINEL  [RED]    — Lead Investigator                   ║
-  ║  ├─ TRACER    [BLUE]   — Wallet Tracker                      ║
-  ║  ├─ CIPHER    [PURPLE] — Pattern Decoder                     ║
-  ║  ├─ GHOST     [GRAY]   — Dark Web Intel                      ║
-  ║  ├─ NEXUS     [GREEN]  — Data Aggregator                     ║
-  ║  └─ VIPER     [ORANGE] — Exchange Monitor                    ║
-  ║                                                              ║
-  ║  CA: 7S2yY2G6SU1fFVzXQ4FyXuAvWEKy2VUBCetnPhRBpump          ║
-  ║  "Agents never sleep. Scammers never rest."                  ║
-  ╚══════════════════════════════════════════════════════════════╝
--->
+  <section>
+    <div class="feed-header">
+      <h2>▸ LIVE RUGPULL FEED</h2>
+      <div class="refresh-info">auto-refresh 30s</div>
+    </div>
+    <div id="feed-status"></div>
+    <div id="feed-container">
+      <div class="loading">CONNECTING TO BLOCKCHAIN<span class="cursor">_</span></div>
+    </div>
+  </section>
 
-<!-- BOOT SCREEN -->
-<div id="boot-screen">
-  <div id="boot-text">
-    <div class="line ok">> PUMP_JUSTICE v3.0 — AGENT NETWORK</div>
-    <div class="line ok">> Initializing neural mesh...</div>
-    <div class="line ok">> Loading agent cores... [6 AGENTS ONLINE]</div>
-    <div class="line warn">> Mounting blockchain scanner...</div>
-    <div class="line ok">> Connecting to Solana RPC...</div>
-    <div class="line ok">> Threat database loaded: 14,892 entries</div>
-    <div class="line ok">> System operational. All agents deployed.</div>
+  <section class="analysis" id="analysis">
+    <h2>▸ AGENT ANALYSIS</h2>
+    <div id="analysis-content">
+      <div class="analysis-line"><span class="agent-tag agent-sentinel">[SENTINEL]</span> Waiting for data feed...</div>
+    </div>
+  </section>
+
+  <div class="agent-bar">
+    <div class="agent-item"><span class="dot"></span>SENTINEL</div>
+    <div class="agent-item"><span class="dot"></span>TRACER</div>
+    <div class="agent-item"><span class="dot"></span>CIPHER</div>
+    <div class="agent-item"><span class="dot"></span>GHOST</div>
+    <div class="agent-item"><span class="dot"></span>NEXUS</div>
+    <div class="agent-item"><span class="dot"></span>VIPER</div>
   </div>
+
+  <section class="how">
+    <h2>▸ HOW IT WORKS</h2>
+    <ol>
+      <li>Agents monitor every new token that bonds on pump.fun</li>
+      <li>Deployer wallets, LP behavior, and transaction patterns are analyzed in real-time</li>
+      <li>Scam patterns are flagged and evidence is compiled on-chain</li>
+    </ol>
+  </section>
+
+  <footer class="footer">
+    <div class="motto">PUMP JUSTICE — Agents never sleep</div>
+    <div class="ca-line">
+      <span style="color:#555">CA:</span>
+      <code id="ca-text">7S2yY2G6SU1fFVzXQ4FyXuAvWEKy2VUBCetnPhRBpump</code>
+      <button class="copy-btn" onclick="copyCA()">COPY</button>
+    </div>
+    <div class="footer-links">
+      <a href="https://x.com/" target="_blank">X/TWITTER</a>
+      <a href="https://github.com/" target="_blank">GITHUB</a>
+      <a href="https://dexscreener.com/" target="_blank">DEXSCREENER</a>
+    </div>
+  </footer>
 </div>
-
-<!-- TOP BAR -->
-<div id="topbar">
-  <div class="logo glow">PUMP JUSTICE</div>
-  <div class="stats">
-    <span><span class="blink-dot"></span> NETWORK ACTIVE</span>
-    <span><span class="val">6</span> AGENTS ONLINE</span>
-    <span><span class="val">23</span> ACTIVE CASES</span>
-    <span><span class="val">147</span> SCAMS IDENTIFIED</span>
-    <span><span class="val">$2.4M</span> RECOVERED</span>
-  </div>
-</div>
-
-<!-- NETWORK VISUALIZATION -->
-<section id="network-section">
-  <div class="section-title">// AGENT NETWORK — LIVE MESH</div>
-  <div id="network-wrap">
-    <canvas id="networkCanvas" width="1200" height="500"></canvas>
-    <div id="agent-tooltip">
-      <div class="tt-name"></div>
-      <div class="tt-role"></div>
-      <div class="tt-stat">Cases Solved: <span class="tt-cases"></span></div>
-      <div class="tt-stat">Accuracy: <span class="tt-acc"></span></div>
-      <div class="tt-stat">Status: <span class="tt-status"></span></div>
-    </div>
-  </div>
-</section>
-
-<!-- LIVE FEED -->
-<section id="feed-section">
-  <div class="section-title">// LIVE AGENT COMMUNICATIONS</div>
-  <div id="feed"></div>
-</section>
-
-<!-- ACTIVE CASES -->
-<section>
-  <div class="section-title">// ACTIVE CASES</div>
-  <div class="cases-grid">
-    <div class="case-card">
-      <div class="case-id">CASE #1247</div>
-      <div class="case-title">FAKE_LAUNCH Rugpull — $340K Stolen</div>
-      <div class="case-status hunting">◉ HUNTING</div>
-      <div class="progress-bar"><div class="fill" style="width:65%"></div></div>
-      <div class="case-agents">
-        <div class="mini-avatar" style="background:#ff0055">S</div>
-        <div class="mini-avatar" style="background:#00aaff">T</div>
-        <div class="mini-avatar" style="background:#aa44ff">C</div>
-      </div>
-    </div>
-    <div class="case-card">
-      <div class="case-id">CASE #1189</div>
-      <div class="case-title">Honeypot Deployer Network</div>
-      <div class="case-status closing">◉ CLOSING IN</div>
-      <div class="progress-bar"><div class="fill" style="width:82%"></div></div>
-      <div class="case-agents">
-        <div class="mini-avatar" style="background:#ff0055">S</div>
-        <div class="mini-avatar" style="background:#00aaff">T</div>
-        <div class="mini-avatar" style="background:#8899aa">G</div>
-        <div class="mini-avatar" style="background:#00ff41">N</div>
-        <div class="mini-avatar" style="background:#ff8c00">V</div>
-      </div>
-    </div>
-    <div class="case-card">
-      <div class="case-id">CASE #1203</div>
-      <div class="case-title">Flash Loan Exploit Ring</div>
-      <div class="case-status evidence">◉ EVIDENCE GATHERED</div>
-      <div class="progress-bar"><div class="fill" style="width:94%"></div></div>
-      <div class="case-agents">
-        <div class="mini-avatar" style="background:#aa44ff">C</div>
-        <div class="mini-avatar" style="background:#00ff41">N</div>
-        <div class="mini-avatar" style="background:#ff8c00">V</div>
-        <div class="mini-avatar" style="background:#00aaff">T</div>
-      </div>
-    </div>
-    <div class="case-card">
-      <div class="case-id">CASE #1251</div>
-      <div class="case-title">Coordinated Pump & Dump — 8 Tokens</div>
-      <div class="case-status hunting">◉ HUNTING</div>
-      <div class="progress-bar"><div class="fill" style="width:38%"></div></div>
-      <div class="case-agents">
-        <div class="mini-avatar" style="background:#8899aa">G</div>
-        <div class="mini-avatar" style="background:#ff0055">S</div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- AGENT PROFILES -->
-<section>
-  <div class="section-title">// AGENT ROSTER</div>
-  <div class="agents-grid" id="agents-grid"></div>
-</section>
-
-<!-- STATS -->
-<section>
-  <div class="section-title">// NETWORK STATISTICS</div>
-  <div class="stats-grid">
-    <div class="stat-block"><div class="num glow" data-target="1247">0</div><div class="label">CASES INVESTIGATED</div></div>
-    <div class="stat-block"><div class="num glow" data-target="892">0</div><div class="label">SCAMMERS IDENTIFIED</div></div>
-    <div class="stat-block"><div class="num glow" data-target="12400000" data-prefix="$" data-suffix="" data-format="money">0</div><div class="label">VALUE TRACED</div></div>
-    <div class="stat-block"><div class="num glow" data-target="997" data-suffix="%" data-div="10">0</div><div class="label">UPTIME</div></div>
-  </div>
-</section>
-
-<!-- THREAT MAP -->
-<section>
-  <div class="section-title">// RECENT THREAT DETECTIONS</div>
-  <div id="threat-log">
-    <table class="threat-table">
-      <thead>
-        <tr>
-          <th>TIME</th>
-          <th>THREAT</th>
-          <th>TYPE</th>
-          <th>WALLET</th>
-          <th>VALUE</th>
-          <th>STATUS</th>
-        </tr>
-      </thead>
-      <tbody id="threat-body"></tbody>
-    </table>
-  </div>
-</section>
-
-<!-- NETWORK PULSE -->
-<section>
-  <div class="section-title">// NETWORK PULSE — 24H ACTIVITY</div>
-  <div class="pulse-container">
-    <div class="pulse-row">
-      <span class="pulse-label">SENTINEL</span>
-      <div class="pulse-bars" id="pulse-sentinel"></div>
-      <span class="pulse-val" style="color:#ff0055">847 ops</span>
-    </div>
-    <div class="pulse-row">
-      <span class="pulse-label">TRACER</span>
-      <div class="pulse-bars" id="pulse-tracer"></div>
-      <span class="pulse-val" style="color:#00aaff">1,203 ops</span>
-    </div>
-    <div class="pulse-row">
-      <span class="pulse-label">CIPHER</span>
-      <div class="pulse-bars" id="pulse-cipher"></div>
-      <span class="pulse-val" style="color:#aa44ff">634 ops</span>
-    </div>
-    <div class="pulse-row">
-      <span class="pulse-label">GHOST</span>
-      <div class="pulse-bars" id="pulse-ghost"></div>
-      <span class="pulse-val" style="color:#8899aa">412 ops</span>
-    </div>
-    <div class="pulse-row">
-      <span class="pulse-label">NEXUS</span>
-      <div class="pulse-bars" id="pulse-nexus"></div>
-      <span class="pulse-val" style="color:#00ff41">1,891 ops</span>
-    </div>
-    <div class="pulse-row">
-      <span class="pulse-label">VIPER</span>
-      <div class="pulse-bars" id="pulse-viper"></div>
-      <span class="pulse-val" style="color:#ff8c00">723 ops</span>
-    </div>
-  </div>
-</section>
-
-<!-- HOW IT WORKS -->
-<section>
-  <div class="section-title">// HOW PUMP JUSTICE WORKS</div>
-  <div class="how-grid">
-    <div class="how-step">
-      <div class="how-num glow">01</div>
-      <div class="how-title">DETECT</div>
-      <div class="how-desc">Agents continuously scan Solana mempool, new token deployments, and liquidity events. Suspicious patterns trigger instant alerts across the mesh network.</div>
-    </div>
-    <div class="how-step">
-      <div class="how-num glow">02</div>
-      <div class="how-title">INVESTIGATE</div>
-      <div class="how-desc">SENTINEL assigns specialized agents to cases. TRACER maps wallet graphs, CIPHER analyzes contract bytecode, GHOST monitors social channels for coordination signals.</div>
-    </div>
-    <div class="how-step">
-      <div class="how-num glow">03</div>
-      <div class="how-title">CORRELATE</div>
-      <div class="how-desc">NEXUS cross-references findings against 14,892 known threat signatures. Machine learning models identify repeat offenders across wallet clusters and deploy patterns.</div>
-    </div>
-    <div class="how-step">
-      <div class="how-num glow">04</div>
-      <div class="how-title">NEUTRALIZE</div>
-      <div class="how-desc">VIPER monitors exchange deposit addresses. Evidence packages are compiled automatically. Flagged wallets are tracked until funds can be frozen or recovered.</div>
-    </div>
-  </div>
-</section>
-
-<!-- RECENT BUSTS -->
-<section>
-  <div class="section-title">// RECENT BUSTS — VERIFIED</div>
-  <div class="busts-grid">
-    <div class="bust-card">
-      <div class="bust-header"><span class="bust-tag resolved">RESOLVED</span> <span class="bust-date">2025-02-24</span></div>
-      <div class="bust-title">Operation DARKPOOL</div>
-      <div class="bust-desc">Coordinated rugpull ring operating 12 fake tokens over 3 weeks. Total stolen: $890K. All deployer wallets identified and flagged. 3 CEX accounts frozen.</div>
-      <div class="bust-agents">Agents: SENTINEL, TRACER, CIPHER, GHOST, NEXUS</div>
-    </div>
-    <div class="bust-card">
-      <div class="bust-header"><span class="bust-tag resolved">RESOLVED</span> <span class="bust-date">2025-02-21</span></div>
-      <div class="bust-title">Operation MIRAGE</div>
-      <div class="bust-desc">Honeypot deployer using novel tax manipulation. Contract appeared safe but had hidden 99% sell tax activation. $234K protected by early detection.</div>
-      <div class="bust-agents">Agents: CIPHER, VIPER, NEXUS</div>
-    </div>
-    <div class="bust-card">
-      <div class="bust-header"><span class="bust-tag active">ACTIVE</span> <span class="bust-date">2025-02-26</span></div>
-      <div class="bust-title">Operation HYDRA</div>
-      <div class="bust-desc">Flash loan exploit targeting multiple DEXs. Attacker using rotating proxy wallets. Currently tracking 47 connected addresses across 3 chains.</div>
-      <div class="bust-agents">Agents: TRACER, CIPHER, VIPER, NEXUS</div>
-    </div>
-  </div>
-</section>
-
-<!-- FOOTER -->
-<footer>
-  <div class="tagline glow">PUMP JUSTICE — AI-Powered Crypto Crime Investigation</div>
-  <div class="ca" id="ca-copy" title="Click to copy">CA: 7S2yY2G6SU1fFVzXQ4FyXuAvWEKy2VUBCetnPhRBpump</div>
-  <div class="links">
-    <a href="https://x.com/PumpJustice" target="_blank">X / @PumpJustice</a>
-    <a href="https://github.com/PumpJustice" target="_blank">GitHub</a>
-  </div>
-  <div class="motto">"Agents never sleep. Scammers never rest. Justice is automated."</div>
-  <div class="ascii-line">═══════════════════════════════════════════════════════════════</div>
-  <div class="version">PUMP_JUSTICE v3.0 | AGENT MESH NETWORK | EST. 2025 | ALL SYSTEMS NOMINAL</div>
-</footer>
 
 <script>
-// ===== AGENTS DATA =====
-const AGENTS = [
-  { id:'sentinel', name:'SENTINEL', init:'S', color:'#ff0055', role:'Lead Investigator', cases:347, acc:98.2, uptime:'99.9%', status:'investigating', desc:'Orchestrates all active investigations. Assigns agents, prioritizes cases, escalates threats.' },
-  { id:'tracer', name:'TRACER', init:'T', color:'#00aaff', role:'Wallet Tracker', cases:289, acc:97.8, uptime:'99.8%', status:'analyzing', desc:'Follows money across chains. Maps transaction graphs, identifies mixers and laundering paths.' },
-  { id:'cipher', name:'CIPHER', init:'C', color:'#aa44ff', role:'Pattern Decoder', cases:203, acc:99.1, uptime:'99.7%', status:'analyzing', desc:'Detects contract patterns, identifies reused rugpull scripts, analyzes bytecode signatures.' },
-  { id:'ghost', name:'GHOST', init:'G', color:'#8899aa', role:'Dark Web Intel', cases:156, acc:96.4, uptime:'98.9%', status:'investigating', desc:'Monitors Telegram, Discord, and dark web channels for scam coordination and insider leaks.' },
-  { id:'nexus', name:'NEXUS', init:'N', color:'#00ff41', role:'Data Aggregator', cases:412, acc:99.4, uptime:'99.9%', status:'monitoring', desc:'Cross-references all agent findings. Maintains the master threat database and pattern library.' },
-  { id:'viper', name:'VIPER', init:'V', color:'#ff8c00', role:'Exchange Monitor', cases:178, acc:97.1, uptime:'99.5%', status:'monitoring', desc:'Watches CEX deposits/withdrawals. Flags suspicious transfers and coordinates with exchange APIs.' },
-];
+const CA = '7S2yY2G6SU1fFVzXQ4FyXuAvWEKy2VUBCetnPhRBpump';
+const REFRESH_MS = 30000;
+const API_URL = 'https://api.dexscreener.com/latest/dex/search?q=pump';
+let lastData = [];
 
-// ===== BOOT SEQUENCE =====
-(function boot() {
-  const lines = document.querySelectorAll('#boot-text .line');
-  lines.forEach((l, i) => setTimeout(() => l.classList.add('visible'), i * 400));
-  setTimeout(() => document.getElementById('boot-screen').classList.add('fade'), 3200);
-  setTimeout(() => document.getElementById('boot-screen').style.display = 'none', 4000);
-})();
-
-// ===== AGENT PROFILES RENDER =====
-(function renderProfiles() {
-  const grid = document.getElementById('agents-grid');
-  AGENTS.forEach(a => {
-    const bars = Array.from({length:20}, () => Math.random() * 18 + 2).map(h =>
-      `<div class="bar" style="height:${h}px;background:${a.color};opacity:${0.3+Math.random()*0.5}"></div>`
-    ).join('');
-    const statusClass = a.status === 'investigating' ? 'status-investigating' :
-                        a.status === 'analyzing' ? 'status-analyzing' : 'status-monitoring';
-    grid.innerHTML += `
-      <div class="agent-card">
-        <span class="status-badge ${statusClass}">${a.status}</span>
-        <div class="agent-header">
-          <div class="agent-avatar" style="background:${a.color}">${a.init}</div>
-          <div><div class="name" style="color:${a.color}">${a.name}</div><div class="role">${a.role}</div></div>
-        </div>
-        <div style="font-size:11px;color:var(--text);margin-bottom:8px">${a.desc}</div>
-        <div class="agent-stats">
-          <div>Cases Solved <span class="val">${a.cases}</span></div>
-          <div>Accuracy <span class="val">${a.acc}%</span></div>
-          <div>Uptime <span class="val">${a.uptime}</span></div>
-        </div>
-        <div class="sparkline">${bars}</div>
-      </div>`;
+function copyCA() {
+  navigator.clipboard.writeText(CA).then(() => {
+    const btn = document.querySelector('.copy-btn');
+    btn.textContent = 'COPIED';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'COPY'; btn.classList.remove('copied'); }, 2000);
   });
-})();
+}
 
-// ===== NETWORK CANVAS =====
-(function initNetwork() {
-  const canvas = document.getElementById('networkCanvas');
-  const ctx = canvas.getContext('2d');
-  const wrap = document.getElementById('network-wrap');
-  const tooltip = document.getElementById('agent-tooltip');
-  let W, H, dpr;
-  let hoveredAgent = null, selectedAgent = null;
+function shortCA(addr) {
+  if (!addr) return '???';
+  return addr.slice(0, 4) + '...' + addr.slice(-4);
+}
 
-  function resize() {
-    const rect = wrap.getBoundingClientRect();
-    dpr = window.devicePixelRatio || 1;
-    W = rect.width; H = Math.min(500, window.innerHeight * 0.6);
-    canvas.style.height = H + 'px';
-    canvas.width = W * dpr; canvas.height = H * dpr;
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    positionAgents();
+function timeAgo(ts) {
+  if (!ts) return '?';
+  const diff = Date.now() - ts;
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return 'just now';
+  if (mins < 60) return mins + 'm ago';
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return hrs + 'h ago';
+  return Math.floor(hrs / 24) + 'd ago';
+}
+
+function fmtPrice(p) {
+  if (!p) return '$0';
+  const n = parseFloat(p);
+  if (n < 0.00001) return '$' + n.toExponential(1);
+  if (n < 0.01) return '$' + n.toFixed(6);
+  if (n < 1) return '$' + n.toFixed(4);
+  return '$' + n.toFixed(2);
+}
+
+function fmtVol(v) {
+  if (!v) return '$0';
+  if (v >= 1e6) return '$' + (v / 1e6).toFixed(1) + 'M';
+  if (v >= 1e3) return '$' + (v / 1e3).toFixed(0) + 'K';
+  return '$' + Math.floor(v);
+}
+
+function getStatus(change) {
+  if (change <= -80) return { label: '☠️ DEAD', cls: 'dead' };
+  if (change <= -50) return { label: '⚠️ DUMPING', cls: 'dumping' };
+  return { label: '● LIVE', cls: 'alive' };
+}
+
+function renderFeed(pairs) {
+  const container = document.getElementById('feed-container');
+  if (!pairs.length) {
+    container.innerHTML = '<div class="loading">NO RUGPULLS DETECTED... scanning<span class="cursor">_</span></div>';
+    return;
   }
 
-  const nodes = AGENTS.map((a, i) => ({
-    ...a, x: 0, y: 0, r: 30, pulsePhase: Math.random() * Math.PI * 2,
-    vx: (Math.random() - 0.5) * 0.3, vy: (Math.random() - 0.5) * 0.3
-  }));
+  let html = '<table class="feed-table"><thead><tr>';
+  html += '<th>TOKEN</th><th>CA</th><th>AGE</th><th>PRICE</th><th>24H</th><th>VOLUME</th><th>STATUS</th>';
+  html += '</tr></thead><tbody>';
 
-  function positionAgents() {
-    const cx = W / 2, cy = H / 2, rx = W * 0.32, ry = H * 0.35;
-    nodes.forEach((n, i) => {
-      const angle = (i / nodes.length) * Math.PI * 2 - Math.PI / 2;
-      n.x = cx + Math.cos(angle) * rx;
-      n.y = cy + Math.sin(angle) * ry;
-    });
-  }
+  pairs.forEach(p => {
+    const change = p.priceChange?.h24 || 0;
+    const st = getStatus(change);
+    const name = p.baseToken?.symbol || '???';
+    const addr = p.baseToken?.address || '';
+    const url = p.url || ('https://dexscreener.com/solana/' + (p.pairAddress || ''));
 
-  // Packets
-  const packets = [];
-  function spawnPacket() {
-    const from = nodes[Math.floor(Math.random() * nodes.length)];
-    let to = nodes[Math.floor(Math.random() * nodes.length)];
-    while (to === from) to = nodes[Math.floor(Math.random() * nodes.length)];
-    packets.push({ from, to, t: 0, speed: 0.008 + Math.random() * 0.008, color: from.color });
-  }
-  setInterval(spawnPacket, 2000 + Math.random() * 1500);
-
-  // Connections
-  const connections = [];
-  for (let i = 0; i < nodes.length; i++)
-    for (let j = i + 1; j < nodes.length; j++)
-      connections.push({ a: nodes[i], b: nodes[j], glow: 0 });
-
-  function draw(time) {
-    ctx.clearRect(0, 0, W, H);
-
-    // Draw connections
-    connections.forEach(c => {
-      const isSelected = selectedAgent && (c.a === selectedAgent || c.b === selectedAgent);
-      const isHovered = hoveredAgent && (c.a === hoveredAgent || c.b === hoveredAgent);
-      c.glow *= 0.96;
-      const alpha = isSelected ? 0.5 : isHovered ? 0.35 : 0.08 + c.glow * 0.4;
-      ctx.beginPath();
-      ctx.moveTo(c.a.x, c.a.y); ctx.lineTo(c.b.x, c.b.y);
-      ctx.strokeStyle = `rgba(0,255,65,${alpha})`;
-      ctx.lineWidth = isSelected ? 1.5 : 1;
-      ctx.stroke();
-    });
-
-    // Draw packets
-    for (let i = packets.length - 1; i >= 0; i--) {
-      const p = packets[i];
-      p.t += p.speed;
-      if (p.t >= 1) { 
-        // Light up connection
-        const c = connections.find(c => (c.a === p.from && c.b === p.to) || (c.a === p.to && c.b === p.from));
-        if (c) c.glow = 1;
-        packets.splice(i, 1); continue;
-      }
-      const x = p.from.x + (p.to.x - p.from.x) * p.t;
-      const y = p.from.y + (p.to.y - p.from.y) * p.t;
-      ctx.beginPath(); ctx.arc(x, y, 3, 0, Math.PI * 2);
-      ctx.fillStyle = p.color;
-      ctx.shadowColor = p.color; ctx.shadowBlur = 10;
-      ctx.fill(); ctx.shadowBlur = 0;
-    }
-
-    // Draw nodes
-    const t = time / 1000;
-    nodes.forEach(n => {
-      const pulse = 1 + Math.sin(t * 2 + n.pulsePhase) * 0.08;
-      const r = n.r * pulse;
-      const isActive = selectedAgent === n || hoveredAgent === n;
-
-      // Outer glow
-      if (isActive) {
-        ctx.beginPath(); ctx.arc(n.x, n.y, r + 8, 0, Math.PI * 2);
-        ctx.fillStyle = n.color + '22';
-        ctx.fill();
-      }
-
-      // Circle
-      ctx.beginPath(); ctx.arc(n.x, n.y, r, 0, Math.PI * 2);
-      ctx.fillStyle = '#0a0a0a';
-      ctx.strokeStyle = n.color;
-      ctx.lineWidth = isActive ? 3 : 2;
-      ctx.shadowColor = n.color; ctx.shadowBlur = isActive ? 20 : 8;
-      ctx.fill(); ctx.stroke(); ctx.shadowBlur = 0;
-
-      // Initials
-      ctx.fillStyle = n.color;
-      ctx.font = `bold 14px 'Space Mono', monospace`;
-      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-      ctx.fillText(n.init, n.x, n.y);
-
-      // Name below
-      ctx.font = `9px 'JetBrains Mono', monospace`;
-      ctx.fillStyle = n.color + 'aa';
-      ctx.fillText(n.name, n.x, n.y + r + 14);
-    });
-
-    // Draw grid background
-    ctx.strokeStyle = 'rgba(0,255,65,0.03)';
-    ctx.lineWidth = 0.5;
-    for (let x = 0; x < W; x += 40) {
-      ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
-    }
-    for (let y = 0; y < H; y += 40) {
-      ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
-    }
-
-    // Scanning line effect
-    const scanY = (time / 30) % H;
-    ctx.fillStyle = 'rgba(0,255,65,0.02)';
-    ctx.fillRect(0, scanY - 2, W, 4);
-
-    // Subtle node drift
-    nodes.forEach(n => {
-      n.x += n.vx; n.y += n.vy;
-      if (n.x < 60 || n.x > W - 60) n.vx *= -1;
-      if (n.y < 60 || n.y > H - 60) n.vy *= -1;
-    });
-
-    // Corner decorations
-    ctx.strokeStyle = 'rgba(0,255,65,0.15)';
-    ctx.lineWidth = 1;
-    const cs = 15;
-    // Top-left
-    ctx.beginPath(); ctx.moveTo(5, cs+5); ctx.lineTo(5, 5); ctx.lineTo(cs+5, 5); ctx.stroke();
-    // Top-right
-    ctx.beginPath(); ctx.moveTo(W-cs-5, 5); ctx.lineTo(W-5, 5); ctx.lineTo(W-5, cs+5); ctx.stroke();
-    // Bottom-left
-    ctx.beginPath(); ctx.moveTo(5, H-cs-5); ctx.lineTo(5, H-5); ctx.lineTo(cs+5, H-5); ctx.stroke();
-    // Bottom-right
-    ctx.beginPath(); ctx.moveTo(W-cs-5, H-5); ctx.lineTo(W-5, H-5); ctx.lineTo(W-5, H-cs-5); ctx.stroke();
-
-    // Status text in canvas
-    ctx.font = '9px "JetBrains Mono", monospace';
-    ctx.fillStyle = 'rgba(0,255,65,0.25)';
-    ctx.textAlign = 'left';
-    ctx.fillText('MESH NETWORK v3.0 — ' + nodes.length + ' NODES ACTIVE', 12, H - 10);
-    ctx.textAlign = 'right';
-    ctx.fillText('PACKETS: ' + packets.length + ' IN TRANSIT', W - 12, H - 10);
-
-    requestAnimationFrame(draw);
-  }
-
-  // Mouse interaction
-  function getNode(e) {
-    const rect = canvas.getBoundingClientRect();
-    const mx = e.clientX - rect.left, my = e.clientY - rect.top;
-    return nodes.find(n => Math.hypot(n.x - mx, n.y - my) < n.r + 5) || null;
-  }
-
-  canvas.addEventListener('mousemove', e => {
-    const node = getNode(e);
-    hoveredAgent = node;
-    if (node) {
-      canvas.style.cursor = 'pointer';
-      const rect = wrap.getBoundingClientRect();
-      tooltip.style.display = 'block';
-      tooltip.style.left = (e.clientX - rect.left + 15) + 'px';
-      tooltip.style.top = (e.clientY - rect.top - 10) + 'px';
-      tooltip.querySelector('.tt-name').textContent = node.name;
-      tooltip.querySelector('.tt-name').style.color = node.color;
-      tooltip.querySelector('.tt-role').textContent = node.role;
-      tooltip.querySelector('.tt-cases').textContent = node.cases;
-      tooltip.querySelector('.tt-acc').textContent = node.acc + '%';
-      tooltip.querySelector('.tt-status').textContent = node.status.toUpperCase();
-    } else {
-      canvas.style.cursor = 'crosshair';
-      tooltip.style.display = 'none';
-    }
+    html += `<tr class="row-link" onclick="window.open('${url}','_blank')">`;
+    html += `<td class="token-name">$${name}</td>`;
+    html += `<td class="ca-short">${shortCA(addr)}</td>`;
+    html += `<td>${timeAgo(p.pairCreatedAt)}</td>`;
+    html += `<td>${fmtPrice(p.priceUsd)}</td>`;
+    html += `<td class="change-${st.cls}">${change > 0 ? '+' : ''}${change.toFixed(0)}%</td>`;
+    html += `<td>${fmtVol(p.volume?.h24)}</td>`;
+    html += `<td class="status-${st.cls}">${st.label}</td>`;
+    html += '</tr>';
   });
 
-  canvas.addEventListener('click', e => {
-    const node = getNode(e);
-    selectedAgent = selectedAgent === node ? null : node;
-  });
+  html += '</tbody></table>';
+  container.innerHTML = html;
+}
 
-  canvas.addEventListener('mouseleave', () => {
-    hoveredAgent = null;
-    tooltip.style.display = 'none';
-  });
+function generateAnalysis(pairs) {
+  const worst = pairs.slice(0, 3);
+  const el = document.getElementById('analysis-content');
+  if (!worst.length) {
+    el.innerHTML = '<div class="analysis-line"><span class="agent-tag agent-sentinel">[SENTINEL]</span> Scanning latest bonded tokens...</div>';
+    return;
+  }
 
-  window.addEventListener('resize', resize);
-  resize();
-  requestAnimationFrame(draw);
-})();
-
-// ===== LIVE FEED =====
-(function initFeed() {
-  const feed = document.getElementById('feed');
-  const wallets = ['7xKp...3mNq','Dk4R...9wPz','3Fj2...mL8Q','Bp7T...kN4x','9Qw5...hR2v','Ym3K...pJ6c','Xn8D...tW1b','4Lz7...gV9a','Hc2P...sN5d','Rj6W...qM3f'];
-  const exchanges = ['Binance','OKX','Bybit','Kucoin','MEXC','Gate.io','Raydium','Jupiter','Orca'];
-  const caseNums = [1247,1189,1203,1251,1198,1234,1256,1219];
-  const patterns = ['RUGPULL#0847','HONEYPOT#0312','EXITSCAM#0921','FLASHLOAN#0156','PUMPDUMP#0743','FAKEDEX#0518'];
+  const agents = [
+    { tag: 'SENTINEL', cls: 'sentinel' },
+    { tag: 'TRACER', cls: 'tracer' },
+    { tag: 'CIPHER', cls: 'cipher' },
+    { tag: 'VIPER', cls: 'viper' }
+  ];
 
   const templates = [
-    (a,b) => `<span class="agent-name" style="color:${a.color}">${a.name}</span> <span class="arrow">→</span> <span class="agent-name" style="color:${b.color}">${b.name}</span>: Track wallet ${pick(wallets)} — suspicious ${rng(50,2000)} SOL movement`,
-    (a) => `<span class="agent-name" style="color:${a.color}">${a.name}</span>: Analyzing transaction graph... ${rng(2,8)} hops to known mixer`,
-    (a) => `<span class="agent-name" style="color:${a.color}">${a.name}</span>: Pattern match — same deploy script as ${pick(patterns)}`,
-    (a,b) => `<span class="agent-name" style="color:${a.color}">${a.name}</span> <span class="arrow">→</span> <span class="agent-name" style="color:${b.color}">${b.name}</span>: Found Telegram group linked to wallet cluster`,
-    (a) => `<span class="agent-name" style="color:${a.color}">${a.name}</span>: Cross-referencing with ${rng(4,24)} known scam patterns...`,
-    (a) => `<span class="agent-name" style="color:${a.color}">${a.name}</span>: <span class="alert-msg">Alert</span> — Target wallet depositing to ${pick(exchanges)}. Flagging.`,
-    (a) => `<span class="agent-name" style="color:${a.color}">${a.name}</span>: Case #${pick(caseNums)} escalated to PRIORITY. All agents converge.`,
-    (a) => `<span class="agent-name" style="color:${a.color}">${a.name}</span>: Wallet ${pick(wallets)} linked to ${rng(3,15)} previously flagged addresses`,
-    (a) => `<span class="agent-name" style="color:${a.color}">${a.name}</span>: Contract ${pick(wallets)} has hidden mint function — classic honeypot signature`,
-    (a,b) => `<span class="agent-name" style="color:${a.color}">${a.name}</span> <span class="arrow">→</span> <span class="agent-name" style="color:${b.color}">${b.name}</span>: Deployer wallet reused from ${pick(patterns)} — same actor confirmed`,
-    (a) => `<span class="agent-name" style="color:${a.color}">${a.name}</span>: ${pick(exchanges)} flagged account — withdrawal frozen pending review`,
-    (a) => `<span class="agent-name" style="color:${a.color}">${a.name}</span>: Liquidity removed: ${rng(100,900)} SOL pulled in single tx. Rugpull confirmed.`,
-    (a) => `<span class="agent-name" style="color:${a.color}">${a.name}</span>: Dark web chatter detected — new scam launch planned for ${rng(1,48)}h`,
-    (a,b) => `<span class="agent-name" style="color:${a.color}">${a.name}</span> <span class="arrow">→</span> <span class="agent-name" style="color:${b.color}">${b.name}</span>: Need wallet cluster analysis on ${pick(wallets)} network`,
-    (a) => `<span class="agent-name" style="color:${a.color}">${a.name}</span>: Evidence package compiled — ${rng(12,89)} transactions documented for Case #${pick(caseNums)}`,
-    (a) => `<span class="agent-name" style="color:${a.color}">${a.name}</span>: Bytecode similarity: 94.${rng(1,9)}% match with known rugpull template`,
-    (a) => `<span class="agent-name" style="color:${a.color}">${a.name}</span>: Scammer using ${rng(3,12)} intermediary wallets to obfuscate trail`,
-    (a) => `<span class="agent-name" style="color:${a.color}">${a.name}</span>: Token ${pick(wallets)} has renounced ownership but retains proxy admin access — flagging`,
-    (a,b) => `<span class="agent-name" style="color:${a.color}">${a.name}</span> <span class="arrow">→</span> <span class="agent-name" style="color:${b.color}">${b.name}</span>: Priority intercept — ${rng(200,5000)} SOL moving to ${pick(exchanges)} hot wallet`,
-    (a) => `<span class="agent-name" style="color:${a.color}">${a.name}</span>: Deployer address matches fingerprint from Operation DARKPOOL — same actor`,
-    (a) => `<span class="agent-name" style="color:${a.color}">${a.name}</span>: Social engineering campaign detected — fake KOL accounts promoting ${pick(wallets)}`,
-    (a,b) => `<span class="agent-name" style="color:${a.color}">${a.name}</span> <span class="arrow">→</span> <span class="agent-name" style="color:${b.color}">${b.name}</span>: Confirm — is wallet ${pick(wallets)} using Tornado Cash on ETH side?`,
-    (a) => `<span class="agent-name" style="color:${a.color}">${a.name}</span>: <span class="alert-msg">CRITICAL</span> — New rugpull in progress. LP removal detected on token launched ${rng(5,60)}min ago`,
-    (a) => `<span class="agent-name" style="color:${a.color}">${a.name}</span>: Metadata analysis complete — token website cloned from ${rng(3,8)} previous scam sites`,
-    (a) => `<span class="agent-name" style="color:${a.color}">${a.name}</span>: Whale wallet ${pick(wallets)} dumped ${rng(50,400)} SOL worth of tokens. Price impact: -${rng(60,99)}%`,
-    (a,b) => `<span class="agent-name" style="color:${a.color}">${a.name}</span> <span class="arrow">→</span> <span class="agent-name" style="color:${b.color}">${b.name}</span>: Mapping complete — ${rng(15,80)} wallets in this cluster. Uploading to NEXUS DB`,
-    (a) => `<span class="agent-name" style="color:${a.color}">${a.name}</span>: Automated report filed — Case #${pick(caseNums)} evidence score: ${rng(85,99)}/100`,
-    (a) => `<span class="agent-name" style="color:${a.color}">${a.name}</span>: Insider wallet pre-loaded ${rng(10,100)} SOL ${rng(2,24)}h before token launch — front-running confirmed`,
-    (a) => `<span class="agent-name" style="color:${a.color}">${a.name}</span>: Contract source unverified — obfuscated bytecode detected. Running decompiler...`,
-    (a) => `<span class="agent-name" style="color:${a.color}">${a.name}</span>: Supply concentration: top 5 wallets hold ${rng(70,95)}% of tokens — high rug risk`,
-    (a,b) => `<span class="agent-name" style="color:${a.color}">${a.name}</span> <span class="arrow">→</span> <span class="agent-name" style="color:${b.color}">${b.name}</span>: Check ${pick(exchanges)} for matching deposit — timestamp ${rng(10,59)}min after LP drain`,
-    (a) => `<span class="agent-name" style="color:${a.color}">${a.name}</span>: Network graph updated — new connection between Case #${pick(caseNums)} and Case #${pick(caseNums)}`,
-    (a) => `<span class="agent-name" style="color:${a.color}">${a.name}</span>: Sniping bot detected — same wallet first-bought ${rng(5,20)} tokens in past week, all rugged`,
-    (a) => `<span class="agent-name" style="color:${a.color}">${a.name}</span>: Telegram group "Alpha Calls ${rng(1,99)}" identified as scam promotion channel — ${rng(200,5000)} members`,
-    (a) => `<span class="agent-name" style="color:${a.color}">${a.name}</span>: Recovery operation — ${rng(10,200)} SOL frozen at ${pick(exchanges)} pending investigation`,
-    (a) => `<span class="agent-name" style="color:${a.color}">${a.name}</span>: <span class="alert-msg">WARNING</span> — Repeat offender wallet ${pick(wallets)} deploying new token NOW`,
+    (t) => `Scanning complete. ${lastData.length} tokens analyzed, ${lastData.filter(p => (p.priceChange?.h24 || 0) <= -80).length} confirmed dead.`,
+    (t) => `Token $${t.baseToken?.symbol} (${shortCA(t.baseToken?.address)}) — created ${timeAgo(t.pairCreatedAt)}, price down ${Math.abs(t.priceChange?.h24 || 0).toFixed(0)}%. Volume ${fmtVol(t.volume?.h24)} before collapse.`,
+    (t) => `Pattern match on $${t.baseToken?.symbol}: rapid bonding → immediate sell pressure. Deployer behavior consistent with pump & dump playbook.`,
+    (t) => `$${t.baseToken?.symbol} LP drained. ${Math.abs(t.priceChange?.h24 || 0).toFixed(0)}% drop within hours of creation. Classic rug signature confirmed.`
   ];
 
-  function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
-  function rng(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+  let html = '';
+  html += `<div class="analysis-line"><span class="agent-tag agent-${agents[0].cls}">[${agents[0].tag}]</span> ${templates[0](worst[0])}</div>`;
 
-  function addMessage() {
-    const tpl = pick(templates);
-    const a = pick(AGENTS), b = pick(AGENTS.filter(x => x !== a));
-    const now = new Date();
-    const ts = [now.getHours(), now.getMinutes(), now.getSeconds()].map(n => String(n).padStart(2,'0')).join(':');
-    const div = document.createElement('div');
-    div.className = 'msg';
-    div.innerHTML = `<span class="timestamp">[${ts}]</span> ${tpl(a, b)}`;
-    feed.appendChild(div);
-    if (feed.children.length > 100) feed.removeChild(feed.firstChild);
-    feed.scrollTop = feed.scrollHeight;
-  }
-
-  // Initial batch
-  for (let i = 0; i < 8; i++) addMessage();
-  setInterval(addMessage, 2500 + Math.random() * 2000);
-})();
-
-// ===== COUNTER ANIMATION =====
-(function initCounters() {
-  const nums = document.querySelectorAll('.stat-block .num');
-  let animated = false;
-  const observer = new IntersectionObserver(entries => {
-    if (entries[0].isIntersecting && !animated) {
-      animated = true;
-      nums.forEach(el => {
-        const target = parseInt(el.dataset.target);
-        const prefix = el.dataset.prefix || '';
-        const suffix = el.dataset.suffix || '';
-        const divBy = parseInt(el.dataset.div) || 1;
-        const isMoney = el.dataset.format === 'money';
-        let current = 0;
-        const step = target / 60;
-        const interval = setInterval(() => {
-          current += step;
-          if (current >= target) { current = target; clearInterval(interval); }
-          let display = Math.floor(current);
-          if (divBy > 1) display = (current / divBy).toFixed(1);
-          if (isMoney) display = (current / 1000000).toFixed(1) + 'M';
-          else if (typeof display === 'number' || !isNaN(display)) display = Number(display).toLocaleString();
-          el.textContent = prefix + display + suffix;
-        }, 16);
-      });
-    }
+  worst.forEach((t, i) => {
+    const aIdx = (i % 3) + 1;
+    html += `<div class="analysis-line"><span class="agent-tag agent-${agents[aIdx].cls}">[${agents[aIdx].tag}]</span> ${templates[aIdx](t)}</div>`;
   });
-  observer.observe(document.querySelector('.stats-grid'));
-})();
 
-// ===== NETWORK PULSE BARS =====
-(function initPulse() {
-  const agentColors = {
-    sentinel: '#ff0055', tracer: '#00aaff', cipher: '#aa44ff',
-    ghost: '#8899aa', nexus: '#00ff41', viper: '#ff8c00'
-  };
-  Object.entries(agentColors).forEach(([id, color]) => {
-    const container = document.getElementById('pulse-' + id);
-    if (!container) return;
-    for (let i = 0; i < 48; i++) {
-      const bar = document.createElement('div');
-      bar.className = 'pbar';
-      const h = Math.random() * 14 + 2;
-      bar.style.height = h + 'px';
-      bar.style.background = color;
-      bar.style.animationDelay = (Math.random() * 3) + 's';
-      container.appendChild(bar);
-    }
-  });
-})();
+  el.innerHTML = html;
+}
 
-// ===== THREAT TABLE =====
-(function initThreats() {
-  const tbody = document.getElementById('threat-body');
-  const types = [
-    { name: 'RUGPULL', cls: 'type-rug' },
-    { name: 'HONEYPOT', cls: 'type-honey' },
-    { name: 'PUMP&DUMP', cls: 'type-pump' },
-    { name: 'FLASH LOAN', cls: 'type-flash' },
-  ];
-  const statuses = [
-    { name: 'FLAGGED', cls: 'status-flagged' },
-    { name: 'TRACKING', cls: 'status-tracking' },
-    { name: 'NEUTRALIZED', cls: 'status-neutralized' },
-  ];
-  const walletChars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz123456789';
-  function randWallet() {
-    let s = '';
-    for (let i = 0; i < 4; i++) s += walletChars[Math.floor(Math.random() * walletChars.length)];
-    s += '...';
-    for (let i = 0; i < 4; i++) s += walletChars[Math.floor(Math.random() * walletChars.length)];
-    return s;
+async function fetchData() {
+  const status = document.getElementById('feed-status');
+  status.textContent = '> fetching live data...';
+
+  try {
+    const res = await fetch(API_URL);
+    if (!res.ok) throw new Error('API ' + res.status);
+    const data = await res.json();
+
+    let pairs = (data.pairs || [])
+      .filter(p => p.chainId === 'solana')
+      .filter(p => p.pairCreatedAt && (Date.now() - p.pairCreatedAt) < 86400000)
+      .filter(p => (p.priceChange?.h24 || 0) < -50)
+      .sort((a, b) => (a.priceChange?.h24 || 0) - (b.priceChange?.h24 || 0));
+
+    // Dedupe by base token address
+    const seen = new Set();
+    pairs = pairs.filter(p => {
+      const addr = p.baseToken?.address;
+      if (!addr || seen.has(addr)) return false;
+      seen.add(addr);
+      return true;
+    });
+
+    lastData = pairs;
+    const now = new Date().toLocaleTimeString();
+    status.textContent = `> ${pairs.length} tokens flagged — last updated ${now}`;
+    renderFeed(pairs);
+    generateAnalysis(pairs);
+  } catch (e) {
+    status.textContent = '> CONNECTION ERROR — retrying...';
+    document.getElementById('feed-container').innerHTML =
+      '<div class="loading">CONNECTING TO BLOCKCHAIN<span class="cursor">_</span></div>';
+    setTimeout(fetchData, 5000);
   }
-  function addThreat() {
-    const type = types[Math.floor(Math.random() * types.length)];
-    const status = statuses[Math.floor(Math.random() * statuses.length)];
-    const now = new Date();
-    const ts = [now.getHours(), now.getMinutes(), now.getSeconds()].map(n => String(n).padStart(2, '0')).join(':');
-    const val = (Math.random() * 500 + 10).toFixed(1);
-    const tr = document.createElement('tr');
-    tr.style.opacity = '0'; tr.style.animation = 'fadeIn 0.3s forwards';
-    tr.innerHTML = `
-      <td>${ts}</td>
-      <td>${['ShadowToken','FakeDoge','MoonScam','SafeRug','ElonPump','MetaFraud','SolGrift','DeFiTrap'][Math.floor(Math.random()*8)]}</td>
-      <td class="${type.cls}">${type.name}</td>
-      <td style="font-size:10px">${randWallet()}</td>
-      <td>${val} SOL</td>
-      <td class="${status.cls}">${status.name}</td>
-    `;
-    tbody.insertBefore(tr, tbody.firstChild);
-    if (tbody.children.length > 12) tbody.removeChild(tbody.lastChild);
-  }
-  for (let i = 0; i < 8; i++) addThreat();
-  setInterval(addThreat, 4000 + Math.random() * 3000);
-})();
+}
 
-// ===== CA COPY =====
-document.getElementById('ca-copy').addEventListener('click', function() {
-  navigator.clipboard.writeText('7S2yY2G6SU1fFVzXQ4FyXuAvWEKy2VUBCetnPhRBpump');
-  this.textContent = 'COPIED!';
-  this.classList.add('copied');
-  setTimeout(() => {
-    this.textContent = 'CA: 7S2yY2G6SU1fFVzXQ4FyXuAvWEKy2VUBCetnPhRBpump';
-    this.classList.remove('copied');
-  }, 2000);
-});
+fetchData();
+setInterval(fetchData, REFRESH_MS);
 </script>
 </body>
 </html>
