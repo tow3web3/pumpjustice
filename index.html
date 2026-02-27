@@ -104,6 +104,42 @@ section + section { border-top:1px solid var(--border); }
 .step-time { color:var(--muted); font-size:11px; }
 .step-body { color:var(--dim); font-size:13px; white-space:pre-wrap; line-height:1.6; }
 
+/* Pipeline diagram */
+.pipeline { display:flex; align-items:center; justify-content:center; gap:0; flex-wrap:wrap; padding:20px 0; }
+.pipe-node { display:flex; flex-direction:column; align-items:center; gap:6px; padding:16px; min-width:100px; position:relative; }
+.pipe-dot { width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; color:#000; transition:.3s; }
+.pipe-dot.active { animation:pipePulse 1.5s ease-in-out infinite; }
+@keyframes pipePulse { 0%,100%{box-shadow:0 0 0 0 rgba(16,185,129,.4)} 50%{box-shadow:0 0 0 12px rgba(16,185,129,0)} }
+.pipe-label { font-size:11px; font-weight:600; color:#fff; }
+.pipe-role { font-size:10px; color:var(--dim); }
+.pipe-arrow { color:var(--muted); font-size:18px; margin:0 -4px; }
+.pipe-line { width:30px; height:2px; background:var(--border); position:relative; overflow:hidden; }
+.pipe-line .packet { position:absolute; top:-1px; left:-8px; width:8px; height:4px; background:var(--green); border-radius:2px; animation:packetMove 2s linear infinite; }
+@keyframes packetMove { 0%{left:-8px} 100%{left:30px} }
+
+/* Live cases */
+.live-cases { display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:12px; }
+.case-card { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:18px; }
+.case-status { display:inline-flex; align-items:center; gap:6px; font-size:11px; font-weight:600; padding:3px 10px; border-radius:20px; }
+.case-status.active { background:rgba(16,185,129,.15); color:var(--green); }
+.case-status.complete { background:rgba(59,130,246,.15); color:var(--blue); }
+.case-token { font-size:16px; font-weight:600; color:#fff; margin:8px 0 4px; }
+.case-ca { font-family:monospace; font-size:11px; color:var(--muted); }
+.case-agents { display:flex; gap:4px; margin-top:10px; }
+.case-agent-dot { width:20px; height:20px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:8px; font-weight:700; color:#000; }
+.case-progress { margin-top:10px; height:3px; background:var(--border); border-radius:2px; overflow:hidden; }
+.case-progress-bar { height:100%; background:var(--green); border-radius:2px; transition:width .5s; }
+
+/* Example report */
+.report-box { background:var(--card); border:1px solid var(--border); border-radius:12px; overflow:hidden; }
+.report-header { padding:20px 24px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; }
+.report-steps { padding:0; }
+.report-step { padding:16px 24px; border-bottom:1px solid #141416; }
+.report-step:last-child { border-bottom:none; }
+.report-step-agent { font-weight:600; font-size:13px; margin-bottom:6px; }
+.report-step-content { color:var(--dim); font-size:13px; line-height:1.6; }
+.report-tag { font-size:10px; background:rgba(16,185,129,.1); color:var(--green); padding:2px 8px; border-radius:10px; font-weight:500; }
+
 /* Footer */
 footer { padding:40px 0; border-top:1px solid var(--border); text-align:center; }
 footer p { color:var(--muted); font-size:13px; }
@@ -155,6 +191,84 @@ footer p { color:var(--muted); font-size:13px; }
         <div class="step-num">03</div>
         <h3>Report Published</h3>
         <p>Full investigation report with risk rating. Community votes on findings. Everything is public.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PIPELINE DIAGRAM -->
+<section>
+  <div class="container">
+    <div class="section-label">Investigation Pipeline</div>
+    <div class="section-title">How agents work a case</div>
+    <div class="section-desc">When you submit a contract address, it passes through six agents in sequence. Each agent's findings feed into the next.</div>
+    <div class="pipeline" id="pipeline">
+      <div class="pipe-node"><div class="pipe-dot" style="background:var(--green)" id="pn0">N</div><div class="pipe-label">NEXUS</div><div class="pipe-role">Token Data</div></div>
+      <div class="pipe-line"><div class="packet"></div></div>
+      <div class="pipe-node"><div class="pipe-dot" style="background:var(--blue)" id="pn1">T</div><div class="pipe-label">TRACER</div><div class="pipe-role">Wallet</div></div>
+      <div class="pipe-line"><div class="packet" style="animation-delay:.3s"></div></div>
+      <div class="pipe-node"><div class="pipe-dot" style="background:var(--purple)" id="pn2">C</div><div class="pipe-label">CIPHER</div><div class="pipe-role">Patterns</div></div>
+      <div class="pipe-line"><div class="packet" style="animation-delay:.6s"></div></div>
+      <div class="pipe-node"><div class="pipe-dot" style="background:var(--gray)" id="pn3">G</div><div class="pipe-label">GHOST</div><div class="pipe-role">Social</div></div>
+      <div class="pipe-line"><div class="packet" style="animation-delay:.9s"></div></div>
+      <div class="pipe-node"><div class="pipe-dot" style="background:var(--orange)" id="pn4">V</div><div class="pipe-label">VIPER</div><div class="pipe-role">Risk Score</div></div>
+      <div class="pipe-line"><div class="packet" style="animation-delay:1.2s"></div></div>
+      <div class="pipe-node"><div class="pipe-dot" style="background:var(--red)" id="pn5">S</div><div class="pipe-label">SENTINEL</div><div class="pipe-role">Report</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- LIVE CASES -->
+<section>
+  <div class="container">
+    <div class="section-label">Active</div>
+    <div class="section-title">Live cases</div>
+    <div class="section-desc">Investigations currently being processed or recently completed.</div>
+    <div class="live-cases" id="liveCases">
+      <div class="empty">Loading cases...</div>
+    </div>
+  </div>
+</section>
+
+<!-- EXAMPLE REPORT -->
+<section>
+  <div class="container">
+    <div class="section-label">Example</div>
+    <div class="section-title">What a report looks like</div>
+    <div class="section-desc">This is a real investigation our agents ran. Every report follows this format.</div>
+    <div class="report-box">
+      <div class="report-header">
+        <div>
+          <div style="font-size:18px;font-weight:600;color:#fff">Octovalve ($Octovalve)</div>
+          <div style="font-family:monospace;font-size:11px;color:var(--muted);margin-top:2px">9QBsW2G3Tt8FzXA5RaSP4kKCAcDB3R38vTeYzQrtpump</div>
+        </div>
+        <span class="badge LOW">LOW RISK</span>
+      </div>
+      <div class="report-steps">
+        <div class="report-step">
+          <div class="report-step-agent" style="color:var(--green)">NEXUS <span class="report-tag">Token Data</span></div>
+          <div class="report-step-content">Token: Octovalve ($Octovalve) | Price: $0.000002539 | 24h: +7.53% | Vol: $21,223 | FDV: $2,539 | Age: 2h</div>
+        </div>
+        <div class="report-step">
+          <div class="report-step-agent" style="color:var(--blue)">TRACER <span class="report-tag">Wallet Analysis</span></div>
+          <div class="report-step-content">Deployer wallet could not be identified through standard methods. Token may have been created through a proxy contract.</div>
+        </div>
+        <div class="report-step">
+          <div class="report-step-agent" style="color:var(--purple)">CIPHER <span class="report-tag">Pattern Check</span></div>
+          <div class="report-step-content">No deployer data available for pattern analysis. Unable to check for serial deployment behavior.</div>
+        </div>
+        <div class="report-step">
+          <div class="report-step-agent" style="color:var(--gray)">GHOST <span class="report-tag">Social Search</span></div>
+          <div class="report-step-content">Found 2 tweets mentioning this CA:<br>• @volmardi: "CTO the OG $octovalve 9QBsW2G3Tt8FzXA5RaSP4kKCAcDB3R38vTeYzQrtpump"<br>• @volmardi: "CTO OG $octovalve"</div>
+        </div>
+        <div class="report-step">
+          <div class="report-step-agent" style="color:var(--orange)">VIPER <span class="report-tag">Risk Assessment</span></div>
+          <div class="report-step-content">Risk Rating: LOW (score: 0/100)<br>No significant risk flags detected.</div>
+        </div>
+        <div class="report-step">
+          <div class="report-step-agent" style="color:var(--red)">SENTINEL <span class="report-tag">Final Report</span></div>
+          <div class="report-step-content">$Octovalve does not show obvious scam indicators at this time. Social presence is minimal but not absent. Standard due diligence recommended. Investigation complete — 6 agents participated.</div>
+        </div>
       </div>
     </div>
   </div>
@@ -358,8 +472,52 @@ function timeAgo(t) { const m=Math.round((Date.now()-new Date(t))/60000); return
 function copyCA() { navigator.clipboard.writeText('7S2yY2G6SU1fFVzXQ4FyXuAvWEKy2VUBCetnPhRBpump'); const b=document.querySelector('.copy-btn'); b.textContent='Copied!'; setTimeout(()=>b.textContent='Copy',2000); }
 
 loadFeed();
+loadLiveCases();
 setInterval(loadFeed, 15000);
+setInterval(loadLiveCases, 30000);
 document.getElementById('caInput').addEventListener('keydown', e => { if(e.key==='Enter') submitCA(); });
+
+// Pipeline animation — cycle through nodes
+let pipeIdx = 0;
+setInterval(() => {
+  document.querySelectorAll('.pipe-dot').forEach((d,i) => d.classList.toggle('active', i === pipeIdx));
+  pipeIdx = (pipeIdx + 1) % 6;
+}, 2000);
+
+// Load live cases
+async function loadLiveCases() {
+  try {
+    const res = await fetch(API + '/api/investigations');
+    const invs = await res.json();
+    const el = document.getElementById('liveCases');
+    if (!invs.length) {
+      el.innerHTML = '<div class="empty">No cases yet. Be the first to submit a CA.</div>';
+      return;
+    }
+    const agentDots = [
+      {c:'var(--green)',l:'N'},{c:'var(--blue)',l:'T'},{c:'var(--purple)',l:'C'},
+      {c:'var(--gray)',l:'G'},{c:'var(--orange)',l:'V'},{c:'var(--red)',l:'S'}
+    ];
+    el.innerHTML = invs.slice(0,6).map(i => {
+      const steps = parseInt(i.step_count) || 0;
+      const pct = i.status === 'complete' ? 100 : Math.min(95, (steps / 6) * 100);
+      const statusCls = i.status === 'complete' ? 'complete' : 'active';
+      const statusTxt = i.status === 'complete' ? '✓ Complete' : '◉ Investigating';
+      return `<div class="case-card" onclick="switchTab('investigations');showInv(${i.id})" style="cursor:pointer">
+        <span class="case-status ${statusCls}">${statusTxt}</span>
+        <div class="case-token">${i.token_name ? i.token_name+' ($'+i.token_symbol+')' : i.ca.slice(0,16)+'…'}</div>
+        <div class="case-ca">${i.ca}</div>
+        <div class="case-agents">${agentDots.slice(0, Math.max(1,steps)).map(a =>
+          '<div class="case-agent-dot" style="background:'+a.c+'">'+a.l+'</div>'
+        ).join('')}</div>
+        <div class="case-progress"><div class="case-progress-bar" style="width:${pct}%"></div></div>
+        ${i.risk_rating ? '<div style="margin-top:8px"><span class="badge '+i.risk_rating+'">'+i.risk_rating+'</span></div>' : ''}
+      </div>`;
+    }).join('');
+  } catch(e) {
+    document.getElementById('liveCases').innerHTML = '<div class="empty">Could not load cases.</div>';
+  }
+}
 </script>
 </body>
 </html>
