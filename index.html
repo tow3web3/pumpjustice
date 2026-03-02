@@ -10,23 +10,23 @@
 <script>tailwind.config={theme:{extend:{fontFamily:{sans:['Space Grotesk','system-ui','sans-serif'],mono:['JetBrains Mono','monospace']}}}}</script>
 <style>
 :root {
-  --cyan:#06b6d4; --cyan-dim:rgba(6,182,212,0.12); --cyan-glow:rgba(6,182,212,0.35);
-  --green:#10b981; --red:#ef4444; --orange:#f59e0b; --blue:#6366f1; --purple:#a78bfa; --gray:#94a3b8;
-  --bg:#03050a; --card:rgba(7,12,20,0.85); --border:rgba(6,182,212,0.13); --border-hover:rgba(6,182,212,0.38);
+  --cyan:#00ff94; --cyan-dim:rgba(0,255,148,0.12); --cyan-glow:rgba(0,255,148,0.4);
+  --green:#00ff94; --red:#ef4444; --orange:#f59e0b; --blue:#6366f1; --purple:#a78bfa; --gray:#94a3b8;
+  --bg:#03050a; --card:rgba(7,12,20,0.85); --border:rgba(0,255,148,0.13); --border-hover:rgba(0,255,148,0.38);
   --text:#e2e8f0; --dim:#64748b; --muted:#1e293b;
 }
 *{margin:0;padding:0;box-sizing:border-box;}
 html{scroll-behavior:smooth;}
 body{background:var(--bg);color:var(--text);font-family:'Space Grotesk',system-ui,sans-serif;line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden;}
-body::before{content:'';position:fixed;inset:0;z-index:0;background-image:linear-gradient(rgba(6,182,212,0.035) 1px,transparent 1px),linear-gradient(90deg,rgba(6,182,212,0.035) 1px,transparent 1px);background-size:60px 60px;pointer-events:none;}
-body::after{content:'';position:fixed;top:-300px;left:50%;transform:translateX(-50%);width:1000px;height:700px;z-index:0;background:radial-gradient(ellipse at center,rgba(6,182,212,0.07) 0%,transparent 68%);pointer-events:none;}
+body::before{content:'';position:fixed;inset:0;z-index:0;background-image:linear-gradient(rgba(0,255,148,0.035) 1px,transparent 1px),linear-gradient(90deg,rgba(0,255,148,0.035) 1px,transparent 1px);background-size:60px 60px;pointer-events:none;}
+body::after{content:'';position:fixed;top:-300px;left:50%;transform:translateX(-50%);width:1000px;height:700px;z-index:0;background:radial-gradient(ellipse at center,rgba(0,255,148,0.07) 0%,transparent 68%);pointer-events:none;}
 .noise{position:fixed;inset:0;z-index:1;opacity:0.02;pointer-events:none;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");}
 @keyframes scan{0%{top:-4px}100%{top:100vh}}
 @keyframes fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
-@keyframes glowPulse{0%,100%{text-shadow:0 0 20px rgba(6,182,212,.4)}50%{text-shadow:0 0 40px rgba(6,182,212,.8),0 0 80px rgba(6,182,212,.3)}}
+@keyframes glowPulse{0%,100%{text-shadow:0 0 20px rgba(0,255,148,.4)}50%{text-shadow:0 0 40px rgba(0,255,148,.8),0 0 80px rgba(0,255,148,.3)}}
 @keyframes countUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-.scanline{position:fixed;top:0;left:0;right:0;height:2px;z-index:100;background:linear-gradient(transparent,rgba(6,182,212,0.5),transparent);animation:scan 12s linear infinite;pointer-events:none;}
+.scanline{position:fixed;top:0;left:0;right:0;height:2px;z-index:100;background:linear-gradient(transparent,rgba(0,255,148,0.5),transparent);animation:scan 12s linear infinite;pointer-events:none;}
 .container{max-width:1160px;margin:0 auto;padding:0 24px;position:relative;z-index:2;}
 
 /* NAV */
@@ -53,7 +53,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:50;border-bottom:1px solid var(-
 .scroll-arrow{width:1px;height:40px;background:linear-gradient(to bottom,var(--cyan),transparent);margin:0 auto;}
 
 /* STATS */
-.stats-bar{border-top:1px solid var(--border);border-bottom:1px solid var(--border);background:rgba(6,182,212,0.03);position:relative;z-index:2;}
+.stats-bar{border-top:1px solid var(--border);border-bottom:1px solid var(--border);background:rgba(0,255,148,0.03);position:relative;z-index:2;}
 .stats-inner{display:grid;grid-template-columns:repeat(4,1fr);max-width:1160px;margin:0 auto;padding:0 24px;}
 .stat-item{padding:28px 24px;text-align:center;border-right:1px solid var(--border);}
 .stat-item:last-child{border-right:none;}
@@ -93,28 +93,28 @@ section{padding:100px 0;position:relative;z-index:2;}
 .pipe-circle:hover::after{opacity:.5;}
 .pipe-label{font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;font-family:'JetBrains Mono',monospace;}
 .pipe-sub{font-size:9px;color:var(--dim);letter-spacing:0.06em;text-transform:uppercase;}
-.pipe-arrow{width:32px;height:1px;background:linear-gradient(90deg,rgba(6,182,212,0.4),rgba(6,182,212,0.2));position:relative;margin:0 4px;margin-bottom:36px;}
-.pipe-arrow::after{content:'▶';position:absolute;right:-6px;top:-6px;color:rgba(6,182,212,0.4);font-size:10px;}
+.pipe-arrow{width:32px;height:1px;background:linear-gradient(90deg,rgba(0,255,148,0.4),rgba(0,255,148,0.2));position:relative;margin:0 4px;margin-bottom:36px;}
+.pipe-arrow::after{content:'▶';position:absolute;right:-6px;top:-6px;color:rgba(0,255,148,0.4);font-size:10px;}
 
 /* TOOL */
 .tool-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:32px;backdrop-filter:blur(20px);margin-bottom:28px;}
 .ca-input{flex:1;background:rgba(3,5,10,.9);border:1px solid var(--border);color:#fff;padding:14px 18px;border-radius:10px;font-family:'JetBrains Mono',monospace;font-size:13px;outline:none;transition:all .2s;width:100%;}
-.ca-input:focus{border-color:var(--cyan);box-shadow:0 0 0 3px rgba(6,182,212,.1);}
+.ca-input:focus{border-color:var(--cyan);box-shadow:0 0 0 3px rgba(0,255,148,.1);}
 .ca-input::placeholder{color:var(--dim);}
 .btn-run{background:var(--cyan);color:#000;border:none;padding:14px 28px;border-radius:10px;font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s;white-space:nowrap;letter-spacing:0.02em;}
-.btn-run:hover{background:#22d3ee;box-shadow:0 0 28px var(--cyan-glow);transform:translateY(-1px);}
+.btn-run:hover{background:#00e87f;box-shadow:0 0 28px var(--cyan-glow);transform:translateY(-1px);}
 .btn-run:disabled{background:var(--muted);color:var(--dim);cursor:not-allowed;box-shadow:none;transform:none;}
 
 /* TABS */
 .tabs-bar{display:flex;gap:2px;background:rgba(3,5,10,.7);border:1px solid var(--border);border-radius:10px;padding:4px;width:fit-content;margin-bottom:24px;}
 .tab-btn{padding:8px 20px;border-radius:7px;cursor:pointer;font-size:13px;font-weight:600;color:var(--dim);transition:all .2s;border:none;background:transparent;font-family:inherit;letter-spacing:.02em;}
 .tab-btn:hover{color:var(--text);}
-.tab-btn.active{background:rgba(6,182,212,.12);color:var(--cyan);border:1px solid rgba(6,182,212,.2);}
+.tab-btn.active{background:rgba(0,255,148,.12);color:var(--cyan);border:1px solid rgba(0,255,148,.2);}
 .panel{display:none;}
 .panel.active{display:block;animation:fadeIn .3s ease-out;}
 
 /* FEED */
-.feed-row{padding:14px 0;border-bottom:1px solid rgba(6,182,212,0.06);display:grid;grid-template-columns:70px 80px 1fr;gap:12px;align-items:start;font-size:13px;}
+.feed-row{padding:14px 0;border-bottom:1px solid rgba(0,255,148,0.06);display:grid;grid-template-columns:70px 80px 1fr;gap:12px;align-items:start;font-size:13px;}
 .feed-row:last-child{border-bottom:none;}
 .feed-time{font-family:'JetBrains Mono',monospace;color:var(--dim);font-size:11px;padding-top:2px;}
 .feed-agent{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:12px;}
@@ -131,7 +131,7 @@ section{padding:100px 0;position:relative;z-index:2;}
 .badge.HIGH{background:rgba(245,158,11,.12);color:#fbbf24;border:1px solid rgba(245,158,11,.25);}
 .badge.MEDIUM{background:rgba(245,158,11,.08);color:#d4a017;border:1px solid rgba(245,158,11,.15);}
 .badge.LOW{background:rgba(16,185,129,.12);color:#34d399;border:1px solid rgba(16,185,129,.25);}
-.badge.investigating{background:rgba(6,182,212,.12);color:var(--cyan);border:1px solid rgba(6,182,212,.25);animation:pulse 2s infinite;}
+.badge.investigating{background:rgba(0,255,148,.12);color:var(--cyan);border:1px solid rgba(0,255,148,.25);animation:pulse 2s infinite;}
 .inv-meta{display:flex;gap:16px;font-size:12px;color:var(--dim);align-items:center;margin-top:8px;}
 .vote-btn{background:none;border:1px solid var(--border);color:var(--dim);padding:4px 12px;font-family:'Space Grotesk',sans-serif;font-size:12px;cursor:pointer;border-radius:6px;transition:all .2s;}
 .vote-btn:hover{border-color:var(--cyan);color:var(--cyan);}
@@ -251,11 +251,11 @@ footer{border-top:1px solid var(--border);padding:48px 0;text-align:center;posit
     </div>
 
     <div class="agents-grid">
-      <div class="agent-card" style="--agent-color:rgba(6,182,212,0.5)">
-        <div class="agent-glow" style="background:radial-gradient(circle,rgba(6,182,212,.25),transparent 70%)"></div>
+      <div class="agent-card" style="--agent-color:rgba(0,255,148,0.5)">
+        <div class="agent-glow" style="background:radial-gradient(circle,rgba(0,255,148,.25),transparent 70%)"></div>
         <div class="agent-header">
-          <div class="agent-initial" style="background:rgba(6,182,212,.1);border-color:rgba(6,182,212,.3);color:#06b6d4">N</div>
-          <div><div class="agent-name" style="color:#06b6d4">NEXUS</div><div class="agent-role">Data Aggregator</div></div>
+          <div class="agent-initial" style="background:rgba(0,255,148,.1);border-color:rgba(0,255,148,.3);color:#00ff94">N</div>
+          <div><div class="agent-name" style="color:#00ff94">NEXUS</div><div class="agent-role">Data Aggregator</div></div>
         </div>
         <div class="agent-desc">First on the scene. Pulls real-time token data — price, volume, liquidity, age. Establishes the facts before anyone else moves.</div>
       </div>
@@ -311,8 +311,8 @@ footer{border-top:1px solid var(--border);padding:48px 0;text-align:center;posit
       <div class="section-chip" style="justify-content:center;margin-bottom:36px">The Investigation Pipeline</div>
       <div class="pipeline">
         <div class="pipe-node">
-          <div class="pipe-circle" style="border-color:rgba(6,182,212,.5);color:#06b6d4;box-shadow:0 0 16px rgba(6,182,212,.15)">N</div>
-          <div class="pipe-label" style="color:#06b6d4">NEXUS</div>
+          <div class="pipe-circle" style="border-color:rgba(0,255,148,.5);color:#00ff94;box-shadow:0 0 16px rgba(0,255,148,.15)">N</div>
+          <div class="pipe-label" style="color:#00ff94">NEXUS</div>
           <div class="pipe-sub">Data</div>
         </div>
         <div class="pipe-arrow"></div>
@@ -357,7 +357,7 @@ footer{border-top:1px solid var(--border);padding:48px 0;text-align:center;posit
   <div class="container">
     <div style="font-size:clamp(20px,2.5vw,30px);font-weight:600;color:#fff;margin-bottom:12px">Ready to investigate?</div>
     <div style="color:var(--dim);margin-bottom:32px;font-size:15px">Paste any Solana contract address. Six autonomous agents will analyze it in real-time.</div>
-    <a href="#investigate" style="display:inline-flex;align-items:center;gap:8px;background:var(--cyan);color:#000;padding:14px 32px;border-radius:10px;font-weight:700;font-size:14px;text-decoration:none;transition:all .2s;letter-spacing:.02em;" onmouseover="this.style.background='#22d3ee';this.style.boxShadow='0 0 28px rgba(6,182,212,.4)'" onmouseout="this.style.background='var(--cyan)';this.style.boxShadow='none'">
+    <a href="#investigate" style="display:inline-flex;align-items:center;gap:8px;background:var(--cyan);color:#000;padding:14px 32px;border-radius:10px;font-weight:700;font-size:14px;text-decoration:none;transition:all .2s;letter-spacing:.02em;" onmouseover="this.style.background='#00e87f';this.style.boxShadow='0 0 28px rgba(0,255,148,.4)'" onmouseout="this.style.background='var(--cyan)';this.style.boxShadow='none'">
       🔍 Submit a CA
     </a>
   </div>
@@ -412,7 +412,7 @@ footer{border-top:1px solid var(--border);padding:48px 0;text-align:center;posit
 
 <script>
 const API = '';
-const agentColors = {SENTINEL:'#f87171',TRACER:'#818cf8',CIPHER:'#a78bfa',GHOST:'#94a3b8',NEXUS:'#06b6d4',VIPER:'#fbbf24'};
+const agentColors = {SENTINEL:'#f87171',TRACER:'#818cf8',CIPHER:'#a78bfa',GHOST:'#94a3b8',NEXUS:'#00ff94',VIPER:'#fbbf24'};
 
 function switchTab(tab) {
   document.querySelectorAll('.tab-btn').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
