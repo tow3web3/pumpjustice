@@ -54,14 +54,26 @@ nav{position:fixed;top:0;left:0;right:0;z-index:50;border-bottom:1px solid var(-
 .scroll-cue{margin-top:64px;padding-bottom:64px;display:flex;flex-direction:column;align-items:center;gap:8px;color:var(--dim);font-size:12px;font-family:'JetBrains Mono',monospace;letter-spacing:0.08em;text-transform:uppercase;}
 .scroll-arrow{width:1px;height:40px;background:linear-gradient(to bottom,var(--cyan),transparent);margin:0 auto;}
 
-/* STATS */
-.stats-bar{border-top:1px solid var(--border);border-bottom:1px solid var(--border);background:rgba(0,255,148,0.03);position:relative;z-index:2;}
-.stats-inner{display:grid;grid-template-columns:repeat(4,1fr);max-width:1160px;margin:0 auto;padding:0 24px;}
-.stat-item{padding:28px 24px;text-align:center;border-right:1px solid var(--border);}
-.stat-item:last-child{border-right:none;}
-.stat-val{font-size:28px;font-weight:700;color:#fff;font-family:'JetBrains Mono',monospace;letter-spacing:-0.02em;}
-.stat-val span{color:var(--cyan);}
-.stat-label{font-size:11px;color:var(--dim);text-transform:uppercase;letter-spacing:0.1em;margin-top:4px;}
+/* AGENT STATUS BAR */
+.stats-bar{border-top:1px solid var(--border);border-bottom:1px solid var(--border);background:rgba(0,255,148,0.02);position:relative;z-index:2;}
+.agent-status-item{padding:18px 20px;border-right:1px solid var(--border);transition:background .2s;}
+.agent-status-item:hover{background:rgba(0,255,148,0.03);}
+.agent-status-header{display:flex;align-items:center;gap:8px;margin-bottom:5px;}
+.agent-status-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;animation:pulse 2s infinite;}
+.agent-status-name{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:12px;letter-spacing:.06em;}
+.agent-status-role{font-size:11px;color:#64748b;margin-bottom:3px;}
+.agent-status-source{font-size:10px;font-family:'JetBrains Mono',monospace;color:#1e293b;letter-spacing:.04em;}
+@media(max-width:768px){
+  .stats-bar > div{grid-template-columns:repeat(3,1fr)!important;}
+  .agent-status-item:nth-child(3){border-right:none;}
+  .agent-status-item:nth-child(n+4){border-top:1px solid var(--border);}
+}
+@media(max-width:480px){
+  .stats-bar > div{grid-template-columns:repeat(2,1fr)!important;}
+  .agent-status-item:nth-child(2){border-right:none;}
+  .agent-status-item:nth-child(3){border-right:1px solid var(--border);}
+  .agent-status-item:nth-child(n+3){border-top:1px solid var(--border);}
+}
 
 /* SECTION */
 section{padding:100px 0;position:relative;z-index:2;}
@@ -274,25 +286,64 @@ footer{border-top:1px solid var(--border);padding:48px 0;text-align:center;posit
   </div>
 </section>
 
-<!-- LIVE STATS -->
+<!-- AGENT STATUS BAR -->
 <div class="stats-bar">
-  <div class="stats-inner">
-    <div class="stat-item">
-      <div class="stat-val" id="statInv"><span>—</span></div>
-      <div class="stat-label">Investigations</div>
+  <div style="max-width:1160px;margin:0 auto;padding:0 24px;display:grid;grid-template-columns:repeat(6,1fr);">
+
+    <div class="agent-status-item">
+      <div class="agent-status-header">
+        <span class="agent-status-dot" style="background:#00ff94;box-shadow:0 0 8px #00ff94"></span>
+        <span class="agent-status-name" style="color:#00ff94">NEXUS</span>
+      </div>
+      <div class="agent-status-role">Data Aggregator</div>
+      <div class="agent-status-source">DexScreener</div>
     </div>
-    <div class="stat-item">
-      <div class="stat-val" id="statScams"><span>—</span></div>
-      <div class="stat-label">Scams Caught</div>
+
+    <div class="agent-status-item">
+      <div class="agent-status-header">
+        <span class="agent-status-dot" style="background:#818cf8;box-shadow:0 0 8px #818cf8"></span>
+        <span class="agent-status-name" style="color:#818cf8">TRACER</span>
+      </div>
+      <div class="agent-status-role">Wallet Analyst</div>
+      <div class="agent-status-source">Helius RPC</div>
     </div>
-    <div class="stat-item">
-      <div class="stat-val" id="statVotes"><span>—</span></div>
-      <div class="stat-label">Votes Cast</div>
+
+    <div class="agent-status-item">
+      <div class="agent-status-header">
+        <span class="agent-status-dot" style="background:#a78bfa;box-shadow:0 0 8px #a78bfa"></span>
+        <span class="agent-status-name" style="color:#a78bfa">CIPHER</span>
+      </div>
+      <div class="agent-status-role">Pattern Decoder</div>
+      <div class="agent-status-source">Helius DAS</div>
     </div>
-    <div class="stat-item">
-      <div class="stat-val">6<span>×</span></div>
-      <div class="stat-label">AI Agents</div>
+
+    <div class="agent-status-item">
+      <div class="agent-status-header">
+        <span class="agent-status-dot" style="background:#94a3b8;box-shadow:0 0 8px #94a3b8"></span>
+        <span class="agent-status-name" style="color:#94a3b8">GHOST</span>
+      </div>
+      <div class="agent-status-role">Social Hunter</div>
+      <div class="agent-status-source">X / Twitter</div>
     </div>
+
+    <div class="agent-status-item">
+      <div class="agent-status-header">
+        <span class="agent-status-dot" style="background:#fbbf24;box-shadow:0 0 8px #fbbf24"></span>
+        <span class="agent-status-name" style="color:#fbbf24">VIPER</span>
+      </div>
+      <div class="agent-status-role">Risk Assessor</div>
+      <div class="agent-status-source">All sources</div>
+    </div>
+
+    <div class="agent-status-item" style="border-right:none">
+      <div class="agent-status-header">
+        <span class="agent-status-dot" style="background:#f87171;box-shadow:0 0 8px #f87171"></span>
+        <span class="agent-status-name" style="color:#f87171">SENTINEL</span>
+      </div>
+      <div class="agent-status-role">Lead Investigator</div>
+      <div class="agent-status-source">Full report</div>
+    </div>
+
   </div>
 </div>
 
@@ -637,7 +688,7 @@ async function pollInvestigation(id) {
     try {
       const res = await fetch(API + '/api/investigation/' + id);
       const data = await res.json();
-      loadFeed(); loadStats();
+      loadFeed();
       if (data.status === 'investigating') setTimeout(poll, 3000);
     } catch(e) {}
   };
@@ -658,30 +709,6 @@ async function loadFeed() {
   } catch(e) { document.getElementById('feedContainer').innerHTML = '<div class="empty">// COULD NOT CONNECT TO AGENT NETWORK</div>'; }
 }
 
-async function loadStats() {
-  try {
-    const res = await fetch(API + '/api/investigations');
-    const invs = await res.json();
-    const total = invs.length;
-    const scams = invs.filter(i => i.risk_rating === 'CRITICAL' || i.risk_rating === 'HIGH').length;
-    const votes = invs.reduce((a, i) => a + (i.upvotes || 0) + (i.downvotes || 0), 0);
-    animCount('statInv', total);
-    animCount('statScams', scams);
-    animCount('statVotes', votes);
-  } catch(e) {}
-}
-
-function animCount(id, target) {
-  const el = document.getElementById(id);
-  if (!el || target === 0) { el && (el.innerHTML = '0'); return; }
-  let current = 0;
-  const step = Math.ceil(target / 30);
-  const timer = setInterval(() => {
-    current = Math.min(current + step, target);
-    el.innerHTML = current.toString();
-    if (current >= target) clearInterval(timer);
-  }, 40);
-}
 
 async function loadInvestigations() {
   const el = document.getElementById('invList');
@@ -852,7 +879,6 @@ async function voteCase(id, type) {
 }
 
 loadFeed();
-loadStats();
 loadCases();
 setInterval(loadFeed, 15000);
 setInterval(loadCases, 30000);
