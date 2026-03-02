@@ -193,6 +193,28 @@ footer{border-top:1px solid var(--border);padding:48px 0;text-align:center;posit
 .tool-desc{font-size:13px;color:var(--dim);line-height:1.6;}
 .tool-tag{display:inline-block;margin-top:12px;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;font-family:'JetBrains Mono',monospace;padding:3px 8px;border-radius:4px;}
 
+/* OSINT TREE */
+.osint-cat{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;backdrop-filter:blur(20px);transition:border-color .2s;}
+.osint-cat:hover{border-color:var(--border-hover);}
+.osint-cat-header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;cursor:pointer;user-select:none;gap:12px;}
+.osint-cat-header:hover{background:rgba(0,255,148,.03);}
+.osint-cat-title{font-weight:700;font-size:14px;color:#fff;display:flex;align-items:center;gap:10px;}
+.osint-cat-count{font-size:11px;color:var(--dim);font-family:'JetBrains Mono',monospace;}
+.osint-cat-arrow{color:var(--dim);font-size:12px;transition:transform .2s;flex-shrink:0;}
+.osint-cat-arrow.open{transform:rotate(90deg);}
+.osint-cat-body{display:none;padding:0 20px 16px;border-top:1px solid var(--border);}
+.osint-cat-body.open{display:block;}
+.osint-subcat{margin-top:12px;}
+.osint-subcat-title{font-size:12px;font-weight:700;color:var(--cyan);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;font-family:'JetBrains Mono',monospace;padding:4px 0;border-bottom:1px solid var(--border);}
+.osint-links{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;}
+.osint-link{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:6px;font-size:12px;color:#94a3b8;text-decoration:none;border:1px solid var(--border);background:rgba(3,5,10,.6);transition:all .2s;white-space:nowrap;}
+.osint-link:hover{color:var(--cyan);border-color:rgba(0,255,148,.3);background:rgba(0,255,148,.06);text-decoration:none;}
+.badge-t{font-size:9px;background:rgba(245,158,11,.15);color:#fbbf24;padding:1px 5px;border-radius:3px;font-family:'JetBrains Mono',monospace;font-weight:700;}
+.badge-r{font-size:9px;background:rgba(239,68,68,.15);color:#f87171;padding:1px 5px;border-radius:3px;font-family:'JetBrains Mono',monospace;font-weight:700;}
+.badge-d{font-size:9px;background:rgba(99,102,241,.15);color:#818cf8;padding:1px 5px;border-radius:3px;font-family:'JetBrains Mono',monospace;font-weight:700;}
+.badge-m{font-size:9px;background:rgba(148,163,184,.15);color:#94a3b8;padding:1px 5px;border-radius:3px;font-family:'JetBrains Mono',monospace;font-weight:700;}
+.osint-link.hidden{display:none;}
+
 @media(max-width:768px){
   .hero{padding:120px 0 0;}
   .stats-inner{grid-template-columns:repeat(2,1fr);}
@@ -466,98 +488,99 @@ footer{border-top:1px solid var(--border);padding:48px 0;text-align:center;posit
 <!-- OSINT TOOLS -->
 <section id="tools" class="section-sep">
   <div class="container">
-    <div style="margin-bottom:48px">
+    <div style="margin-bottom:40px">
       <div class="section-chip">OSINT Arsenal</div>
       <div class="section-title">Investigation Tools</div>
-      <div class="section-desc">The best external tools for manual on-chain investigation. Use alongside the agent reports for deeper analysis.</div>
+      <div class="section-desc">Crypto-specific tools plus the full <a href="https://osintframework.com" target="_blank" style="color:var(--cyan);text-decoration:none;">OSINT Framework</a> — hundreds of free investigation resources, categorized and searchable.</div>
     </div>
 
-    <div class="tools-grid">
-
+    <!-- CRYPTO TOOLS GRID -->
+    <div style="margin-bottom:16px;font-size:11px;font-weight:700;color:var(--cyan);letter-spacing:.1em;text-transform:uppercase;font-family:'JetBrains Mono',monospace">// ON-CHAIN · SOLANA</div>
+    <div class="tools-grid" style="margin-bottom:56px">
       <a href="https://dexscreener.com" target="_blank" class="tool-item" style="--tool-color:rgba(0,255,148,.5)">
         <span class="tool-icon">📊</span>
         <div class="tool-name">DexScreener</div>
-        <div class="tool-desc">Real-time DEX pair data. Price charts, volume, liquidity, pair age, and trade history across all chains.</div>
-        <span class="tool-tag" style="background:rgba(0,255,148,.1);color:#00ff94">Charts & Pairs</span>
+        <div class="tool-desc">Real-time DEX pair data. Price charts, volume, liquidity, pair age, trade history.</div>
+        <span class="tool-tag" style="background:rgba(0,255,148,.1);color:#00ff94">Charts</span>
       </a>
-
       <a href="https://solscan.io" target="_blank" class="tool-item" style="--tool-color:rgba(99,102,241,.5)">
         <span class="tool-icon">🔍</span>
         <div class="tool-name">Solscan</div>
-        <div class="tool-desc">Solana block explorer. Deep-dive into wallet transactions, token holders, mint authority, and contract history.</div>
+        <div class="tool-desc">Solana block explorer. Wallets, token holders, mint authority, contract history.</div>
         <span class="tool-tag" style="background:rgba(99,102,241,.1);color:#818cf8">Explorer</span>
       </a>
-
       <a href="https://birdeye.so" target="_blank" class="tool-item" style="--tool-color:rgba(251,191,36,.5)">
         <span class="tool-icon">🦅</span>
         <div class="tool-name">Birdeye</div>
-        <div class="tool-desc">Token analytics, holder breakdown, smart money flow, and whale wallet tracking on Solana.</div>
+        <div class="tool-desc">Token analytics, holder breakdown, smart money flow, whale wallet tracking.</div>
         <span class="tool-tag" style="background:rgba(251,191,36,.1);color:#fbbf24">Analytics</span>
       </a>
-
       <a href="https://bubblemaps.io" target="_blank" class="tool-item" style="--tool-color:rgba(167,139,250,.5)">
         <span class="tool-icon">🫧</span>
         <div class="tool-name">Bubblemaps</div>
-        <div class="tool-desc">Visual token distribution map. Instantly see if top holders are connected wallets — the clearest rug signal there is.</div>
+        <div class="tool-desc">Visual token distribution. See if top holders are connected wallets instantly.</div>
         <span class="tool-tag" style="background:rgba(167,139,250,.1);color:#a78bfa">Distribution</span>
       </a>
-
       <a href="https://gmgn.ai" target="_blank" class="tool-item" style="--tool-color:rgba(0,255,148,.5)">
         <span class="tool-icon">⚡</span>
         <div class="tool-name">GMGN</div>
-        <div class="tool-desc">Meme token tracking, wallet PnL, smart money alerts, and sniper detection. Essential for pump.fun tokens.</div>
+        <div class="tool-desc">Meme token tracking, wallet PnL, smart money alerts, sniper detection.</div>
         <span class="tool-tag" style="background:rgba(0,255,148,.1);color:#00ff94">Memecoin</span>
       </a>
-
       <a href="https://cielo.finance" target="_blank" class="tool-item" style="--tool-color:rgba(245,158,11,.5)">
         <span class="tool-icon">👁️</span>
         <div class="tool-name">Cielo Finance</div>
-        <div class="tool-desc">Wallet PnL tracking and transaction alerts. Follow suspected deployers and get notified the moment they move funds.</div>
-        <span class="tool-tag" style="background:rgba(245,158,11,.1);color:#fbbf24">Wallet Tracking</span>
+        <div class="tool-desc">Wallet PnL tracking. Follow deployers, get alerts the moment they move funds.</div>
+        <span class="tool-tag" style="background:rgba(245,158,11,.1);color:#fbbf24">Tracking</span>
       </a>
-
-      <a href="https://solana.fm" target="_blank" class="tool-item" style="--tool-color:rgba(148,163,184,.5)">
-        <span class="tool-icon">🌐</span>
-        <div class="tool-name">SolanaFM</div>
-        <div class="tool-desc">On-chain activity explorer with graph visualization of wallet relationships and program interactions.</div>
-        <span class="tool-tag" style="background:rgba(148,163,184,.1);color:#94a3b8">Explorer</span>
-      </a>
-
       <a href="https://rugcheck.xyz" target="_blank" class="tool-item" style="--tool-color:rgba(239,68,68,.5)">
         <span class="tool-icon">🛡️</span>
         <div class="tool-name">RugCheck</div>
-        <div class="tool-desc">Automated token security scanner. Checks mint authority, freeze authority, top holder concentration, and LP lock status.</div>
+        <div class="tool-desc">Token security scanner. Mint authority, freeze authority, holder concentration, LP lock.</div>
         <span class="tool-tag" style="background:rgba(239,68,68,.1);color:#f87171">Security</span>
       </a>
-
+      <a href="https://solana.fm" target="_blank" class="tool-item" style="--tool-color:rgba(148,163,184,.5)">
+        <span class="tool-icon">🌐</span>
+        <div class="tool-name">SolanaFM</div>
+        <div class="tool-desc">On-chain explorer with graph visualization of wallet relationships.</div>
+        <span class="tool-tag" style="background:rgba(148,163,184,.1);color:#94a3b8">Explorer</span>
+      </a>
       <a href="https://pump.fun" target="_blank" class="tool-item" style="--tool-color:rgba(0,255,148,.5)">
         <span class="tool-icon">🚀</span>
         <div class="tool-name">pump.fun</div>
-        <div class="tool-desc">The memecoin launcher. Check if a token was launched here, see the original dev wallet, first buyers, and bonding curve status.</div>
-        <span class="tool-tag" style="background:rgba(0,255,148,.1);color:#00ff94">Launch Platform</span>
+        <div class="tool-desc">Memecoin launcher. Dev wallet, first buyers, bonding curve, launch timestamp.</div>
+        <span class="tool-tag" style="background:rgba(0,255,148,.1);color:#00ff94">Launch</span>
       </a>
-
-      <a href="https://x.com/search" target="_blank" class="tool-item" style="--tool-color:rgba(148,163,184,.5)">
-        <span class="tool-icon">𝕏</span>
-        <div class="tool-name">X / Twitter Search</div>
-        <div class="tool-desc">Search the contract address directly on X. Find who shilled it, when, and from which accounts — links wallets to identities.</div>
-        <span class="tool-tag" style="background:rgba(148,163,184,.1);color:#94a3b8">Social OSINT</span>
-      </a>
-
       <a href="https://de.fi/scanner" target="_blank" class="tool-item" style="--tool-color:rgba(99,102,241,.5)">
         <span class="tool-icon">🔬</span>
         <div class="tool-name">De.Fi Scanner</div>
-        <div class="tool-desc">Smart contract audit scanner. Detects honeypots, hidden mint functions, blacklist mechanisms, and ownership traps.</div>
-        <span class="tool-tag" style="background:rgba(99,102,241,.1);color:#818cf8">Contract Audit</span>
+        <div class="tool-desc">Contract audit. Honeypots, hidden mint, blacklist functions, ownership traps.</div>
+        <span class="tool-tag" style="background:rgba(99,102,241,.1);color:#818cf8">Audit</span>
       </a>
-
+      <a href="https://x.com/search" target="_blank" class="tool-item" style="--tool-color:rgba(148,163,184,.5)">
+        <span class="tool-icon">𝕏</span>
+        <div class="tool-name">X Search</div>
+        <div class="tool-desc">Search any CA on X. Find shillers, promotion timing, and link wallets to identities.</div>
+        <span class="tool-tag" style="background:rgba(148,163,184,.1);color:#94a3b8">Social</span>
+      </a>
       <a href="https://helius.dev" target="_blank" class="tool-item" style="--tool-color:rgba(245,158,11,.5)">
         <span class="tool-icon">⚙️</span>
         <div class="tool-name">Helius</div>
-        <div class="tool-desc">The Solana RPC powering our agents. Use directly for raw wallet data, asset ownership, and transaction history via API.</div>
+        <div class="tool-desc">The Solana RPC powering our agents. Raw wallet data, asset ownership, tx history.</div>
         <span class="tool-tag" style="background:rgba(245,158,11,.1);color:#fbbf24">RPC / API</span>
       </a>
+    </div>
 
+    <!-- OSINT FRAMEWORK TREE -->
+    <div style="margin-bottom:16px;font-size:11px;font-weight:700;color:var(--cyan);letter-spacing:.1em;text-transform:uppercase;font-family:'JetBrains Mono',monospace">// OSINT FRAMEWORK · osintframework.com</div>
+    <div style="margin-bottom:20px;display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+      <input type="text" id="osintSearch" placeholder="Search tools..." oninput="filterOsint(this.value)"
+        style="flex:1;min-width:200px;max-width:360px;background:rgba(3,5,10,.9);border:1px solid var(--border);color:#fff;padding:10px 16px;border-radius:8px;font-family:'Space Grotesk',sans-serif;font-size:13px;outline:none;transition:border-color .2s;"
+        onfocus="this.style.borderColor='var(--cyan)'" onblur="this.style.borderColor='var(--border)'">
+      <span style="font-size:12px;color:var(--dim);font-family:'JetBrains Mono',monospace" id="osintCount"></span>
+    </div>
+    <div id="osintTree" style="display:grid;gap:8px">
+      <div class="empty">// LOADING OSINT FRAMEWORK...</div>
     </div>
   </div>
 </section>
@@ -816,6 +839,115 @@ loadCases();
 setInterval(loadFeed, 15000);
 setInterval(loadCases, 30000);
 document.getElementById('caInput').addEventListener('keydown', e => { if(e.key==='Enter') submitCA(); });
+
+// ── OSINT FRAMEWORK TREE ──
+const catIcons = {
+  'Username':'👤','Email Address':'📧','Domain Name':'🌐','IP & MAC Address':'🖧',
+  'Images / Videos / Docs':'🖼️','Social Networks':'💬','Instant Messaging':'📱',
+  'People Search Engines':'🔎','Dating':'❤️','Phone Numbers':'📞',
+  'Public Records':'📋','Business Records':'🏢','Transportation':'✈️',
+  'Geospatial Research / Maps':'🗺️','Documents / Slides / Spreadsheets':'📄',
+  'Forums / Blogs / IRC':'💬','Dark Web':'🕸️','Digital Currency':'₿',
+  'Terrorism':'⚠️','Open Ports & Services':'🔌','Intelligence / News':'📰',
+  'File Search':'🗂️','Malicious File Analysis':'🦠','Metadata':'🔬',
+  'Mobile Emulation':'📲','Code Search':'💻','Threat Intelligence':'🛡️',
+  'Archives':'📦','Default':'🔧'
+};
+
+function getBadge(name) {
+  const m = name.match(/\(([TRDM])\)$/);
+  if (!m) return '';
+  const map = {T:'badge-t',R:'badge-r',D:'badge-d',M:'badge-m'};
+  return `<span class="${map[m[1]]}">${m[1]}</span>`;
+}
+
+function cleanName(name) { return name.replace(/\s*\([TRDM]\)\s*$/, '').trim(); }
+
+function countUrls(node) {
+  if (node.type === 'url') return 1;
+  return (node.children||[]).reduce((a,c) => a + countUrls(c), 0);
+}
+
+function renderNode(node, depth=0) {
+  if (node.type === 'url') {
+    const badge = getBadge(node.name);
+    const clean = cleanName(node.name);
+    return `<a href="${node.url}" target="_blank" class="osint-link" data-name="${clean.toLowerCase()}">${clean}${badge}</a>`;
+  }
+  if (node.type === 'folder') {
+    const urls = (node.children||[]).filter(c => c.type === 'url');
+    const folders = (node.children||[]).filter(c => c.type === 'folder');
+    const urlHtml = urls.length ? `<div class="osint-links">${urls.map(u => renderNode(u, depth+1)).join('')}</div>` : '';
+    const subHtml = folders.map(f => `<div class="osint-subcat">
+      <div class="osint-subcat-title">${f.name}</div>
+      ${renderNode(f, depth+1)}
+    </div>`).join('');
+    return urlHtml + subHtml;
+  }
+  return '';
+}
+
+async function loadOsintFramework() {
+  const el = document.getElementById('osintTree');
+  try {
+    const res = await fetch('https://raw.githubusercontent.com/lockfale/OSINT-Framework/master/public/arf.json');
+    const data = await res.json();
+    const cats = (data.children || []);
+    let total = 0;
+    cats.forEach(c => { total += countUrls(c); });
+    document.getElementById('osintCount').textContent = total + ' tools across ' + cats.length + ' categories';
+
+    el.innerHTML = cats.map((cat, i) => {
+      const icon = catIcons[cat.name] || catIcons['Default'];
+      const count = countUrls(cat);
+      const body = renderNode(cat);
+      return `<div class="osint-cat" id="ocat-${i}">
+        <div class="osint-cat-header" onclick="toggleOcat(${i})">
+          <div class="osint-cat-title">${icon} ${cat.name}</div>
+          <div style="display:flex;align-items:center;gap:12px">
+            <span class="osint-cat-count">${count} tools</span>
+            <span class="osint-cat-arrow" id="oarr-${i}">▶</span>
+          </div>
+        </div>
+        <div class="osint-cat-body" id="obody-${i}">${body}</div>
+      </div>`;
+    }).join('');
+  } catch(e) {
+    el.innerHTML = `<div class="empty">// COULD NOT LOAD OSINT FRAMEWORK<br><span style="font-size:11px;color:var(--muted)">Visit <a href="https://osintframework.com" target="_blank" style="color:var(--cyan)">osintframework.com</a> directly</span></div>`;
+  }
+}
+
+function toggleOcat(i) {
+  const body = document.getElementById('obody-' + i);
+  const arr = document.getElementById('oarr-' + i);
+  const open = body.classList.toggle('open');
+  arr.classList.toggle('open', open);
+}
+
+function filterOsint(q) {
+  q = q.toLowerCase().trim();
+  const cats = document.querySelectorAll('.osint-cat');
+  let total = 0;
+  cats.forEach((cat, i) => {
+    const links = cat.querySelectorAll('.osint-link');
+    let visible = 0;
+    links.forEach(l => {
+      const match = !q || l.dataset.name.includes(q);
+      l.classList.toggle('hidden', !match);
+      if (match) visible++;
+    });
+    total += visible;
+    const show = !q || visible > 0;
+    cat.style.display = show ? '' : 'none';
+    if (q && visible > 0) {
+      document.getElementById('obody-' + i)?.classList.add('open');
+      document.getElementById('oarr-' + i)?.classList.add('open');
+    }
+  });
+  document.getElementById('osintCount').textContent = q ? `${total} results for "${q}"` : '';
+}
+
+loadOsintFramework();
 </script>
 </body>
 </html>
