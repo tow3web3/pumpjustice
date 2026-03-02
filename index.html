@@ -160,6 +160,39 @@ footer{border-top:1px solid var(--border);padding:48px 0;text-align:center;posit
 .empty{text-align:center;padding:48px;color:var(--dim);font-size:13px;font-family:'JetBrains Mono',monospace;}
 .glow-line{height:1px;background:linear-gradient(90deg,transparent,var(--cyan),transparent);opacity:.2;position:relative;z-index:2;}
 
+/* CASES */
+.filter-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:24px;}
+.filter-pills{display:flex;gap:6px;flex-wrap:wrap;}
+.filter-pill{padding:6px 14px;border-radius:100px;font-size:12px;font-weight:600;cursor:pointer;border:1px solid var(--border);color:var(--dim);background:transparent;font-family:inherit;transition:all .2s;letter-spacing:.03em;}
+.filter-pill:hover{border-color:var(--border-hover);color:var(--text);}
+.filter-pill.active{background:rgba(0,255,148,.1);border-color:rgba(0,255,148,.3);color:var(--cyan);}
+.filter-pill.f-critical.active{background:rgba(239,68,68,.1);border-color:rgba(239,68,68,.3);color:#f87171;}
+.filter-pill.f-high.active{background:rgba(245,158,11,.1);border-color:rgba(245,158,11,.3);color:#fbbf24;}
+.filter-pill.f-medium.active{background:rgba(212,160,23,.1);border-color:rgba(212,160,23,.3);color:#d4a017;}
+.filter-pill.f-low.active{background:rgba(52,211,153,.1);border-color:rgba(52,211,153,.3);color:#34d399;}
+.sort-select{background:var(--card);border:1px solid var(--border);color:var(--dim);padding:7px 12px;border-radius:8px;font-family:'Space Grotesk',sans-serif;font-size:12px;outline:none;cursor:pointer;transition:border-color .2s;}
+.sort-select:focus{border-color:var(--border-hover);}
+.cases-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:12px;}
+.case-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;cursor:pointer;transition:all .25s;backdrop-filter:blur(20px);position:relative;overflow:hidden;}
+.case-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--risk-color,var(--border));border-radius:2px 0 0 2px;opacity:0;transition:opacity .2s;}
+.case-card:hover{border-color:var(--border-hover);transform:translateY(-2px);box-shadow:0 8px 32px rgba(0,0,0,.3);}
+.case-card:hover::before{opacity:1;}
+.case-token{font-weight:700;color:#fff;font-size:15px;margin-bottom:2px;}
+.case-ca{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--dim);margin-bottom:12px;word-break:break-all;}
+.case-footer{display:flex;align-items:center;justify-content:space-between;gap:8px;}
+.case-meta{display:flex;gap:12px;font-size:11px;color:var(--dim);font-family:'JetBrains Mono',monospace;}
+
+/* OSINT TOOLS */
+.tools-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;}
+.tool-item{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:24px;text-decoration:none;display:block;transition:all .3s;position:relative;overflow:hidden;backdrop-filter:blur(20px);}
+.tool-item::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--tool-color,var(--cyan)),transparent);opacity:0;transition:opacity .3s;}
+.tool-item:hover{border-color:var(--tool-color,var(--border-hover));transform:translateY(-3px);box-shadow:0 12px 40px rgba(0,0,0,.3);text-decoration:none;}
+.tool-item:hover::before{opacity:1;}
+.tool-icon{font-size:28px;margin-bottom:14px;display:block;}
+.tool-name{font-size:15px;font-weight:700;color:#fff;margin-bottom:6px;letter-spacing:-.01em;}
+.tool-desc{font-size:13px;color:var(--dim);line-height:1.6;}
+.tool-tag{display:inline-block;margin-top:12px;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;font-family:'JetBrains Mono',monospace;padding:3px 8px;border-radius:4px;}
+
 @media(max-width:768px){
   .hero{padding:120px 0 0;}
   .stats-inner{grid-template-columns:repeat(2,1fr);}
@@ -190,6 +223,7 @@ footer{border-top:1px solid var(--border);padding:48px 0;text-align:center;posit
       <a href="#agents">Agents</a>
       <a href="#investigate">Investigate</a>
       <a href="#cases">Cases</a>
+      <a href="#tools">Tools</a>
     </div>
     <div class="nav-status">
       <div class="status-dot"></div>
@@ -394,6 +428,140 @@ footer{border-top:1px solid var(--border);padding:48px 0;text-align:center;posit
   </div>
 </section>
 
+<div class="glow-line"></div>
+
+<!-- CASES -->
+<section id="cases" class="section-sep">
+  <div class="container">
+    <div style="margin-bottom:36px">
+      <div class="section-chip">Case Files</div>
+      <div class="section-title">All Investigations</div>
+      <div class="section-desc">Browse every investigation performed by the agent network. Filter by risk level, sort by community activity.</div>
+    </div>
+
+    <div class="filter-bar">
+      <div class="filter-pills">
+        <button class="filter-pill active" data-filter="all" onclick="setCaseFilter('all',this)">All</button>
+        <button class="filter-pill f-critical" data-filter="CRITICAL" onclick="setCaseFilter('CRITICAL',this)">🔴 Critical</button>
+        <button class="filter-pill f-high" data-filter="HIGH" onclick="setCaseFilter('HIGH',this)">🟠 High</button>
+        <button class="filter-pill f-medium" data-filter="MEDIUM" onclick="setCaseFilter('MEDIUM',this)">🟡 Medium</button>
+        <button class="filter-pill f-low" data-filter="LOW" onclick="setCaseFilter('LOW',this)">🟢 Low</button>
+      </div>
+      <select class="sort-select" id="caseSort" onchange="renderCases()">
+        <option value="newest">Newest first</option>
+        <option value="votes">Most voted</option>
+        <option value="risk">Highest risk</option>
+      </select>
+    </div>
+
+    <div class="cases-grid" id="casesGrid">
+      <div class="empty" style="grid-column:1/-1">// LOADING CASES...</div>
+    </div>
+    <div id="caseDetail" style="display:none"></div>
+  </div>
+</section>
+
+<div class="glow-line"></div>
+
+<!-- OSINT TOOLS -->
+<section id="tools" class="section-sep">
+  <div class="container">
+    <div style="margin-bottom:48px">
+      <div class="section-chip">OSINT Arsenal</div>
+      <div class="section-title">Investigation Tools</div>
+      <div class="section-desc">The best external tools for manual on-chain investigation. Use alongside the agent reports for deeper analysis.</div>
+    </div>
+
+    <div class="tools-grid">
+
+      <a href="https://dexscreener.com" target="_blank" class="tool-item" style="--tool-color:rgba(0,255,148,.5)">
+        <span class="tool-icon">📊</span>
+        <div class="tool-name">DexScreener</div>
+        <div class="tool-desc">Real-time DEX pair data. Price charts, volume, liquidity, pair age, and trade history across all chains.</div>
+        <span class="tool-tag" style="background:rgba(0,255,148,.1);color:#00ff94">Charts & Pairs</span>
+      </a>
+
+      <a href="https://solscan.io" target="_blank" class="tool-item" style="--tool-color:rgba(99,102,241,.5)">
+        <span class="tool-icon">🔍</span>
+        <div class="tool-name">Solscan</div>
+        <div class="tool-desc">Solana block explorer. Deep-dive into wallet transactions, token holders, mint authority, and contract history.</div>
+        <span class="tool-tag" style="background:rgba(99,102,241,.1);color:#818cf8">Explorer</span>
+      </a>
+
+      <a href="https://birdeye.so" target="_blank" class="tool-item" style="--tool-color:rgba(251,191,36,.5)">
+        <span class="tool-icon">🦅</span>
+        <div class="tool-name">Birdeye</div>
+        <div class="tool-desc">Token analytics, holder breakdown, smart money flow, and whale wallet tracking on Solana.</div>
+        <span class="tool-tag" style="background:rgba(251,191,36,.1);color:#fbbf24">Analytics</span>
+      </a>
+
+      <a href="https://bubblemaps.io" target="_blank" class="tool-item" style="--tool-color:rgba(167,139,250,.5)">
+        <span class="tool-icon">🫧</span>
+        <div class="tool-name">Bubblemaps</div>
+        <div class="tool-desc">Visual token distribution map. Instantly see if top holders are connected wallets — the clearest rug signal there is.</div>
+        <span class="tool-tag" style="background:rgba(167,139,250,.1);color:#a78bfa">Distribution</span>
+      </a>
+
+      <a href="https://gmgn.ai" target="_blank" class="tool-item" style="--tool-color:rgba(0,255,148,.5)">
+        <span class="tool-icon">⚡</span>
+        <div class="tool-name">GMGN</div>
+        <div class="tool-desc">Meme token tracking, wallet PnL, smart money alerts, and sniper detection. Essential for pump.fun tokens.</div>
+        <span class="tool-tag" style="background:rgba(0,255,148,.1);color:#00ff94">Memecoin</span>
+      </a>
+
+      <a href="https://cielo.finance" target="_blank" class="tool-item" style="--tool-color:rgba(245,158,11,.5)">
+        <span class="tool-icon">👁️</span>
+        <div class="tool-name">Cielo Finance</div>
+        <div class="tool-desc">Wallet PnL tracking and transaction alerts. Follow suspected deployers and get notified the moment they move funds.</div>
+        <span class="tool-tag" style="background:rgba(245,158,11,.1);color:#fbbf24">Wallet Tracking</span>
+      </a>
+
+      <a href="https://solana.fm" target="_blank" class="tool-item" style="--tool-color:rgba(148,163,184,.5)">
+        <span class="tool-icon">🌐</span>
+        <div class="tool-name">SolanaFM</div>
+        <div class="tool-desc">On-chain activity explorer with graph visualization of wallet relationships and program interactions.</div>
+        <span class="tool-tag" style="background:rgba(148,163,184,.1);color:#94a3b8">Explorer</span>
+      </a>
+
+      <a href="https://rugcheck.xyz" target="_blank" class="tool-item" style="--tool-color:rgba(239,68,68,.5)">
+        <span class="tool-icon">🛡️</span>
+        <div class="tool-name">RugCheck</div>
+        <div class="tool-desc">Automated token security scanner. Checks mint authority, freeze authority, top holder concentration, and LP lock status.</div>
+        <span class="tool-tag" style="background:rgba(239,68,68,.1);color:#f87171">Security</span>
+      </a>
+
+      <a href="https://pump.fun" target="_blank" class="tool-item" style="--tool-color:rgba(0,255,148,.5)">
+        <span class="tool-icon">🚀</span>
+        <div class="tool-name">pump.fun</div>
+        <div class="tool-desc">The memecoin launcher. Check if a token was launched here, see the original dev wallet, first buyers, and bonding curve status.</div>
+        <span class="tool-tag" style="background:rgba(0,255,148,.1);color:#00ff94">Launch Platform</span>
+      </a>
+
+      <a href="https://x.com/search" target="_blank" class="tool-item" style="--tool-color:rgba(148,163,184,.5)">
+        <span class="tool-icon">𝕏</span>
+        <div class="tool-name">X / Twitter Search</div>
+        <div class="tool-desc">Search the contract address directly on X. Find who shilled it, when, and from which accounts — links wallets to identities.</div>
+        <span class="tool-tag" style="background:rgba(148,163,184,.1);color:#94a3b8">Social OSINT</span>
+      </a>
+
+      <a href="https://de.fi/scanner" target="_blank" class="tool-item" style="--tool-color:rgba(99,102,241,.5)">
+        <span class="tool-icon">🔬</span>
+        <div class="tool-name">De.Fi Scanner</div>
+        <div class="tool-desc">Smart contract audit scanner. Detects honeypots, hidden mint functions, blacklist mechanisms, and ownership traps.</div>
+        <span class="tool-tag" style="background:rgba(99,102,241,.1);color:#818cf8">Contract Audit</span>
+      </a>
+
+      <a href="https://helius.dev" target="_blank" class="tool-item" style="--tool-color:rgba(245,158,11,.5)">
+        <span class="tool-icon">⚙️</span>
+        <div class="tool-name">Helius</div>
+        <div class="tool-desc">The Solana RPC powering our agents. Use directly for raw wallet data, asset ownership, and transaction history via API.</div>
+        <span class="tool-tag" style="background:rgba(245,158,11,.1);color:#fbbf24">RPC / API</span>
+      </a>
+
+    </div>
+  </div>
+</section>
+
 <!-- FOOTER -->
 <footer>
   <div class="container">
@@ -546,9 +714,107 @@ async function vote(id, type) {
 function esc(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>'); }
 function timeAgo(t) { const m=Math.round((Date.now()-new Date(t))/60000); return m<60?m+'m ago':m<1440?Math.round(m/60)+'h ago':Math.round(m/1440)+'d ago'; }
 
+// ── CASES ──
+let allCases = [];
+let caseFilter = 'all';
+
+function setCaseFilter(f, el) {
+  caseFilter = f;
+  document.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  renderCases();
+}
+
+const riskOrder = { CRITICAL:0, HIGH:1, MEDIUM:2, LOW:3 };
+const riskColors = { CRITICAL:'#ef4444', HIGH:'#f59e0b', MEDIUM:'#d4a017', LOW:'#10b981', investigating:'#00ff94' };
+
+function renderCases() {
+  const grid = document.getElementById('casesGrid');
+  const detail = document.getElementById('caseDetail');
+  detail.style.display = 'none';
+  grid.style.display = 'grid';
+
+  let filtered = caseFilter === 'all' ? allCases : allCases.filter(i => i.risk_rating === caseFilter);
+  const sort = document.getElementById('caseSort').value;
+  if (sort === 'votes') filtered = [...filtered].sort((a,b) => (b.upvotes+b.downvotes) - (a.upvotes+a.downvotes));
+  else if (sort === 'risk') filtered = [...filtered].sort((a,b) => (riskOrder[a.risk_rating]??9) - (riskOrder[b.risk_rating]??9));
+  else filtered = [...filtered].sort((a,b) => new Date(b.submitted_at) - new Date(a.submitted_at));
+
+  if (!filtered.length) { grid.innerHTML = '<div class="empty" style="grid-column:1/-1">// NO CASES MATCH THIS FILTER</div>'; return; }
+  const rc = riskColors;
+  grid.innerHTML = filtered.map(i => {
+    const rating = i.risk_rating || i.status;
+    const color = rc[rating] || '#64748b';
+    return `<div class="case-card" style="--risk-color:${color}" onclick="showCase(${i.id})">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:8px">
+        <div class="case-token">${i.token_name ? i.token_name+' <span style="color:var(--dim);font-weight:500">($'+i.token_symbol+')</span>' : i.ca.slice(0,12)+'…'}</div>
+        <span class="badge ${rating}">${rating}</span>
+      </div>
+      <div class="case-ca">${i.ca}</div>
+      <div class="case-footer">
+        <div class="case-meta">
+          <span>▲ ${i.upvotes||0}</span>
+          <span>▼ ${i.downvotes||0}</span>
+          <span>${i.step_count||0} steps</span>
+        </div>
+        <span style="font-size:11px;color:var(--dim);font-family:'JetBrains Mono',monospace">${timeAgo(i.submitted_at)}</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function loadCases() {
+  try {
+    const res = await fetch(API + '/api/investigations');
+    allCases = await res.json();
+    renderCases();
+  } catch(e) {
+    document.getElementById('casesGrid').innerHTML = '<div class="empty" style="grid-column:1/-1">// COULD NOT LOAD CASES</div>';
+  }
+}
+
+async function showCase(id) {
+  const grid = document.getElementById('casesGrid');
+  const detail = document.getElementById('caseDetail');
+  grid.style.display = 'none';
+  detail.style.display = 'block';
+  try {
+    const res = await fetch(API + '/api/investigation/' + id);
+    const d = await res.json();
+    detail.innerHTML = `
+      <button class="back-link" onclick="grid.style.display='grid';detail.style.display='none';document.getElementById('casesGrid').style.display='grid';document.getElementById('caseDetail').style.display='none'">← Back to cases</button>
+      <div style="margin-bottom:24px;padding:20px 24px;background:var(--card);border:1px solid var(--border);border-radius:12px;backdrop-filter:blur(20px)">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap">
+          <div>
+            <div style="color:#fff;font-weight:700;font-size:20px;letter-spacing:-.01em">${d.token_name||'Unknown'} <span style="color:var(--dim);font-weight:500">($${d.token_symbol||'???'})</span></div>
+            <div style="color:var(--dim);font-size:11px;margin-top:4px;font-family:'JetBrains Mono',monospace">${d.ca}</div>
+          </div>
+          ${d.risk_rating ? `<span class="badge ${d.risk_rating}">${d.risk_rating}</span>` : ''}
+        </div>
+        <div style="margin-top:16px;display:flex;gap:8px">
+          <button class="vote-btn" onclick="voteCase(${id},'up')">▲ ${d.upvotes||0} helpful</button>
+          <button class="vote-btn" onclick="voteCase(${id},'down')">▼ ${d.downvotes||0} disagree</button>
+        </div>
+      </div>
+      ${(d.steps||[]).map(s => `<div class="step-card">
+        <div class="step-top">
+          <span class="step-agent-label" style="color:${agentColors[s.agent_name]||'#fff'}">${s.agent_name}</span>
+          <span class="step-time">${new Date(s.created_at).toLocaleTimeString('en-US',{hour12:false})}</span>
+        </div>
+        <div class="step-body">${esc(s.content)}</div>
+      </div>`).join('')}`;
+  } catch(e) { detail.innerHTML = '<div class="empty">// FAILED TO LOAD</div>'; }
+}
+
+async function voteCase(id, type) {
+  try { await fetch(API+'/api/vote/'+id,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({type})}); showCase(id); } catch(e){}
+}
+
 loadFeed();
 loadStats();
+loadCases();
 setInterval(loadFeed, 15000);
+setInterval(loadCases, 30000);
 document.getElementById('caInput').addEventListener('keydown', e => { if(e.key==='Enter') submitCA(); });
 </script>
 </body>
