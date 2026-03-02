@@ -1116,25 +1116,34 @@ function initBeams() {
     shader.uniforms.uNoiseIntensity = { value: 1.75 };
     shader.uniforms.uScale = { value: 0.2 };
 
-    const header = `
-      uniform float time;
-      uniform float uSpeed;
-      uniform float uNoiseIntensity;
-      uniform float uScale;
-      ${NOISE}
-      float getPos(vec3 pos){
-        vec3 np=vec3(pos.x*0.,pos.y-uv.y,pos.z+time*uSpeed*3.)*uScale;
-        return cnoise(np);
-      }
-      vec3 getCurrentPos(vec3 pos){vec3 np=pos;np.z+=getPos(pos);return np;}
-      vec3 getNormal(vec3 pos){
-        vec3 cp=getCurrentPos(pos);
-        vec3 nx=getCurrentPos(pos+vec3(0.01,0.,0.));
-        vec3 nz=getCurrentPos(pos+vec3(0.,-0.01,0.));
-        return normalize(cross(normalize(nz-cp),normalize(nx-cp)));
-      }`;
+    const vertHeader = [
+      'uniform float time;',
+      'uniform float uSpeed;',
+      'uniform float uNoiseIntensity;',
+      'uniform float uScale;',
+      NOISE,
+      'float getPos(vec3 pos){',
+      '  vec3 np=vec3(pos.x*0.,pos.y-uv.y,pos.z+time*uSpeed*3.)*uScale;',
+      '  return cnoise(np);',
+      '}',
+      'vec3 getCurrentPos(vec3 pos){vec3 np=pos;np.z+=getPos(pos);return np;}',
+      'vec3 getNormal(vec3 pos){',
+      '  vec3 cp=getCurrentPos(pos);',
+      '  vec3 nx=getCurrentPos(pos+vec3(0.01,0.,0.));',
+      '  vec3 nz=getCurrentPos(pos+vec3(0.,-0.01,0.));',
+      '  return normalize(cross(normalize(nz-cp),normalize(nx-cp)));',
+      '}',
+    ].join('\n');
 
-    shader.vertexShader = header + shader.vertexShader;
+    const fragHeader = [
+      'uniform float uNoiseIntensity;',
+      NOISE,
+    ].join('\n');
+
+    // Prepend headers with a newline so existing #define lines stay intact
+    shader.vertexShader = vertHeader + '\n' + shader.vertexShader;
+    shader.fragmentShader = fragHeader + '\n' + shader.fragmentShader;
+
     shader.vertexShader = shader.vertexShader.replace(
       '#include <begin_vertex>',
       '#include <begin_vertex>\ntransformed.z += getPos(transformed.xyz);'
@@ -1143,12 +1152,9 @@ function initBeams() {
       '#include <beginnormal_vertex>',
       '#include <beginnormal_vertex>\nobjectNormal = getNormal(position.xyz);'
     );
-    shader.fragmentShader = `${NOISE}\n` + shader.fragmentShader;
     shader.fragmentShader = shader.fragmentShader.replace(
       '#include <dithering_fragment>',
-      `#include <dithering_fragment>
-       float rn = noise(gl_FragCoord.xy);
-       gl_FragColor.rgb -= rn / 15.0 * uNoiseIntensity;`
+      '#include <dithering_fragment>\nfloat rn=noise(gl_FragCoord.xy);\ngl_FragColor.rgb -= rn/15.0*uNoiseIntensity;'
     );
   };
 
