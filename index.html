@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.17/d3.min.js"></script>
 <script>tailwind.config={theme:{extend:{fontFamily:{sans:['Space Grotesk','system-ui','sans-serif'],mono:['JetBrains Mono','monospace']}}}}</script>
 <style>
 :root {
@@ -573,14 +574,17 @@ footer{border-top:1px solid var(--border);padding:48px 0;text-align:center;posit
 
     <!-- OSINT FRAMEWORK TREE -->
     <div style="margin-bottom:16px;font-size:11px;font-weight:700;color:var(--cyan);letter-spacing:.1em;text-transform:uppercase;font-family:'JetBrains Mono',monospace">// OSINT FRAMEWORK · osintframework.com</div>
-    <div style="margin-bottom:20px;display:flex;gap:10px;flex-wrap:wrap;align-items:center">
-      <input type="text" id="osintSearch" placeholder="Search tools..." oninput="filterOsint(this.value)"
-        style="flex:1;min-width:200px;max-width:360px;background:rgba(3,5,10,.9);border:1px solid var(--border);color:#fff;padding:10px 16px;border-radius:8px;font-family:'Space Grotesk',sans-serif;font-size:13px;outline:none;transition:border-color .2s;"
-        onfocus="this.style.borderColor='var(--cyan)'" onblur="this.style.borderColor='var(--border)'">
-      <span style="font-size:12px;color:var(--dim);font-family:'JetBrains Mono',monospace" id="osintCount"></span>
+    <div style="margin-bottom:16px;display:flex;gap:16px;flex-wrap:wrap;align-items:center;justify-content:space-between">
+      <div style="font-size:12px;color:var(--dim);font-family:'JetBrains Mono',monospace">Click any node to expand · Click a tool name to open it</div>
+      <div style="display:flex;gap:16px;font-size:11px;font-family:'JetBrains Mono',monospace;color:var(--dim)">
+        <span><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--cyan);margin-right:5px;vertical-align:middle"></span>Has children</span>
+        <span><span style="display:inline-block;width:10px;height:10px;border-radius:50%;border:1px solid var(--cyan);margin-right:5px;vertical-align:middle"></span>Tool / Link</span>
+      </div>
     </div>
-    <div id="osintTree" style="display:grid;gap:8px">
-      <div class="empty">// LOADING OSINT FRAMEWORK...</div>
+    <div id="osintTreeWrap" style="background:rgba(3,5,10,.7);border:1px solid var(--border);border-radius:14px;overflow-x:auto;overflow-y:hidden;position:relative;min-height:200px;">
+      <div id="osintTree" style="width:100%;min-height:200px;display:flex;align-items:center;justify-content:center">
+        <div class="empty">// LOADING OSINT FRAMEWORK...</div>
+      </div>
     </div>
   </div>
 </section>
@@ -840,114 +844,171 @@ setInterval(loadFeed, 15000);
 setInterval(loadCases, 30000);
 document.getElementById('caInput').addEventListener('keydown', e => { if(e.key==='Enter') submitCA(); });
 
-// ── OSINT FRAMEWORK TREE ──
-const catIcons = {
-  'Username':'👤','Email Address':'📧','Domain Name':'🌐','IP & MAC Address':'🖧',
-  'Images / Videos / Docs':'🖼️','Social Networks':'💬','Instant Messaging':'📱',
-  'People Search Engines':'🔎','Dating':'❤️','Phone Numbers':'📞',
-  'Public Records':'📋','Business Records':'🏢','Transportation':'✈️',
-  'Geospatial Research / Maps':'🗺️','Documents / Slides / Spreadsheets':'📄',
-  'Forums / Blogs / IRC':'💬','Dark Web':'🕸️','Digital Currency':'₿',
-  'Terrorism':'⚠️','Open Ports & Services':'🔌','Intelligence / News':'📰',
-  'File Search':'🗂️','Malicious File Analysis':'🦠','Metadata':'🔬',
-  'Mobile Emulation':'📲','Code Search':'💻','Threat Intelligence':'🛡️',
-  'Archives':'📦','Default':'🔧'
-};
+// ── OSINT FRAMEWORK D3 TREE ──
+function loadOsintFramework() {
+  const wrap = document.getElementById('osintTreeWrap');
+  const W = Math.max(wrap.clientWidth || 900, 900);
+  const nodeSpacingY = 22;
+  const depthSpacing = 200;
+  const margin = { top: 20, right: 240, bottom: 20, left: 160 };
+  let svgHeight = 800;
 
-function getBadge(name) {
-  const m = name.match(/\(([TRDM])\)$/);
-  if (!m) return '';
-  const map = {T:'badge-t',R:'badge-r',D:'badge-d',M:'badge-m'};
-  return `<span class="${map[m[1]]}">${m[1]}</span>`;
-}
+  const svg = d3.select('#osintTree').html('')
+    .append('svg')
+    .attr('id', 'osintSvg')
+    .style('font-family', '"JetBrains Mono", monospace')
+    .style('background', 'transparent');
 
-function cleanName(name) { return name.replace(/\s*\([TRDM]\)\s*$/, '').trim(); }
+  const g = svg.append('g').attr('transform', `translate(${margin.left},${margin.top})`);
 
-function countUrls(node) {
-  if (node.type === 'url') return 1;
-  return (node.children||[]).reduce((a,c) => a + countUrls(c), 0);
-}
+  const tree = d3.layout.tree().nodeSize([nodeSpacingY, depthSpacing]);
+  const diagonal = d3.svg.diagonal().projection(d => [d.y, d.x]);
 
-function renderNode(node, depth=0) {
-  if (node.type === 'url') {
-    const badge = getBadge(node.name);
-    const clean = cleanName(node.name);
-    return `<a href="${node.url}" target="_blank" class="osint-link" data-name="${clean.toLowerCase()}">${clean}${badge}</a>`;
-  }
-  if (node.type === 'folder') {
-    const urls = (node.children||[]).filter(c => c.type === 'url');
-    const folders = (node.children||[]).filter(c => c.type === 'folder');
-    const urlHtml = urls.length ? `<div class="osint-links">${urls.map(u => renderNode(u, depth+1)).join('')}</div>` : '';
-    const subHtml = folders.map(f => `<div class="osint-subcat">
-      <div class="osint-subcat-title">${f.name}</div>
-      ${renderNode(f, depth+1)}
-    </div>`).join('');
-    return urlHtml + subHtml;
-  }
-  return '';
-}
+  let i = 0, root;
 
-async function loadOsintFramework() {
-  const el = document.getElementById('osintTree');
-  try {
-    const res = await fetch('https://raw.githubusercontent.com/lockfale/OSINT-Framework/master/public/arf.json');
-    const data = await res.json();
-    const cats = (data.children || []);
-    let total = 0;
-    cats.forEach(c => { total += countUrls(c); });
-    document.getElementById('osintCount').textContent = total + ' tools across ' + cats.length + ' categories';
-
-    el.innerHTML = cats.map((cat, i) => {
-      const icon = catIcons[cat.name] || catIcons['Default'];
-      const count = countUrls(cat);
-      const body = renderNode(cat);
-      return `<div class="osint-cat" id="ocat-${i}">
-        <div class="osint-cat-header" onclick="toggleOcat(${i})">
-          <div class="osint-cat-title">${icon} ${cat.name}</div>
-          <div style="display:flex;align-items:center;gap:12px">
-            <span class="osint-cat-count">${count} tools</span>
-            <span class="osint-cat-arrow" id="oarr-${i}">▶</span>
-          </div>
-        </div>
-        <div class="osint-cat-body" id="obody-${i}">${body}</div>
-      </div>`;
-    }).join('');
-  } catch(e) {
-    el.innerHTML = `<div class="empty">// COULD NOT LOAD OSINT FRAMEWORK<br><span style="font-size:11px;color:var(--muted)">Visit <a href="https://osintframework.com" target="_blank" style="color:var(--cyan)">osintframework.com</a> directly</span></div>`;
-  }
-}
-
-function toggleOcat(i) {
-  const body = document.getElementById('obody-' + i);
-  const arr = document.getElementById('oarr-' + i);
-  const open = body.classList.toggle('open');
-  arr.classList.toggle('open', open);
-}
-
-function filterOsint(q) {
-  q = q.toLowerCase().trim();
-  const cats = document.querySelectorAll('.osint-cat');
-  let total = 0;
-  cats.forEach((cat, i) => {
-    const links = cat.querySelectorAll('.osint-link');
-    let visible = 0;
-    links.forEach(l => {
-      const match = !q || l.dataset.name.includes(q);
-      l.classList.toggle('hidden', !match);
-      if (match) visible++;
+  fetch('https://raw.githubusercontent.com/lockfale/OSINT-Framework/master/public/arf.json')
+    .then(r => r.json())
+    .then(data => {
+      root = data;
+      root.x0 = 0;
+      root.y0 = 0;
+      // collapse all children initially
+      function collapse(d) {
+        if (d.children) { d._children = d.children; d._children.forEach(collapse); d.children = null; }
+      }
+      root.children.forEach(collapse);
+      update(root);
+    })
+    .catch(() => {
+      document.getElementById('osintTree').innerHTML =
+        `<div class="empty">// COULD NOT LOAD<br><a href="https://osintframework.com" target="_blank" style="color:var(--cyan)">osintframework.com</a></div>`;
     });
-    total += visible;
-    const show = !q || visible > 0;
-    cat.style.display = show ? '' : 'none';
-    if (q && visible > 0) {
-      document.getElementById('obody-' + i)?.classList.add('open');
-      document.getElementById('oarr-' + i)?.classList.add('open');
-    }
-  });
-  document.getElementById('osintCount').textContent = q ? `${total} results for "${q}"` : '';
+
+  function update(source) {
+    const nodes = tree.nodes(root).reverse();
+    const links = tree.links(nodes);
+
+    nodes.forEach(d => { d.y = d.depth * depthSpacing; });
+
+    // Recalculate SVG height based on tree extent
+    const xs = nodes.map(d => d.x);
+    const minX = Math.min(...xs);
+    const maxX = Math.max(...xs);
+    const treeH = maxX - minX + 60;
+    const svgW = (d3.max(nodes, d => d.depth) + 1) * depthSpacing + margin.left + margin.right;
+    svgHeight = treeH + margin.top + margin.bottom;
+
+    svg.transition().duration(600)
+      .attr('width', Math.max(svgW, W))
+      .attr('height', svgHeight);
+    g.transition().duration(600)
+      .attr('transform', `translate(${margin.left},${margin.top + (-minX + 20)})`);
+
+    // ── NODES ──
+    const node = g.selectAll('g.node').data(nodes, d => d.id || (d.id = ++i));
+
+    const nodeEnter = node.enter().append('g')
+      .attr('class', 'node')
+      .attr('transform', () => `translate(${source.y0},${source.x0})`)
+      .style('cursor', 'pointer')
+      .on('click', d => { toggle(d); update(d); });
+
+    // Circle
+    nodeEnter.append('circle')
+      .attr('r', 1e-6)
+      .style('stroke', d => d.url ? 'rgba(0,255,148,0.5)' : '#00ff94')
+      .style('stroke-width', '1.5px')
+      .style('fill', d => d._children ? '#00ff94' : d.url ? 'transparent' : 'rgba(0,255,148,0.15)');
+
+    // Link wrapper (opens URL if leaf)
+    const textGroup = nodeEnter.append('g')
+      .attr('class', 'node-label');
+
+    textGroup.each(function(d) {
+      const el = d3.select(this);
+      if (d.url) {
+        el.append('a')
+          .attr('xlink:href', d.url)
+          .attr('target', '_blank')
+          .append('text')
+          .attr('dy', '.35em')
+          .attr('x', 12)
+          .attr('text-anchor', 'start')
+          .text(d.name)
+          .style('font-size', '11px')
+          .style('fill', 'rgba(0,255,148,0.75)')
+          .style('fill-opacity', 1e-6)
+          .on('mouseover', function() { d3.select(this).style('fill', '#00ff94'); })
+          .on('mouseout', function() { d3.select(this).style('fill', 'rgba(0,255,148,0.75)'); });
+      } else {
+        el.append('text')
+          .attr('dy', '.35em')
+          .attr('x', d => (d.children || d._children) ? -12 : 12)
+          .attr('text-anchor', d => (d.children || d._children) ? 'end' : 'start')
+          .text(d.name)
+          .style('font-size', d.depth === 0 ? '13px' : d.depth === 1 ? '12px' : '11px')
+          .style('font-weight', d.depth <= 1 ? '700' : '400')
+          .style('fill', d.depth === 0 ? '#00ff94' : d.depth === 1 ? '#e2e8f0' : '#94a3b8')
+          .style('fill-opacity', 1e-6);
+      }
+    });
+
+    // Transition nodes
+    const nodeUpdate = node.transition().duration(600)
+      .attr('transform', d => `translate(${d.y},${d.x})`);
+
+    nodeUpdate.select('circle')
+      .attr('r', d => d.depth === 0 ? 8 : d.depth === 1 ? 6 : 4)
+      .style('fill', d => d._children ? '#00ff94' : d.url ? 'transparent' : 'rgba(0,255,148,0.12)')
+      .style('stroke', d => d.url ? 'rgba(0,255,148,0.4)' : '#00ff94');
+
+    nodeUpdate.selectAll('text').style('fill-opacity', 1);
+
+    // Update text anchor after toggle
+    g.selectAll('g.node').each(function(d) {
+      d3.select(this).select('text')
+        .attr('x', (d.children || d._children) ? -12 : 12)
+        .attr('text-anchor', (d.children || d._children) ? 'end' : 'start');
+    });
+
+    // Exit
+    const nodeExit = node.exit().transition().duration(600)
+      .attr('transform', () => `translate(${source.y},${source.x})`).remove();
+    nodeExit.select('circle').attr('r', 1e-6);
+    nodeExit.selectAll('text').style('fill-opacity', 1e-6);
+
+    // ── LINKS ──
+    const link = g.selectAll('path.link').data(links, d => d.target.id);
+
+    link.enter().insert('path', 'g')
+      .attr('class', 'link')
+      .attr('d', () => { const o = { x: source.x0, y: source.y0 }; return diagonal({ source: o, target: o }); })
+      .style('fill', 'none')
+      .style('stroke', 'rgba(0,255,148,0.18)')
+      .style('stroke-width', '1px')
+      .transition().duration(600).attr('d', diagonal);
+
+    link.transition().duration(600).attr('d', diagonal);
+
+    link.exit().transition().duration(600)
+      .attr('d', () => { const o = { x: source.x, y: source.y }; return diagonal({ source: o, target: o }); })
+      .remove();
+
+    nodes.forEach(d => { d.x0 = d.x; d.y0 = d.y; });
+  }
+
+  function toggle(d) {
+    if (d.url) return;
+    if (d.children) { d._children = d.children; d.children = null; }
+    else { d.children = d._children; d._children = null; }
+  }
 }
 
-loadOsintFramework();
+// Lazy-load tree when section scrolls into view
+const osintObs = new IntersectionObserver(entries => {
+  if (entries[0].isIntersecting) { loadOsintFramework(); osintObs.disconnect(); }
+}, { threshold: 0.05 });
+osintObs.observe(document.getElementById('tools'));
 </script>
 </body>
 </html>
