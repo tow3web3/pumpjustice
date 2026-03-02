@@ -713,7 +713,7 @@ async function showInv(id) {
     const d = await res.json();
     el.innerHTML = `
       <button class="back-link" onclick="loadInvestigations()">← Back to investigations</button>
-      <div style="margin-bottom:24px;padding:20px 24px;background:var(--card);border:1px solid var(--border);border-radius:12px;backdrop-filter:blur(20px)">
+      <div style="margin-bottom:16px;padding:20px 24px;background:var(--card);border:1px solid var(--border);border-radius:12px;backdrop-filter:blur(20px)">
         <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap">
           <div>
             <div style="color:#fff;font-weight:700;font-size:20px;letter-spacing:-.01em">${d.token_name||'Unknown'} <span style="color:var(--dim);font-weight:500">($${d.token_symbol||'???'})</span></div>
@@ -724,7 +724,13 @@ async function showInv(id) {
         <div style="margin-top:16px;display:flex;gap:8px">
           <button class="vote-btn" onclick="vote(${id},'up')">▲ ${d.upvotes||0} helpful</button>
           <button class="vote-btn" onclick="vote(${id},'down')">▼ ${d.downvotes||0} disagree</button>
+          <a href="https://dexscreener.com/solana/${d.ca}" target="_blank" class="vote-btn" style="text-decoration:none">↗ DexScreener</a>
         </div>
+      </div>
+      <div style="margin-bottom:16px;border-radius:12px;overflow:hidden;border:1px solid var(--border);background:#0d0d0d;">
+        <iframe src="https://dexscreener.com/solana/${d.ca}?embed=1&theme=dark&trades=0&info=0"
+          style="width:100%;height:420px;border:none;display:block;"
+          loading="lazy" title="Token Chart"></iframe>
       </div>
       ${(d.steps||[]).map(s => `<div class="step-card">
         <div class="step-top">
@@ -812,7 +818,7 @@ async function showCase(id) {
     const d = await res.json();
     detail.innerHTML = `
       <button class="back-link" onclick="grid.style.display='grid';detail.style.display='none';document.getElementById('casesGrid').style.display='grid';document.getElementById('caseDetail').style.display='none'">← Back to cases</button>
-      <div style="margin-bottom:24px;padding:20px 24px;background:var(--card);border:1px solid var(--border);border-radius:12px;backdrop-filter:blur(20px)">
+      <div style="margin-bottom:16px;padding:20px 24px;background:var(--card);border:1px solid var(--border);border-radius:12px;backdrop-filter:blur(20px)">
         <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap">
           <div>
             <div style="color:#fff;font-weight:700;font-size:20px;letter-spacing:-.01em">${d.token_name||'Unknown'} <span style="color:var(--dim);font-weight:500">($${d.token_symbol||'???'})</span></div>
@@ -820,10 +826,16 @@ async function showCase(id) {
           </div>
           ${d.risk_rating ? `<span class="badge ${d.risk_rating}">${d.risk_rating}</span>` : ''}
         </div>
-        <div style="margin-top:16px;display:flex;gap:8px">
+        <div style="margin-top:16px;display:flex;gap:8px;flex-wrap:wrap">
           <button class="vote-btn" onclick="voteCase(${id},'up')">▲ ${d.upvotes||0} helpful</button>
           <button class="vote-btn" onclick="voteCase(${id},'down')">▼ ${d.downvotes||0} disagree</button>
+          <a href="https://dexscreener.com/solana/${d.ca}" target="_blank" class="vote-btn" style="text-decoration:none">↗ DexScreener</a>
         </div>
+      </div>
+      <div style="margin-bottom:16px;border-radius:12px;overflow:hidden;border:1px solid var(--border);background:#0d0d0d;">
+        <iframe src="https://dexscreener.com/solana/${d.ca}?embed=1&theme=dark&trades=0&info=0"
+          style="width:100%;height:420px;border:none;display:block;"
+          loading="lazy" title="Token Chart"></iframe>
       </div>
       ${(d.steps||[]).map(s => `<div class="step-card">
         <div class="step-top">
